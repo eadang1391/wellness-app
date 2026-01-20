@@ -3,89 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wellness App - Admin & Maestro</title>
+    <title>Wellness App - Fix</title>
     <style>
-        :root { --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; --white: #ffffff; --gold: #d4a373; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--sage); color: var(--dark-sage); }
-        #app { padding: 20px 20px 100px 20px; min-height: 100vh; box-sizing: border-box; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: var(--cream); }
-        .card { background: var(--cream); border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        :root { --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; --white: #ffffff; }
+        body { margin: 0; font-family: sans-serif; background: var(--sage); color: var(--dark-sage); }
+        #app { padding: 20px; padding-bottom: 100px; min-height: 100vh; }
+        .card { background: var(--cream); border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
         button { background: var(--dark-sage); color: white; border: none; font-weight: bold; cursor: pointer; }
         .hidden { display: none !important; }
-        
-        /* Nav Bar */
-        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 24px 24px 0 0; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 20px 20px 0 0; }
         .nav-item { color: var(--cream); text-align: center; font-size: 11px; cursor: pointer; }
-        .nav-item span { font-size: 22px; display: block; }
-        
-        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; color: white; margin-left: 5px; text-transform: uppercase; }
-        .badge-alumno { background: var(--sage); }
-        .badge-maestro { background: #3d5a80; }
-        .badge-admin { background: var(--gold); }
+        #loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--sage); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; color: white; }
     </style>
 </head>
 <body>
 
+<div id="loading-screen">
+    <h3>Cargando Wellness...</h3>
+    <p>Verificando sesión</p>
+</div>
+
 <div id="app">
-    <header>
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="logo.png" style="width:35px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
-            <h2 id="app-title" style="margin:0; font-size:18px;">Wellness App</h2>
-        </div>
+    <header style="display:flex; justify-content:space-between; align-items:center; color:white;">
+        <h2 style="margin:0;">Wellness App</h2>
         <button id="btn-logout" class="hidden" style="width:auto; background:transparent; border:1px solid white;">Salir</button>
     </header>
 
-    <div id="view-auth">
+    <div id="view-auth" class="hidden">
         <div class="card">
-            <h3>Acceso</h3>
+            <h3>Entrar</h3>
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
-                <option value="alumno">Soy Alumno</option>
-                <option value="maestro">Soy Maestro</option>
+                <option value="alumno">Alumno</option>
+                <option value="maestro">Maestro</option>
             </select>
             <button id="btn-login">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:8px">Registrarme</button>
+            <button id="btn-register" style="background:var(--sage)">Registrarme</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:15px;">
-            <h3 id="title-clases">Clases</h3>
-            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-crear').style.display='flex'" style="width:auto; padding:8px 15px;">+ Crear</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white;">
+            <h3>Clases</h3>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-crear').style.display='flex'" style="width:auto;">+ Nueva</button>
         </div>
-        <div id="list-main-content"></div>
+        <div id="list-content"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
-        <div class="card">
-            <h4>Usuarios Registrados</h4>
-            <div id="admin-users-list" style="margin-top:10px"></div>
-        </div>
+        <h3 style="color:white;">Panel Admin</h3>
+        <div id="admin-users" class="card">Cargando usuarios...</div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item" onclick="changeTab('clases')"><span>🏠</span>Clases</div>
-        <div id="nav-admin-btn" class="nav-item hidden" onclick="changeTab('admin')"><span>🔐</span>Admin</div>
+        <div class="nav-item" onclick="switchTab('clases')">🏠<br>Clases</div>
+        <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')">🔐<br>Admin</div>
     </nav>
 </div>
 
-<div id="modal-crear" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;">
-    <div class="card" style="width:85%; max-width:400px;">
+<div id="modal-crear" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
+    <div class="card" style="width:85%">
         <h3>Nueva Clase</h3>
-        <input type="text" id="new-name" placeholder="Nombre de la clase">
-        <input type="number" id="new-price" placeholder="Precio MXN">
-        <button id="btn-save-class">Publicar Clase</button>
-        <button onclick="document.getElementById('modal-crear').style.display='none'" style="background:none; color:gray;">Cerrar</button>
+        <input type="text" id="new-name" placeholder="Nombre">
+        <input type="number" id="new-price" placeholder="Precio">
+        <button id="btn-save">Publicar</button>
+        <button onclick="document.getElementById('modal-crear').style.display='none'" style="background:none; color:gray">Cerrar</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
   apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
@@ -100,64 +91,90 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // CONTROL DE VISTAS
     onAuthStateChanged(auth, async (user) => {
+        document.getElementById('loading-screen').classList.add('hidden');
         if (user) {
-            const snap = await getDoc(doc(db, "users", user.uid));
-            const role = snap.data()?.role || 'alumno';
-            window.userRole = role;
-
-            document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('nav-bottom').classList.remove('hidden');
-            document.getElementById('btn-logout').classList.remove('hidden');
-
-            // Lógica de permisos de creación
-            if (role === 'maestro' || role === 'admin') {
-                document.getElementById('btn-crear-trigger').classList.remove('hidden');
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (!snap.exists()) {
+                    // Si el usuario existe en Auth pero no en Firestore (error raro)
+                    await signOut(auth);
+                    location.reload();
+                    return;
+                }
+                const role = snap.data().role;
+                window.userRole = role;
+                
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('nav-bottom').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                if (role === 'admin' || role === 'maestro') document.getElementById('btn-crear-trigger').classList.remove('hidden');
+                if (role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
+                switchTab('clases');
+            } catch (e) {
+                console.error("Error cargando perfil:", e);
+                document.getElementById('view-auth').classList.remove('hidden');
             }
-            if (role === 'admin') {
-                document.getElementById('nav-admin-btn').classList.remove('hidden');
-            }
-            
-            changeTab('clases');
+        } else {
+            document.getElementById('view-auth').classList.remove('hidden');
+            document.getElementById('nav-bottom').classList.add('hidden');
+            document.getElementById('view-main').classList.add('hidden');
         }
     });
 
-    window.changeTab = (tab) => {
+    window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         if (tab === 'clases') {
             document.getElementById('view-main').classList.remove('hidden');
             loadClases();
-        } else if (tab === 'admin') {
+        } else {
             document.getElementById('view-admin').classList.remove('hidden');
-            loadAdminUsers();
+            loadAdmin();
         }
     };
 
     function loadClases() {
-        // El Admin y Alumno ven todas, el Maestro solo las suyas (o todas si prefieres)
-        const q = window.userRole === 'maestro' 
-            ? query(collection(db, "clases"), where("creadorId", "==", auth.currentUser.uid))
-            : query(collection(db, "clases"), orderBy("creado", "desc"));
-
+        const q = query(collection(db, "clases"), orderBy("creado", "desc"));
         onSnapshot(q, (snap) => {
-            const div = document.getElementById('list-main-content');
+            const div = document.getElementById('list-content');
             div.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data();
-                div.innerHTML += `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between">
-                        <b>${c.nombre}</b>
-                        <span>$${c.precio}</span>
-                    </div>
-                    <small style="color:gray">Por: ${c.creadorEmail || 'Wellness App'}</small>
-                </div>`;
+                div.innerHTML += `<div class="card"><b>${c.nombre}</b><br>$${c.precio} MXN</div>`;
             });
         });
     }
 
-    document.getElementById('btn-save-class').onclick = async () => {
+    document.getElementById('btn-save').onclick = async () => {
         const n = document.getElementById('new-name').value;
         const p = document.getElementById('new-price').value;
-        if (n && p) {
-            await addDoc(
+        await addDoc(collection(db, "clases"), {
+            nombre: n, precio: Number(p), creador: auth.currentUser.email, creado: new Date()
+        });
+        document.getElementById('modal-crear').style.display='none';
+    };
+
+    document.getElementById('btn-login').onclick = () => {
+        signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
+        .catch(e => alert("Error: " + e.message));
+    };
+
+    document.getElementById('btn-register').onclick = async () => {
+        const e = document.getElementById('email').value, p = document.getElementById('password').value, r = document.getElementById('role-select').value;
+        const res = await createUserWithEmailAndPassword(auth, e, p);
+        await setDoc(doc(db, "users", res.user.uid), { email: e, role: r });
+    };
+
+    document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
+
+    function loadAdmin() {
+        onSnapshot(collection(db, "users"), (snap) => {
+            const div = document.getElementById('admin-users');
+            div.innerHTML = "<h4>Usuarios:</h4>";
+            snap.forEach(d => div.innerHTML += `<p>${d.data().email} [${d.data().role}]</p>`);
+        });
+    }
+</script>
+</body>
+</html>
