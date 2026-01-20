@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wellness App Admin Pro</title>
+    <title>Wellness App - Admin & Maestro</title>
     <style>
         :root { --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; --white: #ffffff; --gold: #d4a373; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--sage); color: var(--dark-sage); }
@@ -14,15 +14,15 @@
         button { background: var(--dark-sage); color: white; border: none; font-weight: bold; cursor: pointer; }
         .hidden { display: none !important; }
         
-        /* Estilos Admin */
-        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; color: white; margin-left: 5px; }
-        .badge-alumno { background: var(--sage); }
-        .badge-maestro { background: var(--dark-sage); }
-        .badge-admin { background: var(--gold); }
-        
+        /* Nav Bar */
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 24px 24px 0 0; }
         .nav-item { color: var(--cream); text-align: center; font-size: 11px; cursor: pointer; }
         .nav-item span { font-size: 22px; display: block; }
+        
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; color: white; margin-left: 5px; text-transform: uppercase; }
+        .badge-alumno { background: var(--sage); }
+        .badge-maestro { background: #3d5a80; }
+        .badge-admin { background: var(--gold); }
     </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
     <header>
         <div style="display:flex; align-items:center; gap:10px;">
             <img src="logo.png" style="width:35px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
-            <h2 style="margin:0; font-size:18px;">Wellness Admin</h2>
+            <h2 id="app-title" style="margin:0; font-size:18px;">Wellness App</h2>
         </div>
         <button id="btn-logout" class="hidden" style="width:auto; background:transparent; border:1px solid white;">Salir</button>
     </header>
@@ -42,35 +42,28 @@
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
-                <option value="alumno">Alumno</option>
-                <option value="maestro">Maestro</option>
+                <option value="alumno">Soy Alumno</option>
+                <option value="maestro">Soy Maestro</option>
             </select>
             <button id="btn-login">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:8px">Crear Cuenta</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:8px">Registrarme</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
-        <h3 id="main-title" style="color:white; margin-bottom:15px;">Mis Clases</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:15px;">
+            <h3 id="title-clases">Clases</h3>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-crear').style.display='flex'" style="width:auto; padding:8px 15px;">+ Crear</button>
+        </div>
         <div id="list-main-content"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Panel de Control</h3>
-        
+        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
         <div class="card">
-            <h4 style="margin-bottom:10px">Promover Administrador</h4>
-            <input type="email" id="search-admin" placeholder="Correo del usuario">
-            <button id="btn-make-admin">Dar Permisos Admin</button>
+            <h4>Usuarios Registrados</h4>
+            <div id="admin-users-list" style="margin-top:10px"></div>
         </div>
-
-        <div style="margin-bottom:10px">
-            <button onclick="filterAdmin('users')" style="width:32%; font-size:11px; display:inline-block">👥 Usuarios</button>
-            <button onclick="filterAdmin('clases')" style="width:32%; font-size:11px; display:inline-block">🧘 Clases</button>
-            <button onclick="filterAdmin('pagos')" style="width:32%; font-size:11px; display:inline-block">💰 Pagos</button>
-        </div>
-        
-        <div id="admin-results"></div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
@@ -79,10 +72,20 @@
     </nav>
 </div>
 
+<div id="modal-crear" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;">
+    <div class="card" style="width:85%; max-width:400px;">
+        <h3>Nueva Clase</h3>
+        <input type="text" id="new-name" placeholder="Nombre de la clase">
+        <input type="number" id="new-price" placeholder="Precio MXN">
+        <button id="btn-save-class">Publicar Clase</button>
+        <button onclick="document.getElementById('modal-crear').style.display='none'" style="background:none; color:gray;">Cerrar</button>
+    </div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
   apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
@@ -102,10 +105,19 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             const role = snap.data()?.role || 'alumno';
             window.userRole = role;
+
             document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('nav-bottom').classList.remove('hidden');
             document.getElementById('btn-logout').classList.remove('hidden');
-            if (role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
+
+            // Lógica de permisos de creación
+            if (role === 'maestro' || role === 'admin') {
+                document.getElementById('btn-crear-trigger').classList.remove('hidden');
+            }
+            if (role === 'admin') {
+                document.getElementById('nav-admin-btn').classList.remove('hidden');
+            }
+            
             changeTab('clases');
         }
     });
@@ -114,72 +126,38 @@
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         if (tab === 'clases') {
             document.getElementById('view-main').classList.remove('hidden');
-            loadMainContent();
+            loadClases();
         } else if (tab === 'admin') {
             document.getElementById('view-admin').classList.remove('hidden');
-            filterAdmin('users');
+            loadAdminUsers();
         }
     };
 
-    // LOGICA PANEL ADMIN
-    window.filterAdmin = async (mode) => {
-        const results = document.getElementById('admin-results');
-        results.innerHTML = "Cargando...";
+    function loadClases() {
+        // El Admin y Alumno ven todas, el Maestro solo las suyas (o todas si prefieres)
+        const q = window.userRole === 'maestro' 
+            ? query(collection(db, "clases"), where("creadorId", "==", auth.currentUser.uid))
+            : query(collection(db, "clases"), orderBy("creado", "desc"));
 
-        if (mode === 'users') {
-            onSnapshot(collection(db, "users"), (snap) => {
-                results.innerHTML = "";
-                snap.forEach(d => {
-                    const u = d.data();
-                    results.innerHTML += `<div class="card">
-                        <b>${u.email}</b> 
-                        <span class="badge badge-${u.role}">${u.role}</span>
-                    </div>`;
-                });
-            });
-        } else if (mode === 'clases' || mode === 'pagos') {
-            onSnapshot(collection(db, "clases"), (snap) => {
-                results.innerHTML = "";
-                snap.forEach(d => {
-                    const c = d.data();
-                    results.innerHTML += `<div class="card">
-                        <b>${c.nombre}</b> - $${c.precio} MXN<br>
-                        <small>ID Maestro: ${c.maestroId}</small>
-                        ${mode === 'pagos' ? '<button style="background:var(--sage); margin-top:10px">Marcar como Pagado ✅</button>' : ''}
-                    </div>`;
-                });
-            });
-        }
-    };
-
-    // FUNCIONES DE LOGIN Y CARGA (Sigue igual que el anterior)
-    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-    document.getElementById('btn-register').onclick = async () => {
-        const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-        await setDoc(doc(db, "users", res.user.uid), { email: document.getElementById('email').value, role: document.getElementById('role-select').value });
-    };
-    document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
-
-    async function loadMainContent() {
-        const q = window.userRole === 'maestro' ? query(collection(db, "clases"), where("maestroId", "==", auth.currentUser.uid)) : collection(db, "clases");
         onSnapshot(q, (snap) => {
             const div = document.getElementById('list-main-content');
             div.innerHTML = "";
             snap.forEach(d => {
-                div.innerHTML += `<div class="card"><b>${d.data().nombre}</b><br>$${d.data().precio} MXN</div>`;
+                const c = d.data();
+                div.innerHTML += `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between">
+                        <b>${c.nombre}</b>
+                        <span>$${c.precio}</span>
+                    </div>
+                    <small style="color:gray">Por: ${c.creadorEmail || 'Wellness App'}</small>
+                </div>`;
             });
         });
     }
 
-    document.getElementById('btn-make-admin').onclick = async () => {
-        const mail = document.getElementById('search-admin').value;
-        const q = query(collection(db, "users"), where("email", "==", mail));
-        const snap = await getDocs(q);
-        if (!snap.empty) {
-            await setDoc(doc(db, "users", snap.docs[0].id), { role: 'admin' }, { merge: true });
-            alert("Usuario promovido.");
-        }
-    };
-</script>
-</body>
-</html>
+    document.getElementById('btn-save-class').onclick = async () => {
+        const n = document.getElementById('new-name').value;
+        const p = document.getElementById('new-price').value;
+        if (n && p) {
+            await addDoc(
