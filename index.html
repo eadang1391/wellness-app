@@ -2,91 +2,315 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wellness App</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="WellnessApp">
-    <link rel="apple-touch-icon" href=logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
     <style>
-        :root { --modal-bg: #202b38; --card-bg: #2d3748; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
-        .modal-content { background: var(--modal-bg); margin: 15% auto; padding: 25px; border-radius: 12px; width: 85%; max-width: 450px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .clase-card { border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 10px; background: var(--card-bg); }
-        .nav-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        :root {
+            --sage: #6b8e83;
+            --cream: #f4f1de;
+            --dark-sage: #4a665e;
+            --white: #ffffff;
+            --text-gray: #5c5c5c;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--sage);
+            color: var(--dark-sage);
+            overflow-x: hidden;
+        }
+
+        #app {
+            padding: 20px 20px 100px 20px;
+            box-sizing: border-box;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            color: var(--cream);
+        }
+
+        .logo-section { display: flex; alignItems: center; gap: 10px; }
+        .logo-img { width: 40px; height: 40px; border-radius: 8px; }
+
+        .clase-card {
+            background-color: var(--cream);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .clase-card h4 { margin: 0; font-size: 1.2rem; }
+        .clase-card .precio { color: var(--sage); font-weight: bold; margin: 8px 0; }
+
+        button {
+            background-color: var(--sage);
+            color: var(--white);
+            border: none;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:active { transform: scale(0.98); opacity: 0.9; }
+
+        .btn-pagar { align-self: flex-end; margin-top: 5px; }
+
+        /* Barra de Navegación Inferior */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--dark-sage);
+            height: 75px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            color: var(--cream);
+            text-align: center;
+            font-size: 10px;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .nav-item span { font-size: 20px; }
+
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--cream);
+            padding: 25px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+
         .hidden { display: none !important; }
-        input, select, button { width: 100%; margin-bottom: 10px; }
-        #link-mercado-pago { display: block; background: #009ee3; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 15px; }
+
+        #link-mp {
+            display: block;
+            background: #009ee3;
+            color: white;
+            padding: 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="app">
-        <nav class="nav-bar">
-            <strong>Wellness App</strong>
-            <button id="btn-logout" class="hidden" style="width: auto; padding: 5px 10px;">Salir</button>
-        </nav>
+<div id="app">
+    <header>
+        <div class="logo-section">
+            <img src="/logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+            <h2 id="header-title">Wellness App</h2>
+        </div>
+        <button id="btn-logout" class="hidden" style="background:transparent; border:1px solid var(--cream); padding:5px 10px; font-size:12px">Salir</button>
+    </header>
 
-        <section id="view-auth">
-            <h2 style="text-align: center;">Acceso</h2>
-            <input type="email" id="email" placeholder="Tu Correo">
-            <input type="password" id="password" placeholder="Tu Contraseña">
+    <div id="view-auth">
+        <div class="clase-card">
+            <h3>Bienvenido</h3>
+            <input type="email" id="email" placeholder="Correo">
+            <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
                 <option value="alumno">Soy Alumno</option>
                 <option value="maestro">Soy Maestro</option>
             </select>
             <button id="btn-login">Entrar</button>
-            <button id="btn-register" style="background: #374151;">Crear Cuenta</button>
-        </section>
-
-        <section id="view-alumno" class="hidden">
-            <h2>Clases Disponibles</h2>
-            <div id="container-clases-alumnos"></div>
-        </section>
-
-        <section id="view-maestro" class="hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>Mis Clases</h2>
-                <button id="btn-open-modal-clase" style="width: auto;">+ Nueva</button>
-            </div>
-            <div id="container-clases-maestro"></div>
-        </section>
-
-        <section id="view-admin" class="hidden">
-            <h2>Panel Admin</h2>
-            <p>Resumen general del sistema.</p>
-        </section>
-    </div>
-
-    <div id="modal-clase" class="modal">
-        <div class="modal-content">
-            <h3>Nueva Clase</h3>
-            <input type="text" id="clase-nombre" placeholder="Nombre de Clase">
-            <input type="number" id="clase-precio" placeholder="Precio MXN">
-            <button id="btn-guardar-clase">Publicar Ahora</button>
-            <button onclick="cerrarModal('modal-clase')" style="background: none; color: #aaa;">Cerrar</button>
+            <button id="btn-register" style="background:var(--dark-sage); margin-top:5px">Registrarme</button>
         </div>
     </div>
 
-    <div id="modal-pago" class="modal">
-        <div class="modal-content">
-            <h3 id="pago-titulo"></h3>
-            <p id="pago-precio"></p>
-            <p>Paga para asegurar tu lugar:</p>
-            <a id="link-mercado-pago" href="#" target="_blank">PAGAR AHORA</a>
-            <br>
-            <button onclick="cerrarModal('modal-pago')" style="background: #2d3748;">Ya realicé el pago</button>
-        </div>
+    <div id="view-alumno" class="hidden">
+        <h3 style="color:var(--cream)">Próximas Clases</h3>
+        <div id="lista-clases-alumno"></div>
     </div>
 
-    <script type="module" src="app.js"></script>
-    <script>
-        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
-    </script>
+    <div id="view-maestro" class="hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white">
+            <h3>Mis Clases</h3>
+            <button id="btn-nueva-clase">+ Crear</button>
+        </div>
+        <div id="lista-clases-maestro"></div>
+    </div>
+
+    <nav id="nav-bottom" class="nav-bar hidden">
+        <div class="nav-item"><span>🏠</span>Clases</div>
+        <div class="nav-item"><span>📅</span>Horarios</div>
+        <div class="nav-item"><span>👤</span>Perfil</div>
+    </nav>
+</div>
+
+<div id="modal-crear" class="modal">
+    <div class="modal-content">
+        <h3>Nueva Clase</h3>
+        <input type="text" id="clase-nombre" placeholder="Nombre (Ej: Yoga)">
+        <input type="number" id="clase-precio" placeholder="Precio MXN">
+        <button id="btn-guardar-clase">Publicar Clase</button>
+        <button onclick="document.getElementById('modal-crear').style.display='none'" style="background:none; color:gray">Cancelar</button>
+    </div>
+</div>
+
+<div id="modal-pago" class="modal">
+    <div class="modal-content">
+        <h3 id="pago-nombre">Clase</h3>
+        <p id="pago-monto"></p>
+        <a id="link-mp" href="#" target="_blank">PAGAR CON MERCADO PAGO</a>
+        <button onclick="document.getElementById('modal-pago').style.display='none'" style="background:none; color:gray; margin-top:10px">Cerrar</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    // --- CONFIGURA TUS DATOS AQUÍ ---
+    const firebaseConfig = {
+  apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
+  authDomain: "escarola-wellness.firebaseapp.com",
+  projectId: "escarola-wellness",
+  storageBucket: "escarola-wellness.firebasestorage.app",
+  messagingSenderId: "212255082736",
+  appId: "1:212255082736:web:66d144fa90308578b75a35"
+};
+
+    const LINK_MERCADO_PAGO = "https://mpago.la/TU_LINK"; 
+    // --------------------------------
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const show = (id) => document.getElementById(id).classList.remove('hidden');
+    const hide = (id) => document.getElementById(id).classList.add('hidden');
+
+    // REGISTRO Y LOGIN
+    document.getElementById('btn-register').onclick = async () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        const r = document.getElementById('role-select').value;
+        try {
+            const res = await createUserWithEmailAndPassword(auth, e, p);
+            await setDoc(doc(db, "users", res.user.uid), { email: e, role: r });
+        } catch (err) { alert(err.message); }
+    };
+
+    document.getElementById('btn-login').onclick = async () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        try { await signInWithEmailAndPassword(auth, e, p); } catch (err) { alert("Error"); }
+    };
+
+    document.getElementById('btn-logout').onclick = () => signOut(auth);
+
+    // CONTROL DE VISTAS
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            const role = snap.data()?.role;
+            hide('view-auth');
+            show('btn-logout');
+            show('nav-bottom');
+            if (role === 'maestro') { show('view-maestro'); loadMaestro(user.uid); }
+            else { show('view-alumno'); loadAlumno(); }
+        } else {
+            show('view-auth');
+            hide('view-maestro'); hide('view-alumno'); hide('btn-logout'); hide('nav-bottom');
+        }
+    });
+
+    // MAESTRO
+    document.getElementById('btn-nueva-clase').onclick = () => document.getElementById('modal-crear').style.display = 'flex';
+    document.getElementById('btn-guardar-clase').onclick = async () => {
+        const n = document.getElementById('clase-nombre').value;
+        const p = document.getElementById('clase-precio').value;
+        await addDoc(collection(db, "clases"), { nombre: n, precio: Number(p), maestroId: auth.currentUser.uid, creado: new Date() });
+        document.getElementById('modal-crear').style.display = 'none';
+    };
+
+    function loadMaestro(uid) {
+        onSnapshot(query(collection(db, "clases"), where("maestroId", "==", uid)), (snap) => {
+            const cont = document.getElementById('lista-clases-maestro');
+            cont.innerHTML = "";
+            snap.forEach(d => {
+                cont.innerHTML += `<div class="clase-card"><h4>${d.data().nombre}</h4><p class="precio">$${d.data().precio} MXN</p></div>`;
+            });
+        });
+    }
+
+    // ALUMNO
+    function loadAlumno() {
+        onSnapshot(query(collection(db, "clases"), orderBy("creado", "desc")), (snap) => {
+            const cont = document.getElementById('lista-clases-alumno');
+            cont.innerHTML = "";
+            snap.forEach(d => {
+                const c = d.data();
+                const card = document.createElement('div');
+                card.className = "clase-card";
+                card.innerHTML = `<div><h4>${c.nombre}</h4><p class="precio">$${c.precio} MXN</p></div>`;
+                const b = document.createElement('button');
+                b.className = "btn-pagar"; b.innerText = "Inscribirme";
+                b.onclick = () => {
+                    document.getElementById('pago-nombre').innerText = c.nombre;
+                    document.getElementById('pago-monto').innerText = "Total: $" + c.precio;
+                    document.getElementById('link-mp').href = LINK_MERCADO_PAGO;
+                    document.getElementById('modal-pago').style.display = 'flex';
+                };
+                card.appendChild(b);
+                cont.appendChild(card);
+            });
+        });
+    }
+</script>
 </body>
-
 </html>
