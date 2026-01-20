@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness App</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WellnessApp">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3048/3048398.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        :root { --modal-bg: #202b38; --card-bg: #2d3748; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); }
+        .modal-content { background: var(--modal-bg); margin: 15% auto; padding: 25px; border-radius: 12px; width: 85%; max-width: 450px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .clase-card { border: 1px solid #444; padding: 15px; margin-bottom: 15px; border-radius: 10px; background: var(--card-bg); }
+        .nav-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .hidden { display: none !important; }
+        input, select, button { width: 100%; margin-bottom: 10px; }
+        #link-mercado-pago { display: block; background: #009ee3; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="app">
+        <nav class="nav-bar">
+            <strong>Wellness App</strong>
+            <button id="btn-logout" class="hidden" style="width: auto; padding: 5px 10px;">Salir</button>
+        </nav>
+
+        <section id="view-auth">
+            <h2 style="text-align: center;">Acceso</h2>
+            <input type="email" id="email" placeholder="Tu Correo">
+            <input type="password" id="password" placeholder="Tu Contraseña">
+            <select id="role-select">
+                <option value="alumno">Soy Alumno</option>
+                <option value="maestro">Soy Maestro</option>
+            </select>
+            <button id="btn-login">Entrar</button>
+            <button id="btn-register" style="background: #374151;">Crear Cuenta</button>
+        </section>
+
+        <section id="view-alumno" class="hidden">
+            <h2>Clases Disponibles</h2>
+            <div id="container-clases-alumnos"></div>
+        </section>
+
+        <section id="view-maestro" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Mis Clases</h2>
+                <button id="btn-open-modal-clase" style="width: auto;">+ Nueva</button>
+            </div>
+            <div id="container-clases-maestro"></div>
+        </section>
+
+        <section id="view-admin" class="hidden">
+            <h2>Panel Admin</h2>
+            <p>Resumen general del sistema.</p>
+        </section>
+    </div>
+
+    <div id="modal-clase" class="modal">
+        <div class="modal-content">
+            <h3>Nueva Clase</h3>
+            <input type="text" id="clase-nombre" placeholder="Nombre de Clase">
+            <input type="number" id="clase-precio" placeholder="Precio MXN">
+            <button id="btn-guardar-clase">Publicar Ahora</button>
+            <button onclick="cerrarModal('modal-clase')" style="background: none; color: #aaa;">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modal-pago" class="modal">
+        <div class="modal-content">
+            <h3 id="pago-titulo"></h3>
+            <p id="pago-precio"></p>
+            <p>Paga para asegurar tu lugar:</p>
+            <a id="link-mercado-pago" href="#" target="_blank">PAGAR AHORA</a>
+            <br>
+            <button onclick="cerrarModal('modal-pago')" style="background: #2d3748;">Ya realicé el pago</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+    <script>
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+    </script>
+</body>
+</html>
