@@ -5,192 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Wellness App</title>
     
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        :root {
-            --sage: #6b8e83;
-            --cream: #f4f1de;
-            --dark-sage: #4a665e;
-            --white: #ffffff;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--sage);
-            color: var(--dark-sage);
-            overflow-x: hidden;
-        }
-
-        #app {
-            padding: 20px 20px 100px 20px;
-            box-sizing: border-box;
-            min-height: 100vh;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            color: var(--cream);
-        }
-
-        .logo-section { display: flex; align-items: center; gap: 10px; }
-        .logo-img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
-
-        /* Tarjetas estilo Wellness */
-        .card {
-            background-color: var(--cream);
-            border-radius: 18px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: none;
-        }
-
-        h2, h3, h4 { margin: 0; }
-        input, select {
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: 1px solid rgba(0,0,0,0.1);
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            background-color: var(--dark-sage);
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 10px;
-        }
-
-        button:active { transform: scale(0.97); }
-
-        .btn-outline { background: transparent; border: 1px solid var(--cream); color: var(--cream); width: auto; padding: 6px 12px; }
-
-        /* Navegación Inferior */
-        .nav-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            background-color: var(--dark-sage);
-            height: 75px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-radius: 25px 25px 0 0;
-            z-index: 1000;
-        }
-
-        .nav-item { color: var(--cream); text-align: center; font-size: 11px; cursor: pointer; text-decoration: none; }
-        .nav-item span { font-size: 22px; display: block; margin-bottom: 2px; }
-
+        :root { --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; --white: #ffffff; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--sage); color: var(--dark-sage); overflow-x: hidden; }
+        #app { padding: 20px 20px 100px 20px; min-height: 100vh; box-sizing: border-box; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: var(--cream); }
+        .card { background-color: var(--cream); border-radius: 18px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        input, select, button { width: 100%; padding: 14px; margin: 8px 0; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); box-sizing: border-box; font-size: 16px; }
+        button { background-color: var(--dark-sage); color: white; border: none; font-weight: bold; cursor: pointer; }
+        button:active { transform: scale(0.98); }
+        
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 25px 25px 0 0; z-index: 1000; }
+        .nav-item { color: var(--cream); text-align: center; font-size: 11px; cursor: pointer; }
+        .nav-item span { font-size: 22px; display: block; }
+        
         .hidden { display: none !important; }
-
-        /* Modales */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content { background: var(--cream); padding: 25px; border-radius: 20px; width: 85%; max-width: 400px; text-align: center; }
-
-        #link-mp {
-            display: block; background: #009ee3; color: white; padding: 15px;
-            border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 15px;
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+        #link-mp { display: block; background: #009ee3; color: white; padding: 15px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 10px; text-align: center; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <header>
-        <div class="logo-section">
-            <img src="logo.png" class="logo-img" onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png';">
-            <h2>Wellness App</h2>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <img src="logo.png" style="width:40px; height:40px; border-radius:10px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+            <h2 style="margin:0;">Wellness App</h2>
         </div>
-        <button id="btn-logout" class="hidden btn-outline">Salir</button>
+        <button id="btn-logout" class="hidden" style="width:auto; background:transparent; border:1px solid white; padding:5px 10px; font-size:12px;">Salir</button>
     </header>
 
     <div id="view-auth">
         <div class="card">
-            <h3>Bienvenido</h3>
-            <p style="font-size: 14px; color: var(--sage);">Inicia sesión para continuar</p>
+            <h3 style="margin-top:0">Bienvenido</h3>
             <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
+            <input type="password" id="password" placeholder="Contraseña (mín. 6 caracteres)">
             <select id="role-select">
-                <option value="alumno">Soy Alumno</option>
-                <option value="maestro">Soy Maestro</option>
+                <option value="alumno">Soy Alumno (Quiero entrenar)</option>
+                <option value="maestro">Soy Maestro (Quiero dar clases)</option>
             </select>
             <button id="btn-login">Entrar</button>
-            <button id="btn-register" style="background: var(--sage); color: white;">Crear Cuenta</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta</button>
+            <p id="auth-error" style="color:red; font-size:12px; text-align:center; display:none;"></p>
         </div>
     </div>
 
     <div id="view-alumno" class="view hidden">
-        <h3 style="color:var(--cream); margin-bottom:15px;">Clases para ti</h3>
+        <h3 style="color:white; margin-bottom:15px;">Clases Disponibles</h3>
         <div id="list-alumno"></div>
     </div>
 
     <div id="view-maestro" class="view hidden">
         <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:15px;">
             <h3>Mis Clases</h3>
-            <button onclick="document.getElementById('modal-crear').style.display='flex'" style="width:auto; margin:0; padding:8px 15px;">+ Crear</button>
+            <button onclick="document.getElementById('modal-crear').style.display='flex'" style="width:auto; padding:8px 15px;">+ Nueva</button>
         </div>
         <div id="list-maestro"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:var(--cream); margin-bottom:15px;">Panel Admin</h3>
+        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
         <div class="card">
-            <h4>Promover Admin</h4>
+            <h4>Hacer Administrador</h4>
             <input type="email" id="search-admin" placeholder="Correo del usuario">
-            <button id="btn-make-admin">Dar Permisos Admin</button>
+            <button id="btn-make-admin">Dar Permisos</button>
         </div>
         <div id="list-admin-users"></div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
         <div class="nav-item" onclick="changeTab('clases')"><span>🏠</span>Clases</div>
-        <div class="nav-item" onclick="changeTab('perfil')"><span>👤</span>Perfil</div>
         <div id="nav-admin" class="nav-item hidden" onclick="changeTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
 <div id="modal-crear" class="modal">
-    <div class="modal-content">
+    <div class="card" style="width:85%; max-width:400px;">
         <h3>Nueva Clase</h3>
-        <input type="text" id="new-name" placeholder="Nombre de la clase">
+        <input type="text" id="new-name" placeholder="Nombre de clase">
         <input type="number" id="new-price" placeholder="Precio MXN">
-        <button id="btn-save-class">Publicar Clase</button>
+        <button id="btn-save-class">Publicar</button>
         <button onclick="document.getElementById('modal-crear').style.display='none'" style="background:none; color:gray;">Cancelar</button>
     </div>
 </div>
 
 <div id="modal-pago" class="modal">
-    <div class="modal-content">
-        <h3 id="pago-nombre">Nombre Clase</h3>
-        <p id="pago-monto" style="font-weight:bold; color:var(--sage)"></p>
+    <div class="card" style="width:85%; max-width:400px; text-align:center;">
+        <h3 id="pago-nombre">Clase</h3>
+        <p id="pago-monto" style="font-weight:bold; color:var(--sage);"></p>
         <a id="link-mp" href="#" target="_blank">PAGAR AHORA</a>
-        <button onclick="document.getElementById('modal-pago').style.display='none'" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
+        <button onclick="document.getElementById('modal-pago').style.display='none'" style="background:none; color:gray; margin-top:15px;">Cerrar</button>
     </div>
 </div>
 
@@ -199,7 +108,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // 1. CONFIGURACIÓN FIREBASE
+    // 1. PEGA TUS CREDENCIALES AQUÍ
     const firebaseConfig = {
   apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
   authDomain: "escarola-wellness.firebaseapp.com",
@@ -209,5 +118,129 @@
   appId: "1:212255082736:web:66d144fa90308578b75a35"
 };
 
-    // 2. LINK MERCADO PAGO
-    const MP_LINK = "
+    // 2. TU LINK DE MERCADO PAGO
+    const MP_LINK = "https://mpago.la/TU_LINK";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- REGISTRO ---
+    document.getElementById('btn-register').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const role = document.getElementById('role-select').value;
+        const errorMsg = document.getElementById('auth-error');
+
+        try {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            // Intentar guardar en base de datos
+            await setDoc(doc(db, "users", res.user.uid), { email, role });
+            console.log("Usuario registrado con rol:", role);
+        } catch (err) {
+            errorMsg.innerText = "Error: " + err.message;
+            errorMsg.style.display = "block";
+            console.error(err);
+        }
+    };
+
+    // --- LOGIN ---
+    document.getElementById('btn-login').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+        } catch (err) {
+            alert("Usuario o contraseña incorrectos");
+        }
+    };
+
+    document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
+
+    // --- MONITOR DE SESIÓN ---
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            const role = snap.data()?.role || 'alumno';
+            
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('nav-bottom').classList.remove('hidden');
+            document.getElementById('btn-logout').classList.remove('hidden');
+            
+            if (role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+            
+            window.userRole = role;
+            changeTab('clases');
+        }
+    });
+
+    window.changeTab = (tab) => {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        if (tab === 'clases') {
+            const viewId = window.userRole === 'maestro' ? 'view-maestro' : 'view-alumno';
+            document.getElementById(viewId).classList.remove('hidden');
+            loadClases(window.userRole);
+        } else if (tab === 'admin') {
+            document.getElementById('view-admin').classList.remove('hidden');
+            loadAdmin();
+        }
+    };
+
+    function loadClases(role) {
+        const q = role === 'maestro' ? query(collection(db, "clases"), where("maestroId", "==", auth.currentUser.uid)) : collection(db, "clases");
+        onSnapshot(q, (snap) => {
+            const target = role === 'maestro' ? 'list-maestro' : 'list-alumno';
+            const div = document.getElementById(target);
+            div.innerHTML = "";
+            snap.forEach(d => {
+                const c = d.data();
+                const card = document.createElement('div');
+                card.className = "card";
+                card.innerHTML = `<h4>${c.nombre}</h4><p style="color:var(--sage); font-weight:bold;">$${c.precio} MXN</p>`;
+                if (role === 'alumno') {
+                    const b = document.createElement('button');
+                    b.innerText = "Inscribirme y Pagar";
+                    b.onclick = () => {
+                        document.getElementById('pago-nombre').innerText = c.nombre;
+                        document.getElementById('pago-monto').innerText = "$" + c.precio + " MXN";
+                        document.getElementById('link-mp').href = MP_LINK;
+                        document.getElementById('modal-pago').style.display = 'flex';
+                    };
+                    card.appendChild(b);
+                }
+                div.appendChild(card);
+            });
+        });
+    }
+
+    document.getElementById('btn-save-class').onclick = async () => {
+        const n = document.getElementById('new-name').value;
+        const p = document.getElementById('new-price').value;
+        if (n && p) {
+            await addDoc(collection(db, "clases"), { nombre: n, precio: Number(p), maestroId: auth.currentUser.uid });
+            document.getElementById('modal-crear').style.display = 'none';
+        }
+    };
+
+    function loadAdmin() {
+        onSnapshot(collection(db, "users"), (snap) => {
+            const div = document.getElementById('list-admin-users');
+            div.innerHTML = "";
+            snap.forEach(d => {
+                div.innerHTML += `<div class="card" style="padding:10px; font-size:12px;"><b>${d.data().email}</b> [${d.data().role}]</div>`;
+            });
+        });
+    }
+
+    document.getElementById('btn-make-admin').onclick = async () => {
+        const mail = document.getElementById('search-admin').value;
+        const q = query(collection(db, "users"), where("email", "==", mail));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            await setDoc(doc(db, "users", snap.docs[0].id), { role: 'admin' }, { merge: true });
+            alert("Hecho.");
+        }
+    };
+</script>
+</body>
+</html>
