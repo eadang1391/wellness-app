@@ -62,6 +62,8 @@
         .filter-chip-container { display: flex; gap: 8px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .chip { background: #eee; padding: 8px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; }
         .chip.active { background: var(--dark-sage); color: white; }
+        
+        .badge-aportacion { background: #e9ecef; color: var(--sage); font-size: 9px; padding: 4px 8px; border-radius: 10px; font-weight: 700; }
     </style>
 </head>
 <body>
@@ -82,7 +84,7 @@
 
     <div id="view-auth" class="view hidden">
         <div class="card">
-            <h3 style="text-align:center;">Acceso Studio</h3>
+            <h3 style="text-align:center;">Bienvenida/o</h3>
             <input type="text" id="reg-name" placeholder="Nombre completo">
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
@@ -144,12 +146,12 @@
         <select id="edit-u-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
         
         <div style="background:#f0f7f5; padding:15px; border-radius:20px; margin:10px 0; border:2px dashed var(--sage);">
-            <p style="margin:0 0 8px 0; font-size:11px; font-weight:700;">REGISTRAR VENTA EFECTIVO</p>
+            <p style="margin:0 0 8px 0; font-size:11px; font-weight:700;">REGISTRAR VENTA / APORTACIÓN</p>
             <input type="number" id="cash-amount" placeholder="Monto $">
-            <input type="number" id="cash-credits" placeholder="Créditos a sumar">
-            <button onclick="registerCashPayment()" style="background:var(--sage); padding:10px; font-size:12px;">CARGAR PAGO</button>
+            <input type="number" id="cash-credits" placeholder="Créditos a sumar (0 si es donativo)">
+            <button onclick="registerCashPayment()" style="background:var(--sage); padding:10px; font-size:12px;">REGISTRAR PAGO</button>
         </div>
-        <button id="btn-save-user">Guardar Todo</button>
+        <button id="btn-save-user">Guardar Perfil</button>
         <button onclick="document.getElementById('modal-edit-user').style.display='none'" style="background:none; color:gray;">Cerrar</button>
     </div>
 </div>
@@ -157,10 +159,14 @@
 <div id="modal-clase" class="modal-overlay">
     <div class="card" style="width:90%; max-width:400px;">
         <h3>Nueva Clase</h3>
-        <input type="text" id="clase-name" placeholder="Nombre">
-        <input type="number" id="clase-price" placeholder="Precio">
+        <input type="text" id="clase-name" placeholder="Nombre de la actividad">
+        <input type="number" id="clase-price" placeholder="Costo sugerido / Créditos">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class">Publicar</button>
+        <div style="display:flex; align-items:center; gap:10px; padding:10px 0;">
+            <input type="checkbox" id="clase-is-aportacion" style="width:auto; margin:0;">
+            <label for="clase-is-aportacion" style="font-size:12px; font-weight:700;">Es Clase de Aportación (Voluntaria)</label>
+        </div>
+        <button id="btn-save-class">Publicar Clase</button>
         <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cancelar</button>
     </div>
 </div>
@@ -199,7 +205,7 @@
             document.getElementById('nav-bottom').classList.remove('hidden');
             if(myData.role === 'alumno') {
                 document.getElementById('user-credits-display').classList.remove('hidden');
-                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CLASES DISPONIBLES`;
+                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CRÉDITOS DISPONIBLES`;
             }
             if (myData.role !== 'alumno') document.getElementById('btn-crear-trigger').classList.remove('hidden');
             if (myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
@@ -230,10 +236,13 @@
                 const yaInscrito = c.inscritos?.includes(auth.currentUser?.uid);
                 div.innerHTML += `
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b> <span>$${c.price}</span></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b>${c.nombre}</b> 
+                            ${c.isAportacion ? '<span class="badge-aportacion">APORTACIÓN VOLUNTARIA</span>' : `<span>$${c.price}</span>`}
+                        </div>
                         <small>📅 ${new Date(c.horario).toLocaleString()}</small>
                         <div style="margin-top:10px; display:flex; gap:8px;">
-                            ${myData.role === 'alumno' ? `<button onclick="reservar('${d.id}')" ${yaInscrito?'disabled':''} style="background:${yaInscrito?'#ccc':'var(--gold)'}; font-size:11px;">${yaInscrito?'INSCRITO':'RESERVAR'}</button>` : ''}
+                            ${myData.role === 'alumno' ? `<button onclick="reservar('${d.id}')" ${yaInscrito?'disabled':''} style="background:${yaInscrito?'#ccc':(c.isAportacion?'var(--sage)':'var(--gold)')}; font-size:11px;">${yaInscrito?'ESTÁS ANOTADO':(c.isAportacion?'ANOTARME (GRATIS)':'RESERVAR (1 CRÉDITO)')}</button>` : ''}
                             ${myData.role !== 'alumno' ? `<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button><button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:10px; width:auto;">✕</button>` : ''}
                         </div>
                     </div>`;
@@ -242,19 +251,26 @@
     }
 
     window.reservar = async (id) => {
-        if(myData.credits <= 0) return showAlert("Sin créditos.");
-        if(confirm("¿Reservar?")) {
-            const snap = await getDoc(doc(db, "clases", id));
+        const snapClase = await getDoc(doc(db, "clases", id));
+        const c = snapClase.data();
+        
+        if(!c.isAportacion && myData.credits <= 0) return showAlert("Sin créditos suficientes.");
+        
+        if(confirm(c.isAportacion ? "¿Deseas anotarte a esta clase de aportación?" : "¿Reservar 1 lugar? (Se descontará 1 crédito)")) {
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
-            await addDoc(collection(db, "pagos"), { alumno: myData.name, clase: snap.data().nombre, monto: snap.data().price, metodo: 'Crédito', fecha: serverTimestamp() });
-            showAlert("¡Listo!"); location.reload();
+            
+            if(!c.isAportacion) {
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
+                await addDoc(collection(db, "pagos"), { alumno: myData.name, clase: c.nombre, monto: c.price, metodo: 'Crédito', fecha: serverTimestamp() });
+            }
+            
+            showAlert("¡Listo! Te esperamos."); location.reload();
         }
     };
 
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `<input type="text" id="u-search" placeholder="🔍 Buscar..." onkeyup="filterUsers(this.value)"><div id="u-list"></div>`;
+        content.innerHTML = `<input type="text" id="u-search" placeholder="🔍 Buscar alumno..." onkeyup="filterUsers(this.value)"><div id="u-list"></div>`;
         const snap = await getDocs(collection(db, "users"));
         allUsers = []; snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
         filterUsers("");
@@ -264,8 +280,8 @@
         const div = document.getElementById('u-list'); div.innerHTML = "";
         allUsers.filter(u => u.name.toLowerCase().includes(val.toLowerCase())).forEach(u => {
             div.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
-                <div><b>${u.name}</b><br><small>${u.credits || 0} cr.</small></div>
-                <button onclick="openEditUser('${u.id}')" style="width:auto; padding:5px 12px; font-size:10px; background:var(--sage);">COBRAR</button>
+                <div><b>${u.name}</b><br><small>${u.credits || 0} créditos</small></div>
+                <button onclick="openEditUser('${u.id}')" style="width:auto; padding:5px 12px; font-size:10px; background:var(--sage);">COBRO / EDITAR</button>
             </div>`;
         });
     };
@@ -283,10 +299,19 @@
         const id = document.getElementById('edit-u-id').value;
         const amount = Number(document.getElementById('cash-amount').value);
         const creds = Number(document.getElementById('cash-credits').value);
-        if(!amount || !creds) return showAlert("Datos incompletos");
-        await updateDoc(doc(db, "users", id), { credits: increment(creds) });
-        await addDoc(collection(db, "pagos"), { alumno: document.getElementById('edit-u-name').value, clase: "Carga Membresía", monto: amount, metodo: "Efectivo", fecha: serverTimestamp() });
-        showAlert("Cobro exitoso");
+        if(!amount && amount !== 0) return showAlert("Ingresa un monto");
+        
+        if(creds > 0) await updateDoc(doc(db, "users", id), { credits: increment(creds) });
+        
+        await addDoc(collection(db, "pagos"), { 
+            alumno: document.getElementById('edit-u-name').value, 
+            clase: creds > 0 ? "Venta de Créditos" : "Donativo / Aportación", 
+            monto: amount, 
+            metodo: "Efectivo", 
+            fecha: serverTimestamp() 
+        });
+        
+        showAlert("Registro guardado");
         document.getElementById('modal-edit-user').style.display = 'none';
         loadUsersAdmin();
     };
@@ -297,17 +322,16 @@
         showAlert("Guardado"); loadUsersAdmin();
     };
 
-    // --- NUEVA SECCIÓN DE HISTORIAL CON FILTROS ---
     window.loadPaymentsAdmin = async (filterType = 'month') => {
         const content = document.getElementById('admin-content');
         content.innerHTML = `
             <div class="filter-chip-container">
-                <div class="chip ${filterType==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Esta Semana</div>
-                <div class="chip ${filterType==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Este Mes</div>
+                <div class="chip ${filterType==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</div>
+                <div class="chip ${filterType==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</div>
                 <div class="chip ${filterType==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</div>
             </div>
             <div id="payments-render-list">Cargando...</div>
-            <button onclick="exportFinanceReport('${filterType}')" style="background:var(--sage); margin-top:15px; font-size:12px;">Descargar PDF de este periodo</button>
+            <button onclick="exportFinanceReport('${filterType}')" style="background:var(--sage); margin-top:15px; font-size:12px;">Descargar PDF (${filterType})</button>
         `;
         
         const now = new Date();
@@ -324,13 +348,13 @@
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         const renderDiv = document.getElementById('payments-render-list');
         renderDiv.innerHTML = "";
-        let totalPeriodo = 0;
+        let totalCash = 0;
 
         snap.forEach(d => {
             const p = d.data();
             const pDate = p.fecha?.toDate();
             if(pDate >= startDate || filterType === 'all') {
-                totalPeriodo += (p.metodo !== 'Crédito' ? p.monto : 0);
+                if(p.metodo === 'Efectivo') totalCash += p.monto;
                 renderDiv.innerHTML += `
                     <div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
                         <div><b>${p.alumno}</b><br><small>${p.clase}</small></div>
@@ -338,47 +362,38 @@
                     </div>`;
             }
         });
-        renderDiv.innerHTML = `<h4 style="margin-top:0;">Total Periodo: $${totalPeriodo}</h4>` + renderDiv.innerHTML;
+        renderDiv.innerHTML = `<h4 style="margin:0;">Recaudado (Efectivo): $${totalCash}</h4>` + renderDiv.innerHTML;
     };
 
     window.exportFinanceReport = async (filterType) => {
-        showAlert("Generando PDF...");
-        const now = new Date();
-        let startDate;
-        if(filterType === 'week') startDate = new Date(now.setDate(now.getDate() - now.getDay()));
-        else if(filterType === 'month') startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-        else startDate = new Date(2000, 0, 1);
-        startDate.setHours(0,0,0,0);
-
+        showAlert("Generando...");
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         let rows = []; let total = 0;
-
         snap.forEach(d => {
             const p = d.data();
-            const pDate = p.fecha?.toDate();
-            if(pDate >= startDate || filterType === 'all') {
-                if(p.metodo !== 'Crédito') total += p.monto;
-                rows.push([p.alumno, p.clase, `$${p.monto}`, p.metodo, pDate?.toLocaleDateString() || 'N/A']);
-            }
+            if(p.metodo === 'Efectivo') total += p.monto;
+            rows.push([p.alumno, p.clase, `$${p.monto}`, p.metodo, p.fecha?.toDate().toLocaleDateString() || 'Reciente']);
         });
-
-        const { jsPDF } = window.jspdf;
-        const docPDF = new jsPDF();
-        docPDF.setFontSize(16);
-        docPDF.text(`REPORTE: ${filterType.toUpperCase()}`, 14, 20);
-        docPDF.setFontSize(10);
-        docPDF.autoTable({ head:[['Alumno','Concepto','Monto','Metodo','Fecha']], body:rows, startY:30 });
-        docPDF.text(`TOTAL RECAUDADO EN EFECTIVO/DIGITAL: $${total} MXN`, 14, docPDF.lastAutoTable.finalY + 10);
-        docPDF.save(`Reporte_Escarola_${filterType}.pdf`);
-        showAlert("Reporte Guardado");
+        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
+        docPDF.text("REPORTE FINANCIERO ESCAROLA", 14, 20);
+        docPDF.autoTable({ head:[['Alumno','Concepto','Monto','Método','Fecha']], body:rows, startY:30 });
+        docPDF.text(`TOTAL EFECTIVO: $${total} MXN`, 14, docPDF.lastAutoTable.finalY + 10);
+        docPDF.save(`Reporte_${filterType}.pdf`);
+        showAlert("PDF Listo");
     };
 
     document.getElementById('btn-save-class').onclick = async () => {
-        await addDoc(collection(db, "clases"), { nombre: document.getElementById('clase-name').value, price: Number(document.getElementById('clase-price').value), horario: document.getElementById('clase-time').value, inscritos: [] });
-        document.getElementById('modal-clase').style.display = 'none'; showAlert("Publicado");
+        await addDoc(collection(db, "clases"), { 
+            nombre: document.getElementById('clase-name').value, 
+            price: Number(document.getElementById('clase-price').value), 
+            horario: document.getElementById('clase-time').value,
+            isAportacion: document.getElementById('clase-is-aportacion').checked,
+            inscritos: [] 
+        });
+        document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase publicada");
     };
 
-    window.deleteClass = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "clases", id)); };
+    window.deleteClass = async (id) => { if(confirm("¿Eliminar?")) await deleteDoc(doc(db, "clases", id)); };
     document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     document.getElementById('btn-register').onclick = async () => {
         const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
@@ -388,12 +403,12 @@
         const div = document.getElementById('section-news'); div.innerHTML = "";
         snap.forEach(d => { div.innerHTML += `<div class="news-card"><small>AVISO</small><p>${d.data().texto}</p></div>`; });
     }); }
-    window.showNewsManager = () => { document.getElementById('admin-content').innerHTML = `<h4>Nuevo Aviso</h4><textarea id="n-txt"></textarea><button onclick="postNews()">Publicar</button>`; };
-    window.postNews = async () => { await addDoc(collection(db, "news"), { texto: document.getElementById('n-txt').value, fecha: serverTimestamp() }); showAlert("Publicado"); showNewsManager(); };
+    window.showNewsManager = () => { document.getElementById('admin-content').innerHTML = `<h4>Redactar Aviso</h4><textarea id="n-txt" style="height:100px;"></textarea><button onclick="postNews()">Publicar</button>`; };
+    window.postNews = async () => { await addDoc(collection(db, "news"), { texto: document.getElementById('n-txt').value, fecha: serverTimestamp() }); showAlert("Aviso enviado"); showNewsManager(); };
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || [];
-        let t = "Inscritos:\n"; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); t += `- ${u.data().name}\n`; }
-        alert(t || "Sin inscritos");
+        let t = "Asistentes inscritos:\n"; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); t += `- ${u.data().name}\n`; }
+        alert(t || "Nadie anotado");
     };
 </script>
 </body>
