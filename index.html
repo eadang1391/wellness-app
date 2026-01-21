@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escarola Wellness OS</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     
@@ -12,91 +12,144 @@
         :root { 
             --sage: #6b8e83; --cream: #fbfaf5; --dark-sage: #3a504a; 
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
-            --mp-blue: #009ee3; --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --mp-blue: #009ee3; --shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
 
-        body { margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--sage); color: var(--dark-sage); overflow-x: hidden; }
+        body { 
+            margin: 0; font-family: 'Quicksand', sans-serif; 
+            background-color: var(--sage); color: var(--dark-sage); 
+            overflow-x: hidden;
+        }
+
         #app { padding: 25px 20px 120px 20px; min-height: 100vh; box-sizing: border-box; }
 
-        .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); width: 100%; position: relative; box-sizing: border-box;}
-        .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid var(--gold); }
+        /* Estilo más redondeado y suave */
+        .card { 
+            background: var(--white); border-radius: 35px; 
+            padding: 25px; margin-bottom: 20px; box-shadow: var(--shadow); 
+            width: 100%; position: relative; box-sizing: border-box;
+        }
 
-        input, select, textarea { width: 100%; padding: 15px 20px; margin: 8px 0; border-radius: 25px; border: 1px solid #eee; box-sizing: border-box; font-family: 'Montserrat'; }
-        button { width: 100%; padding: 15px; border-radius: 30px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; }
-        button:disabled { background: #ccc !important; cursor: not-allowed; }
+        .news-card { 
+            background: var(--dark-sage); color: white; border-radius: 30px; 
+            padding: 15px 25px; margin-bottom: 20px; border-left: 8px solid var(--gold); 
+        }
 
-        .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); z-index: 1000; }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; }
+        input, select, textarea { 
+            width: 100%; padding: 18px 25px; margin: 10px 0; 
+            border-radius: 30px; border: 2px solid #f0f0f0; 
+            box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600;
+            outline: none; transition: 0.3s;
+        }
+        
+        input:focus { border-color: var(--gold); }
+
+        button { 
+            width: 100%; padding: 18px; border-radius: 35px; border: none; 
+            font-weight: 700; cursor: pointer; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            background: var(--dark-sage); color: white; font-family: 'Quicksand';
+        }
+
+        button:active { transform: scale(0.94); }
+        button:disabled { background: #d1d1d1 !important; transform: none; }
+
+        .nav-bar { 
+            position: fixed; bottom: 20px; left: 20px; right: 20px; 
+            background: var(--dark-sage); height: 80px; display: flex; 
+            justify-content: space-around; align-items: center; 
+            border-radius: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); z-index: 1000; 
+        }
+
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 11px; cursor: pointer; font-weight: 600; }
         .nav-item.active { color: white; }
-        .nav-item span { font-size: 24px; display: block; }
+        .nav-item span { font-size: 26px; display: block; margin-bottom: 2px; }
+
+        /* Popups Nativos Custom */
+        #custom-alert {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 400px; background: var(--white);
+            padding: 20px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            z-index: 5000; transition: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            text-align: center; font-weight: 700;
+        }
+        #custom-alert.show { top: 30px; }
 
         .hidden { display: none !important; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; color: white; }
         
-        .pkg-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
-        .pkg-card { min-width: 200px; background: white; border-radius: 25px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .pkg-card { 
+            min-width: 220px; background: white; border-radius: 35px; 
+            padding: 25px; text-align: center; box-shadow: var(--shadow); 
+        }
     </style>
 </head>
 <body>
 
+<div id="custom-alert">Mensaje de prueba</div>
+
 <div id="app">
     <header>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <img src="logo.png" style="width:42px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <div style="background:white; padding:8px; border-radius:18px;">
+                <img src="logo.png" style="width:35px; display:block;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+            </div>
             <div>
-                <h2 style="margin:0; font-size:18px;">Escarola</h2>
-                <div id="user-credits-display" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);">0 CRÉDITOS</div>
+                <h2 style="margin:0; font-size:20px; letter-spacing:-0.5px;">Escarola</h2>
+                <div id="user-credits-display" class="hidden" style="font-size:11px; font-weight:700; color:var(--gold); text-transform:uppercase;">0 Créditos</div>
             </div>
         </div>
-        <button onclick="auth.signOut().then(()=>location.reload())" style="width:auto; background:rgba(255,255,255,0.1); padding:8px 12px; font-size:10px; border-radius: 20px;">Salir</button>
+        <button onclick="auth.signOut().then(()=>location.reload())" style="width:auto; background:rgba(255,255,255,0.2); padding:10px 18px; font-size:11px; border-radius:25px;">Salir</button>
     </header>
 
     <div id="view-auth" class="view hidden">
         <div class="card">
-            <h3 style="text-align:center;">Wellness Studio</h3>
-            <input type="text" id="reg-name" placeholder="Nombre completo">
-            <input type="email" id="email" placeholder="Correo">
+            <h3 style="text-align:center; margin-top:0;">Bienvenida/o</h3>
+            <input type="text" id="reg-name" placeholder="Tu nombre">
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
-                <option value="alumno">Soy Alumno</option>
-                <option value="maestro">Soy Maestro</option>
+                <option value="alumno">Soy Alumna/o</option>
+                <option value="maestro">Soy Maestra/o</option>
             </select>
             <button id="btn-login" style="margin-top:10px;">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta Nueva</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="section-news"></div>
 
-        <h4 style="color:white; margin: 10px 0 10px 5px;">Membresías</h4>
-        <div class="pkg-container">
+        <h4 style="color:white; margin: 15px 0 15px 10px;">Planes Escarola</h4>
+        <div style="display:flex; gap:15px; overflow-x:auto; padding-bottom:20px; scrollbar-width: none;">
             <div class="pkg-card">
-                <small>BÁSICO</small><h3>4 Clases</h3><h2>$600</h2>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue);">PAGAR</button>
+                <small style="font-weight:700; color:var(--sage);">ESENCIAL</small>
+                <h3 style="margin:10px 0;">4 Clases</h3>
+                <h2 style="margin:0;">$600</h2>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="margin-top:15px; padding:12px; font-size:11px; background:var(--mp-blue);">PAGAR</button>
             </div>
-            <div class="pkg-card" style="border:2px solid var(--gold);">
-                <small>RECOMENDADO</small><h3>8 Clases</h3><h2>$1,100</h2>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue);">PAGAR</button>
+            <div class="pkg-card" style="border:3px solid var(--gold);">
+                <small style="font-weight:700; color:var(--gold);">INTENSIVO</small>
+                <h3 style="margin:10px 0;">8 Clases</h3>
+                <h2 style="margin:0;">$1,100</h2>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="margin-top:15px; padding:12px; font-size:11px; background:var(--mp-blue);">PAGAR</button>
             </div>
         </div>
         
-        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-top:20px;">
-            <h4>Próximas Clases</h4>
-            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:11px;">+ Clase</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-top:15px;">
+            <h4 style="margin-left:10px;">Próximas Clases</h4>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:10px 20px; background:white; color:var(--dark-sage); font-size:11px; border-radius:25px;">+ Nueva</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white;">Admin Panel</h3>
+        <h3 style="color:white; margin-left:10px;">Administración</h3>
         <div class="card">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:25px;">
                 <button onclick="loadUsersAdmin()">👤 Alumnos</button>
-                <button onclick="loadPaymentsAdmin()" style="background:var(--gold);">💰 Pagos/Reservas</button>
-                <button onclick="showNewsManager()">📢 Avisos</button>
-                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Reporte PDF</button>
+                <button onclick="loadPaymentsAdmin()" style="background:var(--gold);">💰 Reservas</button>
+                <button onclick="showNewsManager()" style="grid-column: span 2;">📢 Publicar Avisos</button>
+                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Descargar Reporte PDF</button>
             </div>
             <div id="admin-content"></div>
         </div>
@@ -108,14 +161,14 @@
     </nav>
 </div>
 
-<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
+<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(8px);">
     <div class="card" style="width:90%; max-width:400px;">
-        <h3>Nueva Clase</h3>
-        <input type="text" id="clase-name" placeholder="Actividad">
+        <h3 style="margin-top:0;">Programar Clase</h3>
+        <input type="text" id="clase-name" placeholder="¿Qué actividad es?">
         <input type="number" id="clase-price" placeholder="Precio MXN">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class" style="margin-top:15px;">Crear</button>
-        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cerrar</button>
+        <button id="btn-save-class" style="margin-top:15px;">Publicar Clase</button>
+        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray; font-size:13px; margin-top:10px;">Cerrar sin guardar</button>
     </div>
 </div>
 
@@ -138,6 +191,14 @@
     const db = getFirestore(app);
     let myData = null;
 
+    // SISTEMA DE ALERTAS PERSONALIZADO
+    window.showAlert = (msg, duration = 3000) => {
+        const el = document.getElementById('custom-alert');
+        el.innerText = msg;
+        el.classList.add('show');
+        setTimeout(() => el.classList.remove('show'), duration);
+    };
+
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const snap = await getDoc(doc(db, "users", user.uid));
@@ -146,7 +207,7 @@
             document.getElementById('nav-bottom').classList.remove('hidden');
             if(myData.role === 'alumno') {
                 document.getElementById('user-credits-display').classList.remove('hidden');
-                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CRÉDITOS`;
+                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CLASES LIBRES`;
             }
             if (myData.role !== 'alumno') document.getElementById('btn-crear-trigger').classList.remove('hidden');
             if (myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
@@ -180,20 +241,20 @@
                 const yaInscrito = inscritos.includes(auth.currentUser?.uid);
                 div.innerHTML += `
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between;">
-                            <b>${c.nombre}</b> <span style="color:var(--gold)">$${c.price}</span>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <b style="font-size:18px;">${c.nombre}</b> <span style="color:var(--gold); font-weight:700;">$${c.price}</span>
                         </div>
-                        <small>📅 ${new Date(c.horario).toLocaleString()}</small><br>
-                        <small>👥 ${inscritos.length} Inscritos</small>
-                        <div style="margin-top:10px; display:flex; gap:8px;">
+                        <p style="margin:8px 0; font-size:13px; color:gray;">📅 ${new Date(c.horario).toLocaleString([], {weekday:'long', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</p>
+                        <small style="background:#f0f0f0; padding:4px 10px; border-radius:10px; font-weight:700;">👥 ${inscritos.length} inscritos</small>
+                        <div style="margin-top:18px; display:flex; gap:10px;">
                             ${myData.role === 'alumno' ? 
-                                `<button onclick="reservarClase('${d.id}')" ${yaInscrito ? 'disabled' : ''} style="background:${yaInscrito ? '#ccc' : 'var(--gold)'}; font-size:11px;">
-                                    ${yaInscrito ? 'RESERVADO' : 'APARTAR LUGAR'}
+                                `<button onclick="reservarClase('${d.id}')" ${yaInscrito ? 'disabled' : ''} style="background:${yaInscrito ? '#ccc' : 'var(--gold)'}; font-size:12px;">
+                                    ${yaInscrito ? 'LUGAR APARTADO ✓' : 'RESERVAR CON 1 CRÉDITO'}
                                 </button>` : ''
                             }
                             ${(myData.role === 'admin' || c.maestroId === auth.currentUser.uid) ? 
-                                `<button onclick="verLista('${d.id}')" style="background:var(--dark-sage); font-size:10px; width:auto;">LISTA</button>
-                                 <button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:10px; width:auto;">✕</button>` : ''
+                                `<button onclick="verLista('${d.id}')" style="background:var(--dark-sage); font-size:11px; width:auto;">LISTA</button>
+                                 <button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:11px; width:auto;">BORRAR</button>` : ''
                             }
                         </div>
                     </div>`;
@@ -202,99 +263,127 @@
     }
 
     window.reservarClase = async (id) => {
-        if(myData.credits <= 0) return alert("Sin créditos.");
+        if(myData.credits <= 0) return showAlert("¡Ups! No tienes créditos disponibles.");
+        
         const snap = await getDoc(doc(db, "clases", id));
         const cInfo = snap.data();
-        if(confirm("¿Reservar lugar? Se descontará 1 crédito.")) {
+
+        // Modal nativo de confirmación simulado
+        if(confirm(`¿Confirmas tu reserva para ${cInfo.nombre}?`)) {
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
             await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
             await addDoc(collection(db, "pagos"), {
                 alumno: myData.name, clase: cInfo.nombre, monto: cInfo.price, fecha: serverTimestamp()
             });
-            alert("Reservado y Pagado.");
-            location.reload();
+            showAlert("¡Reserva confirmada!");
+            setTimeout(()=>location.reload(), 1000);
         }
     };
 
     window.verLista = async (id) => {
         const snap = await getDoc(doc(db, "clases", id));
         const ids = snap.data().inscritos || [];
-        if(!ids.length) return alert("Sin inscritos.");
-        let txt = "Inscritos:\n";
+        if(!ids.length) return showAlert("Aún no hay inscritos");
+        let txt = "LISTA DE ASISTENCIA:\n";
         for(let uid of ids) {
             const u = await getDoc(doc(db, "users", uid));
-            txt += `- ${u.data().name}\n`;
+            txt += `• ${u.data().name}\n`;
         }
-        alert(txt);
+        alert(txt); // Usamos alert para listas largas por simplicidad de lectura
     };
 
     document.getElementById('btn-save-class').onclick = async () => {
         const n = document.getElementById('clase-name').value;
         const p = document.getElementById('clase-price').value;
         const t = document.getElementById('clase-time').value;
-        if(!n || !p || !t) return alert("Faltan datos.");
+        if(!n || !p || !t) return showAlert("Llena todos los campos");
         await addDoc(collection(db, "clases"), {
             nombre: n, price: Number(p), horario: t, maestroId: auth.currentUser.uid, maestroName: myData.name, inscritos: []
         });
         document.getElementById('modal-clase').style.display = 'none';
+        showAlert("¡Clase publicada!");
     };
 
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Créditos Alumnos</h4>";
+        content.innerHTML = "<h4 style='margin-bottom:15px;'>Gestión de Alumnos</h4>";
         const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
             const u = d.data();
-            content.innerHTML += `<div class="user-row">
-                <div><b>${u.name}</b><br><small>${u.credits || 0} créd.</small></div>
-                <button onclick="editCredits('${d.id}', ${u.credits || 0})" style="width:auto; padding:5px; font-size:10px;">CARGAR</button>
-            </div>`;
+            content.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #eee;">
+                    <div><b style="font-size:14px;">${u.name}</b><br><small style="color:var(--gold); font-weight:700;">${u.credits || 0} CRÉDITOS</small></div>
+                    <button onclick="editCredits('${d.id}', ${u.credits || 0})" style="width:auto; padding:8px 15px; font-size:10px; background:var(--sage);">+ CARGAR</button>
+                </div>`;
         });
     };
 
     window.editCredits = async (id, current) => {
-        const n = prompt("Nuevo total créditos:", current);
-        if(n !== null) await updateDoc(doc(db, "users", id), { credits: Number(n) });
-        loadUsersAdmin();
+        const n = prompt("Ingresa el nuevo total de créditos para este alumno:", current);
+        if(n !== null) {
+            await updateDoc(doc(db, "users", id), { credits: Number(n) });
+            showAlert("Créditos actualizados");
+            loadUsersAdmin();
+        }
     };
 
     window.loadPaymentsAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Historial de Reservas</h4>";
+        content.innerHTML = "<h4>Últimas Reservas</h4>";
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
-            content.innerHTML += `<div style="font-size:11px; padding:8px; border-bottom:1px solid #eee;">
-                <b>${p.alumno}</b> → ${p.clase} <span style="color:green; float:right;">PAGADO ($${p.monto})</span>
-            </div>`;
+            content.innerHTML += `
+                <div style="font-size:12px; padding:12px; background:#f9f9f9; border-radius:15px; margin-bottom:10px;">
+                    <b>${p.alumno}</b> apartó <b>${p.clase}</b>
+                    <div style="color:green; font-weight:700; margin-top:4px;">✓ Pagado con crédito ($${p.monto})</div>
+                </div>`;
         });
     };
 
-    window.deleteClass = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "clases", id)); };
+    window.deleteClass = async (id) => { if(confirm("¿Segura/o de borrar esta clase?")) { await deleteDoc(doc(db, "clases", id)); showAlert("Clase eliminada"); } };
 
-    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value)
+        .catch(e => showAlert("Error de acceso"));
+
     document.getElementById('btn-register').onclick = async () => {
-        const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-        await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('email').value, role: document.getElementById('role-select').value, credits: 0 });
+        try {
+            const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+            await setDoc(doc(db, "users", res.user.uid), { 
+                name: document.getElementById('reg-name').value, 
+                email: document.getElementById('email').value, 
+                role: document.getElementById('role-select').value, 
+                credits: 0 
+            });
+            showAlert("¡Cuenta creada!");
+        } catch(e) { showAlert("Error en el registro"); }
     };
 
     function loadNews() {
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
             const div = document.getElementById('section-news');
             div.innerHTML = "";
-            snap.forEach(d => { div.innerHTML += `<div class="news-card"><small>AVISO</small><p style="margin:5px 0;">${d.data().texto}</p></div>`; });
+            snap.forEach(d => { 
+                div.innerHTML += `<div class="news-card"><small style="font-weight:700; color:var(--gold);">AVISO IMPORTANTE</small><p style="margin:8px 0; line-height:1.4;">${d.data().texto}</p></div>`; 
+            });
         });
     }
 
     window.showNewsManager = () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Nuevo Aviso</h4><textarea id="new-news-text"></textarea><button onclick="postNews()">Publicar</button>`;
+        content.innerHTML = `
+            <h4 style="margin-top:0;">Nuevo Aviso General</h4>
+            <textarea id="new-news-text" placeholder="Escribe aquí las noticias..."></textarea>
+            <button onclick="postNews()">Publicar para todos</button>`;
     };
 
     window.postNews = async () => {
         const txt = document.getElementById('new-news-text').value;
-        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-        alert("Publicado");
+        if(txt) {
+            await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
+            showAlert("Noticia publicada");
+            document.getElementById('new-news-text').value = "";
+        }
     };
 
     window.loadFinanceReport = async () => {
@@ -305,9 +394,9 @@
             rows.push([c.nombre, c.maestroName, `$${c.price}`, new Date(c.horario).toLocaleDateString()]);
         });
         const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("REPORTE FINANCIERO ESCAROLA", 14, 20);
-        docPDF.autoTable({ head:[['Clase','Prof','Precio','Fecha']], body:rows, startY:30 });
-        docPDF.text(`TOTAL: $${total} MXN`, 14, docPDF.lastAutoTable.finalY+10);
+        docPDF.text("REPORTE ESCAROLA WELLNESS", 14, 20);
+        docPDF.autoTable({ head:[['Clase','Prof','Precio','Fecha']], body:rows, startY:30, headStyles: {fillColor: [107, 142, 131]} });
+        docPDF.text(`TOTAL ESTIMADO: $${total} MXN`, 14, docPDF.lastAutoTable.finalY+15);
         docPDF.save("Reporte_Escarola.pdf");
     };
 </script>
