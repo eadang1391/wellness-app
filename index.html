@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Escarola Wellness</title>
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="logo.png">
@@ -27,7 +28,8 @@
         .logo-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: white; }
 
         .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); width: 100%; box-sizing: border-box; position: relative; }
-        
+        .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
+
         input, select, textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 20px; border: 2px solid #f0f0f0; box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600; outline: none; }
         button { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; font-family: 'Quicksand'; }
         
@@ -37,7 +39,7 @@
         .nav-item span { font-size: 20px; display: block; }
 
         .filter-btn-group { display: flex; gap: 5px; margin-bottom: 15px; }
-        .filter-btn { padding: 8px; font-size: 10px; border-radius: 15px; background: #eee; color: var(--dark-sage); }
+        .filter-btn { flex: 1; padding: 8px; font-size: 10px; border-radius: 15px; border: none; background: #eee; cursor: pointer; }
         .filter-btn.active { background: var(--gold); color: white; }
 
         #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; background: var(--white); padding: 12px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 5000; transition: 0.5s; text-align: center; font-weight: 700; }
@@ -45,6 +47,7 @@
 
         .hidden { display: none !important; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 3000; }
+        .delete-btn { background: var(--red); color: white; width: 22px; height: 22px; border-radius: 50%; border:none; position: absolute; top: 8px; right: 8px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
 <body>
@@ -63,10 +66,25 @@
         <button id="header-logout-btn" class="hidden" onclick="logout()" style="width:auto; background:rgba(255,255,255,0.2); padding:5px 12px; font-size:10px; border-radius:20px;">Salir</button>
     </header>
 
+    <div id="view-auth" class="view hidden">
+        <div class="card">
+            <h3 id="auth-title" style="text-align:center;">Bienvenida/o</h3>
+            <input type="text" id="reg-name" class="hidden" placeholder="Nombre completo">
+            <input type="email" id="auth-email" placeholder="Correo">
+            <input type="password" id="auth-password" placeholder="Contraseña">
+            <select id="role-select" class="hidden"><option value="alumno">Alumno</option><option value="maestro">Maestro</option></select>
+            <button id="btn-auth-main">Entrar</button>
+            <p id="auth-toggle" style="text-align:center; font-size:12px; margin-top:15px; text-decoration:underline; cursor:pointer;">¿No tienes cuenta? Regístrate</p>
+        </div>
+    </div>
+
     <div id="view-main" class="view hidden">
         <div id="section-news"></div>
         <div id="list-membresias" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;"></div>
-        <h4 style="color:white; margin:15px 0 10px 0;">Horarios</h4>
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin:20px 10px 10px 10px;">
+            <h4 style="margin:0;">Horarios</h4>
+            <button id="btn-crear-clase-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:6px 12px; background:white; color:var(--dark-sage); font-size:10px;">+ Clase</button>
+        </div>
         <div id="list-clases"></div>
     </div>
 
@@ -89,15 +107,33 @@
     </nav>
 </div>
 
+<div id="modal-clase" class="modal-overlay"><div class="card" style="width:90%; max-width:400px;">
+    <h3>Nueva Clase</h3>
+    <input type="text" id="c-name" placeholder="Actividad">
+    <input type="number" id="c-price" placeholder="Precio">
+    <input type="datetime-local" id="c-time">
+    <label style="font-size:12px;"><input type="checkbox" id="c-apo"> Es clase de aportación</label>
+    <button onclick="saveClass()">Publicar</button>
+    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
+</div></div>
+
+<div id="modal-edit-user" class="modal-overlay"><div class="card" style="width:90%; max-width:400px;">
+    <h3>Perfil y Cobro</h3>
+    <input type="hidden" id="eu-id"><input type="text" id="eu-name" placeholder="Nombre">
+    <input type="number" id="eu-credits" placeholder="Créditos"><select id="eu-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
+    <div style="background:#f9f9f9; padding:12px; border-radius:15px; margin:10px 0; border:1px dashed var(--sage);">
+        <input type="number" id="pay-amt" placeholder="Monto $"><input type="number" id="pay-creds" placeholder="Créditos +">
+        <button onclick="registerSale()" style="background:var(--sage); padding:8px;">REGISTRAR PAGO</button>
+    </div>
+    <button onclick="saveUser()">Guardar Cambios</button>
+    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
+</div></div>
+
 <script type="module">
-    // ... (Mantén toda la inicialización de Firebase igual que el código anterior) ...
-    // Importante: No borrar los imports ni el firebaseConfig del código anterior.
-
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, increment, arrayUnion, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // Pega aquí tu firebaseConfig que usabas antes
     const firebaseConfig = {
         apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
         authDomain: "escarola-wellness.firebaseapp.com",
@@ -110,57 +146,270 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    let myData = null;
+    let isLogin = true;
 
-    // --- LÓGICA DE FINANZAS FILTRADA ---
+    window.showAlert = (msg) => { const el = document.getElementById('custom-alert'); el.innerText = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); };
 
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if(snap.exists()){
+                myData = snap.data();
+                document.getElementById('view-auth').classList.add('hidden');
+                document.querySelectorAll('.nav-bar, #header-logout-btn').forEach(el => el.classList.remove('hidden'));
+                if (myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
+                if (myData.role !== 'alumno') document.getElementById('btn-crear-clase-trigger').classList.remove('hidden');
+                if (myData.role === 'alumno') {
+                    document.getElementById('user-credits-display').classList.remove('hidden');
+                    document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CLASES`;
+                }
+                switchTab('clases');
+                loadNews();
+                loadMembresias();
+            }
+        } else {
+            document.getElementById('view-auth').classList.remove('hidden');
+            document.querySelectorAll('.nav-bar, #header-logout-btn, #nav-admin-btn, #btn-crear-clase-trigger').forEach(el => el.classList.add('hidden'));
+        }
+    });
+
+    window.logout = () => signOut(auth);
+
+    window.switchTab = (tab) => {
+        document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        if (tab === 'clases') {
+            document.getElementById('view-main').classList.remove('hidden');
+            document.getElementById('nav-clases').classList.add('active');
+            renderClases();
+        } else {
+            document.getElementById('view-admin').classList.remove('hidden');
+            document.getElementById('nav-admin-btn').classList.add('active');
+        }
+    };
+
+    // --- FINANZAS CON FILTROS ---
     window.loadPaymentsAdmin = async (filter = 'month') => {
         const content = document.getElementById('admin-content');
         content.innerHTML = `
             <h4>Finanzas</h4>
             <div class="filter-btn-group">
-                <button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Esta Semana</button>
-                <button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Este Mes</button>
+                <button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</button>
+                <button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</button>
                 <button class="filter-btn ${filter==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</button>
             </div>
-            <div id="total-box" style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px;">
-                <small>TOTAL EN PERIODO</small><br><h2 id="total-amt" style="margin:0;">$0</h2>
+            <div style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px; border:1px solid #ddd;">
+                <small>TOTAL INGRESOS</small><br><h2 id="total-amt" style="margin:0;">$0</h2>
             </div>
-            <button onclick="downloadReport()" style="font-size:11px; margin-bottom:10px;">📄 Bajar PDF</button>
+            <button onclick="downloadReport()" style="background:var(--sage); font-size:11px; margin-bottom:15px;">📄 DESCARGAR PDF</button>
             <div id="p-list"></div>
         `;
 
+        let q;
         const now = new Date();
-        let startDate;
-
-        if (filter === 'week') {
-            startDate = new Date(now.setDate(now.getDate() - now.getDay())); // Inicio de semana
-        } else if (filter === 'month') {
-            startDate = new Date(now.getFullYear(), now.getMonth(), 1); // Inicio de mes
+        if(filter !== 'all'){
+            let startDate = filter === 'week' ? new Date(now.setDate(now.getDate() - 7)) : new Date(now.getFullYear(), now.getMonth(), 1);
+            q = query(collection(db, "pagos"), where("fecha", ">=", startDate), orderBy("fecha", "desc"));
         } else {
-            startDate = new Date(2020, 0, 1); // Todos
+            q = query(collection(db, "pagos"), orderBy("fecha", "desc"));
         }
 
-        const snap = await getDocs(query(collection(db, "pagos"), where("fecha", ">=", startDate), orderBy("fecha", "desc")));
-        
+        const snap = await getDocs(q);
         let total = 0;
         const pList = document.getElementById('p-list');
-        
         snap.forEach(d => {
             const p = d.data();
-            total += (Number(p.monto) || 0);
-            let color = (p.metodo === 'Efectivo') ? 'green' : (p.metodo === 'Mercado Pago' ? 'var(--mp-blue)' : '#999');
-            
-            pList.innerHTML += `
-                <div style="padding:10px; border-bottom:1px solid #eee; font-size:11px; display:flex; justify-content:space-between;">
-                    <div><b>${p.alumno}</b><br><small>${p.fecha?.toDate().toLocaleDateString() || 'S/F'}</small></div>
-                    <div style="text-align:right; color:${color}; font-weight:700;">$${p.monto}<br><small>${p.metodo}</small></div>
-                </div>
-            `;
+            total += Number(p.monto || 0);
+            pList.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; font-size:11px; display:flex; justify-content:space-between;">
+                <div><b>${p.alumno}</b><br><small>${p.fecha?.toDate().toLocaleDateString() || ''}</small></div>
+                <div style="text-align:right;"><b>$${p.monto}</b><br><small>${p.metodo}</small></div>
+            </div>`;
         });
         document.getElementById('total-amt').innerText = `$${total}`;
     };
 
-    // ... (El resto de las funciones: switchTab, renderClases, loadNews, etc. se mantienen igual)
+    window.downloadReport = async () => {
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let rows = [];
+        snap.forEach(d => {
+            const p = d.data();
+            rows.push([p.fecha?.toDate().toLocaleDateString() || '', p.alumno, `$${p.monto}`, p.metodo]);
+        });
+        const { jsPDF } = window.jspdf;
+        const docPDF = new jsPDF();
+        docPDF.text("Reporte Escarola Wellness", 14, 15);
+        docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
+        docPDF.save("Finanzas_Escarola.pdf");
+    };
+
+    // --- AVISOS (CON BORRADO) ---
+    window.showNewsManager = () => {
+        const content = document.getElementById('admin-content');
+        content.innerHTML = `<h4>Avisos</h4><textarea id="n-txt"></textarea><button onclick="postNews()">Publicar</button><hr><div id="adm-news-list"></div>`;
+        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
+            const list = document.getElementById('adm-news-list'); if(!list) return;
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const item = document.createElement('div');
+                item.style = "padding:10px; border-bottom:1px solid #eee; position:relative;";
+                item.innerHTML = `<small>${d.data().texto}</small>`;
+                const btn = document.createElement('button');
+                btn.className = "delete-btn"; btn.innerText = "✕";
+                btn.onclick = async () => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "news", d.id)); };
+                item.appendChild(btn);
+                list.appendChild(item);
+            });
+        });
+    };
+
+    window.postNews = async () => {
+        const t = document.getElementById('n-txt').value; if(!t) return;
+        await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() });
+        document.getElementById('n-txt').value = ""; showAlert("Publicado");
+    };
+
+    // --- MEMBRESIAS ---
+    window.showMembresiaManager = () => {
+        const content = document.getElementById('admin-content');
+        content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom" placeholder="Nombre"><input type="number" id="m-pre" placeholder="Precio"><input type="text" id="m-link" placeholder="Link MP"><button onclick="saveMem()">Añadir</button><hr><div id="adm-m-list"></div>`;
+        onSnapshot(collection(db, "membresias"), (snap) => {
+            const list = document.getElementById('adm-m-list'); if(!list) return;
+            list.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                const div = document.createElement('div');
+                div.style = "padding:10px; border-bottom:1px solid #eee; position:relative;";
+                div.innerHTML = `<b>${m.nombre}</b> ($${m.precio})`;
+                const btn = document.createElement('button');
+                btn.className = "delete-btn"; btn.innerText = "✕";
+                btn.onclick = async () => { await deleteDoc(doc(db, "membresias", d.id)); };
+                div.appendChild(btn);
+                list.appendChild(div);
+            });
+        });
+    };
+
+    window.saveMem = async () => {
+        const n = document.getElementById('m-nom').value; const p = document.getElementById('m-pre').value;
+        const l = document.getElementById('m-link').value; if(!n || !p) return;
+        await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l });
+        showAlert("Plan añadido");
+    };
+
+    // --- ALUMNOS ---
+    window.loadUsersAdmin = async () => {
+        const content = document.getElementById('admin-content');
+        content.innerHTML = `<input type="text" placeholder="🔍 Buscar alumno..." id="search-u"><div id="u-list"></div>`;
+        const snap = await getDocs(collection(db, "users"));
+        const uList = document.getElementById('u-list');
+        snap.forEach(d => {
+            const u = d.data();
+            uList.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee;">
+                <div><b>${u.name}</b><br><small>${u.credits || 0} créditos</small></div>
+                <button onclick="openEditUser('${d.id}')" style="width:auto; padding:5px 12px; font-size:10px; background:var(--sage);">COBRAR</button>
+            </div>`;
+        });
+    };
+
+    window.openEditUser = async (id) => {
+        const u = (await getDoc(doc(db, "users", id))).data();
+        document.getElementById('eu-id').value = id; document.getElementById('eu-name').value = u.name;
+        document.getElementById('eu-credits').value = u.credits || 0; document.getElementById('eu-role').value = u.role;
+        document.getElementById('modal-edit-user').style.display = 'flex';
+    };
+
+    window.registerSale = async () => {
+        const id = document.getElementById('eu-id').value;
+        const amt = Number(document.getElementById('pay-amt').value);
+        const crd = Number(document.getElementById('pay-creds').value);
+        await updateDoc(doc(db, "users", id), { credits: increment(crd) });
+        await addDoc(collection(db, "pagos"), { alumno: document.getElementById('eu-name').value, monto: amt, metodo: "Efectivo", fecha: serverTimestamp() });
+        document.getElementById('modal-edit-user').style.display = 'none';
+        showAlert("Venta registrada");
+    };
+
+    window.saveUser = async () => {
+        await updateDoc(doc(db, "users", document.getElementById('eu-id').value), { name: document.getElementById('eu-name').value, credits: Number(document.getElementById('eu-credits').value), role: document.getElementById('eu-role').value });
+        document.getElementById('modal-edit-user').style.display = 'none'; showAlert("Guardado");
+    };
+
+    // --- CLASES ---
+    function renderClases() {
+        onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), (snap) => {
+            const div = document.getElementById('list-clases'); div.innerHTML = "";
+            snap.forEach(d => {
+                const c = d.data(); const ya = c.inscritos?.includes(auth.currentUser?.uid);
+                div.innerHTML += `<div class="card">
+                    <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b><small>${c.isAportacion?'Aportación':'$'+c.price}</small></div>
+                    <small>📅 ${new Date(c.horario).toLocaleString()}</small>
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" ${ya?'disabled':''} style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
+                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button><button onclick="deleteDoc(doc(db,'clases','${d.id}'))" style="background:var(--red); font-size:10px; width:auto;">✕</button>`:''}
+                    </div>
+                </div>`;
+            });
+        });
+    }
+
+    window.saveClass = async () => {
+        await addDoc(collection(db, "clases"), { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked, inscritos: [] });
+        document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase creada");
+    };
+
+    window.reservar = async (id) => {
+        const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
+        if(!c.isAportacion && myData.credits <= 0) return showAlert("Sin créditos");
+        await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
+        if(!c.isAportacion) {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
+            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Crédito', fecha: serverTimestamp() });
+        }
+        showAlert("Reservado");
+    };
+
+    window.verLista = async (id) => {
+        const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || [];
+        let t = "Inscritos:\n"; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); t += `- ${u.data().name}\n`; }
+        alert(t || "Nadie anotado");
+    };
+
+    // --- OTROS ---
+    function loadMembresias() {
+        onSnapshot(collection(db, "membresias"), (snap) => {
+            const div = document.getElementById('list-membresias'); div.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                div.innerHTML += `<div class="card" style="min-width:150px; text-align:center;"><b>${m.nombre}</b><h3>$${m.precio}</h3><button onclick="window.open('${m.link}')" style="background:var(--mp-blue); font-size:10px;">PAGAR</button></div>`;
+            });
+        });
+    }
+
+    function loadNews() {
+        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
+            const div = document.getElementById('section-news'); div.innerHTML = "";
+            snap.forEach(d => { div.innerHTML += `<div class="news-card"><p>${d.data().texto}</p></div>`; });
+        });
+    }
+
+    document.getElementById('auth-toggle').onclick = () => {
+        isLogin = !isLogin;
+        document.getElementById('auth-title').innerText = isLogin ? 'Bienvenida/o' : 'Registro';
+        document.getElementById('btn-auth-main').innerText = isLogin ? 'Entrar' : 'Registrarme';
+        document.getElementById('reg-name').classList.toggle('hidden', isLogin);
+        document.getElementById('role-select').classList.toggle('hidden', isLogin);
+    };
+
+    document.getElementById('btn-auth-main').onclick = async () => {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-password').value;
+        if(isLogin) {
+            signInWithEmailAndPassword(auth, email, pass).catch(() => showAlert("Error de acceso"));
+        } else {
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email, role: document.getElementById('role-select').value, credits: 0 });
+        }
+    };
 </script>
 </body>
 </html>
