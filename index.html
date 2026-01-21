@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escarola Wellness Pro</title>
+    <title>Escarola Wellness OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -33,10 +33,9 @@
         .hidden { display: none !important; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         
-        /* Contenedor de paquetes scrollable */
-        .pkg-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; -ms-overflow-style: none; }
-        .pkg-container::-webkit-scrollbar { display: none; }
+        .pkg-container { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
         .pkg-card { min-width: 200px; background: white; border-radius: 25px; padding: 20px; text-align: center; box-shadow: var(--shadow); }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
 <body>
@@ -55,7 +54,7 @@
 
     <div id="view-auth" class="view hidden">
         <div class="card">
-            <h3 style="text-align:center;">Acceso a Escarola</h3>
+            <h3 style="text-align:center;">Wellness Studio</h3>
             <input type="text" id="reg-name" placeholder="Nombre completo">
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
@@ -71,43 +70,40 @@
     <div id="view-main" class="view hidden">
         <div id="section-news"></div>
 
-        <h4 style="color:white; margin: 10px 0 10px 5px;">Membresías Disponibles</h4>
+        <h4 style="color:white; margin: 10px 0 10px 5px;">Membresías</h4>
         <div class="pkg-container">
             <div class="pkg-card">
-                <small style="color:var(--gold); font-weight:700;">PLAN BÁSICO</small>
-                <h3 style="margin:10px 0;">4 Clases</h3>
-                <h2 style="margin:0; color:var(--dark-sage);">$600</h2>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="margin-top:15px; padding:10px; font-size:11px; background:var(--mp-blue);">COMPRAR PAQUETE</button>
+                <small>BÁSICO</small><h3>4 Clases</h3><h2>$600</h2>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue);">PAGAR</button>
             </div>
-            <div class="pkg-card" style="border: 2px solid var(--gold);">
-                <small style="color:var(--gold); font-weight:700;">PLAN PLUS</small>
-                <h3 style="margin:10px 0;">8 Clases</h3>
-                <h2 style="margin:0; color:var(--dark-sage);">$1,100</h2>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="margin-top:15px; padding:10px; font-size:11px; background:var(--mp-blue);">COMPRAR PAQUETE</button>
+            <div class="pkg-card" style="border:2px solid var(--gold);">
+                <small>RECOMENDADO</small><h3>8 Clases</h3><h2>$1,100</h2>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue);">PAGAR</button>
             </div>
         </div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-top:20px;">
-            <h4 style="margin-left:5px;">Horario de Clases</h4>
-            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:11px;">+ Nueva Clase</button>
+            <h4>Próximas Clases</h4>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:11px;">+ Clase</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white;">Panel de Administración</h3>
+        <h3 style="color:white;">Admin Panel</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
                 <button onclick="loadUsersAdmin()">👤 Alumnos</button>
+                <button onclick="loadPaymentsAdmin()" style="background:var(--gold);">💰 Pagos/Reservas</button>
                 <button onclick="showNewsManager()">📢 Avisos</button>
-                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📈 Exportar Reporte PDF</button>
+                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Reporte PDF</button>
             </div>
             <div id="admin-content"></div>
         </div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Clases</div>
+        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Inicio</div>
         <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
@@ -115,11 +111,11 @@
 <div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
     <div class="card" style="width:90%; max-width:400px;">
         <h3>Nueva Clase</h3>
-        <input type="text" id="clase-name" placeholder="Nombre de la actividad">
-        <input type="number" id="clase-price" placeholder="Precio (para reporte)">
+        <input type="text" id="clase-name" placeholder="Actividad">
+        <input type="number" id="clase-price" placeholder="Precio MXN">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class" style="margin-top:15px;">Publicar Ahora</button>
-        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cancelar</button>
+        <button id="btn-save-class" style="margin-top:15px;">Crear</button>
+        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cerrar</button>
     </div>
 </div>
 
@@ -148,14 +144,12 @@
             myData = snap.data();
             document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('nav-bottom').classList.remove('hidden');
-            
             if(myData.role === 'alumno') {
                 document.getElementById('user-credits-display').classList.remove('hidden');
-                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CLASES LIBRES`;
+                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CRÉDITOS`;
             }
             if (myData.role !== 'alumno') document.getElementById('btn-crear-trigger').classList.remove('hidden');
             if (myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
-            
             switchTab('clases');
             loadNews();
         } else {
@@ -184,23 +178,22 @@
                 const c = d.data();
                 const inscritos = c.inscritos || [];
                 const yaInscrito = inscritos.includes(auth.currentUser?.uid);
-
                 div.innerHTML += `
                     <div class="card">
                         <div style="display:flex; justify-content:space-between;">
-                            <b>${c.nombre}</b> <span style="color:var(--gold); font-weight:700;">$${c.price}</span>
+                            <b>${c.nombre}</b> <span style="color:var(--gold)">$${c.price}</span>
                         </div>
                         <small>📅 ${new Date(c.horario).toLocaleString()}</small><br>
-                        <small>👥 ${inscritos.length} alumnos inscritos</small>
-                        <div style="margin-top:15px; display:flex; gap:8px;">
+                        <small>👥 ${inscritos.length} Inscritos</small>
+                        <div style="margin-top:10px; display:flex; gap:8px;">
                             ${myData.role === 'alumno' ? 
                                 `<button onclick="reservarClase('${d.id}')" ${yaInscrito ? 'disabled' : ''} style="background:${yaInscrito ? '#ccc' : 'var(--gold)'}; font-size:11px;">
-                                    ${yaInscrito ? 'YA RESERVADO' : 'APARTAR LUGAR'}
+                                    ${yaInscrito ? 'RESERVADO' : 'APARTAR LUGAR'}
                                 </button>` : ''
                             }
                             ${(myData.role === 'admin' || c.maestroId === auth.currentUser.uid) ? 
-                                `<button onclick="verLista('${d.id}')" style="background:var(--dark-sage); font-size:11px; width:auto;">LISTA</button>
-                                 <button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:11px; width:auto;">BORRAR</button>` : ''
+                                `<button onclick="verLista('${d.id}')" style="background:var(--dark-sage); font-size:10px; width:auto;">LISTA</button>
+                                 <button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:10px; width:auto;">✕</button>` : ''
                             }
                         </div>
                     </div>`;
@@ -209,11 +202,16 @@
     }
 
     window.reservarClase = async (id) => {
-        if(myData.credits <= 0) return alert("No tienes créditos suficientes.");
-        if(confirm("¿Reservar lugar? Se usará 1 crédito de tu cuenta.")) {
+        if(myData.credits <= 0) return alert("Sin créditos.");
+        const snap = await getDoc(doc(db, "clases", id));
+        const cInfo = snap.data();
+        if(confirm("¿Reservar lugar? Se descontará 1 crédito.")) {
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
             await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
-            alert("¡Lugar apartado con éxito!");
+            await addDoc(collection(db, "pagos"), {
+                alumno: myData.name, clase: cInfo.nombre, monto: cInfo.price, fecha: serverTimestamp()
+            });
+            alert("Reservado y Pagado.");
             location.reload();
         }
     };
@@ -221,50 +219,58 @@
     window.verLista = async (id) => {
         const snap = await getDoc(doc(db, "clases", id));
         const ids = snap.data().inscritos || [];
-        if(ids.length === 0) return alert("Aún no hay inscritos.");
-        let nombres = "Lista de asistencia:\n";
+        if(!ids.length) return alert("Sin inscritos.");
+        let txt = "Inscritos:\n";
         for(let uid of ids) {
-            const uSnap = await getDoc(doc(db, "users", uid));
-            nombres += `- ${uSnap.data()?.name || 'Alumno'}\n`;
+            const u = await getDoc(doc(db, "users", uid));
+            txt += `- ${u.data().name}\n`;
         }
-        alert(nombres);
+        alert(txt);
     };
 
     document.getElementById('btn-save-class').onclick = async () => {
         const n = document.getElementById('clase-name').value;
         const p = document.getElementById('clase-price').value;
         const t = document.getElementById('clase-time').value;
-        if(!n || !p || !t) return alert("Completa todos los campos");
-
+        if(!n || !p || !t) return alert("Faltan datos.");
         await addDoc(collection(db, "clases"), {
-            nombre: n, price: Number(p), horario: t,
-            maestroId: auth.currentUser.uid, maestroName: myData.name,
-            inscritos: []
+            nombre: n, price: Number(p), horario: t, maestroId: auth.currentUser.uid, maestroName: myData.name, inscritos: []
         });
         document.getElementById('modal-clase').style.display = 'none';
-        alert("Clase publicada");
     };
 
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Gestión de Créditos</h4>";
+        content.innerHTML = "<h4>Créditos Alumnos</h4>";
         const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
             const u = d.data();
-            content.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee;">
-                <div><b>${u.name}</b><br><small>${u.credits || 0} créd. • ${u.role}</small></div>
-                <button onclick="editCredits('${d.id}', ${u.credits || 0})" style="width:auto; padding:5px 10px; font-size:10px;">CARGAR</button>
+            content.innerHTML += `<div class="user-row">
+                <div><b>${u.name}</b><br><small>${u.credits || 0} créd.</small></div>
+                <button onclick="editCredits('${d.id}', ${u.credits || 0})" style="width:auto; padding:5px; font-size:10px;">CARGAR</button>
             </div>`;
         });
     };
 
     window.editCredits = async (id, current) => {
-        const n = prompt("Actualizar cantidad de créditos:", current);
+        const n = prompt("Nuevo total créditos:", current);
         if(n !== null) await updateDoc(doc(db, "users", id), { credits: Number(n) });
         loadUsersAdmin();
     };
 
-    window.deleteClass = async (id) => { if(confirm("¿Eliminar clase permanentemente?")) await deleteDoc(doc(db, "clases", id)); };
+    window.loadPaymentsAdmin = async () => {
+        const content = document.getElementById('admin-content');
+        content.innerHTML = "<h4>Historial de Reservas</h4>";
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            content.innerHTML += `<div style="font-size:11px; padding:8px; border-bottom:1px solid #eee;">
+                <b>${p.alumno}</b> → ${p.clase} <span style="color:green; float:right;">PAGADO ($${p.monto})</span>
+            </div>`;
+        });
+    };
+
+    window.deleteClass = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "clases", id)); };
 
     document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     document.getElementById('btn-register').onclick = async () => {
@@ -276,21 +282,19 @@
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
             const div = document.getElementById('section-news');
             div.innerHTML = "";
-            snap.forEach(d => {
-                div.innerHTML += `<div class="news-card"><small>AVISO</small><p style="margin:5px 0;">${d.data().texto}</p></div>`;
-            });
+            snap.forEach(d => { div.innerHTML += `<div class="news-card"><small>AVISO</small><p style="margin:5px 0;">${d.data().texto}</p></div>`; });
         });
     }
 
     window.showNewsManager = () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Nuevo Aviso</h4><textarea id="new-news-text"></textarea><button onclick="postNews()">Publicar Aviso</button>`;
+        content.innerHTML = `<h4>Nuevo Aviso</h4><textarea id="new-news-text"></textarea><button onclick="postNews()">Publicar</button>`;
     };
 
     window.postNews = async () => {
         const txt = document.getElementById('new-news-text').value;
         if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-        alert("Aviso publicado");
+        alert("Publicado");
     };
 
     window.loadFinanceReport = async () => {
@@ -303,7 +307,7 @@
         const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
         docPDF.text("REPORTE FINANCIERO ESCAROLA", 14, 20);
         docPDF.autoTable({ head:[['Clase','Prof','Precio','Fecha']], body:rows, startY:30 });
-        docPDF.text(`TOTAL ESTIMADO: $${total} MXN`, 14, docPDF.lastAutoTable.finalY+10);
+        docPDF.text(`TOTAL: $${total} MXN`, 14, docPDF.lastAutoTable.finalY+10);
         docPDF.save("Reporte_Escarola.pdf");
     };
 </script>
