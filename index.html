@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wellness App Pro</title>
+    <title>Wellness App Pro - Completa</title>
     <style>
         :root { --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; --white: #ffffff; --gold: #d4a373; --red: #e63946; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: var(--sage); color: var(--dark-sage); }
         #app { padding: 20px 20px 100px 20px; min-height: 100vh; box-sizing: border-box; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: var(--cream); }
         .card { background: var(--cream); border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
-        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 14px; }
+        input, select, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
         button { background: var(--dark-sage); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .btn-edit { background: var(--gold); width: auto; padding: 5px 10px; margin-right: 5px; }
-        .btn-delete { background: var(--red); width: auto; padding: 5px 10px; }
+        .btn-edit { background: var(--gold); width: auto; padding: 5px 10px; margin-right: 5px; font-size: 12px; }
+        .btn-delete { background: var(--red); width: auto; padding: 5px 10px; font-size: 12px; }
         .hidden { display: none !important; }
         
         .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 24px 24px 0 0; z-index: 1000; }
         .nav-item { color: var(--cream); text-align: center; font-size: 11px; cursor: pointer; }
         .nav-item span { font-size: 22px; display: block; }
+        
+        .badge { font-size: 10px; padding: 3px 8px; border-radius: 5px; color: white; font-weight: bold; }
+        .badge-alumno { background: var(--sage); }
+        .badge-maestro { background: #3d5a80; }
         
         #loading-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:var(--sage); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:5000; color:white; }
         .btn-mp { background: #009ee3; color: white; text-decoration: none; display: block; padding: 12px; border-radius: 10px; text-align: center; font-weight: bold; margin-top: 10px; }
@@ -26,7 +30,7 @@
 </head>
 <body>
 
-<div id="loading-screen"><h3>Wellness App</h3><p>Cargando gestión...</p></div>
+<div id="loading-screen"><h3>Wellness App</h3><p>Cargando sistema completo...</p></div>
 
 <div id="app">
     <header>
@@ -34,12 +38,13 @@
             <img src="logo.png" style="width:35px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <h2 style="margin:0; font-size:18px;">Wellness App</h2>
         </div>
-        <button id="btn-logout" class="hidden" style="width:auto; background:transparent; border:1px solid white;">Salir</button>
+        <button id="btn-logout" class="hidden" style="width:auto; background:transparent; border:1px solid white; padding:5px 10px;">Salir</button>
     </header>
 
     <div id="view-auth" class="hidden">
         <div class="card">
-            <h3>Entrar</h3>
+            <h3>Registro / Acceso</h3>
+            <input type="text" id="reg-name" placeholder="Nombre Completo">
             <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
@@ -47,7 +52,7 @@
                 <option value="maestro">Soy Maestro</option>
             </select>
             <button id="btn-login">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Registrarme</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta</button>
         </div>
     </div>
 
@@ -60,12 +65,19 @@
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white;">Panel Admin</h3>
+        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
+        
         <div class="card">
-            <h4>Promover Admin</h4>
-            <input type="email" id="search-admin" placeholder="Correo">
-            <button id="btn-make-admin">Dar Permisos</button>
+            <h4>Gestión de Admins</h4>
+            <input type="email" id="search-admin" placeholder="Correo del usuario">
+            <button id="btn-make-admin">Hacer Admin</button>
         </div>
+
+        <div style="margin: 15px 0; display:flex; gap:10px;">
+            <button onclick="loadAdminSection('users')">👥 Usuarios</button>
+            <button onclick="loadAdminSection('pagos')">💰 Pagos</button>
+        </div>
+        
         <div id="admin-results"></div>
     </div>
 
@@ -79,9 +91,9 @@
     <div class="card" style="width:85%; max-width:400px;">
         <h3 id="modal-title">Nueva Clase</h3>
         <input type="hidden" id="edit-id">
-        <input type="text" id="clase-name" placeholder="Nombre (Yoga, Pilates...)">
+        <input type="text" id="clase-name" placeholder="Nombre (Ej: Yoga Flow)">
         <input type="number" id="clase-price" placeholder="Precio MXN">
-        <label style="font-size:12px">Horario de la clase:</label>
+        <label style="font-size:12px">Fecha y Hora:</label>
         <input type="datetime-local" id="clase-time">
         <button id="btn-save-class">Guardar Clase</button>
         <button onclick="closeModal()" style="background:none; color:gray">Cancelar</button>
@@ -111,22 +123,31 @@
         document.getElementById('loading-screen').classList.add('hidden');
         if (user) {
             const snap = await getDoc(doc(db, "users", user.uid));
-            window.userRole = snap.data()?.role || 'alumno';
-            document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('nav-bottom').classList.remove('hidden');
-            document.getElementById('btn-logout').classList.remove('hidden');
-            if (window.userRole !== 'alumno') document.getElementById('btn-crear-trigger').classList.remove('hidden');
-            if (window.userRole === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
-            switchTab('clases');
+            const userData = snap.data();
+            if (userData) {
+                window.userRole = userData.role;
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('nav-bottom').classList.remove('hidden');
+                document.getElementById('btn-logout').classList.remove('hidden');
+                if (window.userRole !== 'alumno') document.getElementById('btn-crear-trigger').classList.remove('hidden');
+                if (window.userRole === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
+                switchTab('clases');
+            }
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
+            document.getElementById('nav-bottom').classList.add('hidden');
         }
     });
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-        document.getElementById(tab === 'clases' ? 'view-main' : 'view-admin').classList.remove('hidden');
-        if (tab === 'clases') loadClases();
+        if (tab === 'clases') {
+            document.getElementById('view-main').classList.remove('hidden');
+            loadClases();
+        } else if (tab === 'admin') {
+            document.getElementById('view-admin').classList.remove('hidden');
+            loadAdminSection('users');
+        }
     };
 
     function loadClases() {
@@ -136,28 +157,53 @@
             div.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data();
-                const fecha = new Date(c.horario).toLocaleString();
                 const canEdit = window.userRole === 'admin' || c.maestroId === auth.currentUser.uid;
-                
                 div.innerHTML += `
                     <div class="card">
                         <div style="display:flex; justify-content:space-between">
                             <b>${c.nombre}</b>
-                            <span style="color:var(--sage)">$${c.price}</span>
+                            <span style="color:var(--sage);">$${c.price} MXN</span>
                         </div>
-                        <div style="font-size:13px; margin:5px 0;">📅 ${fecha}</div>
-                        <small>Por: ${c.maestroEmail}</small>
-                        ${window.userRole === 'alumno' ? `<a href="${MP_LINK}" class="btn-mp" target="_blank">Pagar Clase</a>` : ''}
-                        ${canEdit ? `
-                            <div style="margin-top:10px">
-                                <button class="btn-edit" onclick="openModal('${d.id}', '${c.nombre}', '${c.price}', '${c.horario}')">Editar</button>
-                                <button class="btn-delete" onclick="deleteClass('${d.id}')">Eliminar</button>
-                            </div>
-                        ` : ''}
+                        <div style="font-size:13px; margin:5px 0;">📅 ${new Date(c.horario).toLocaleString()}</div>
+                        <small>Instructor: ${c.maestroName || c.maestroEmail}</small>
+                        ${window.userRole === 'alumno' ? `<a href="${MP_LINK}" class="btn-mp" target="_blank">Pagar Inscripción</a>` : ''}
+                        ${canEdit ? `<div style="margin-top:10px">
+                            <button class="btn-edit" onclick="openModal('${d.id}', '${c.nombre}', '${c.price}', '${c.horario}')">Editar</button>
+                            <button class="btn-delete" onclick="deleteClass('${d.id}')">Eliminar</button>
+                        </div>` : ''}
                     </div>`;
             });
         });
     }
+
+    window.loadAdminSection = (type) => {
+        const results = document.getElementById('admin-results');
+        results.innerHTML = "Cargando...";
+        if (type === 'users') {
+            onSnapshot(collection(db, "users"), (snap) => {
+                results.innerHTML = "<h4>Maestros y Alumnos</h4>";
+                snap.forEach(d => {
+                    const u = d.data();
+                    results.innerHTML += `<div class="card" style="padding:10px">
+                        <b>${u.name || 'Sin nombre'}</b> (${u.email}) <br>
+                        <span class="badge badge-${u.role}">${u.role}</span>
+                    </div>`;
+                });
+            });
+        } else {
+            onSnapshot(collection(db, "clases"), (snap) => {
+                results.innerHTML = "<h4>Control de Pagos</h4>";
+                snap.forEach(d => {
+                    const c = d.data();
+                    results.innerHTML += `<div class="card">
+                        <b>${c.nombre}</b> - $${c.price} <br>
+                        <small>Maestro: ${c.maestroName}</small>
+                        <button style="margin-top:10px; background:var(--sage)">Validar Pago ✅</button>
+                    </div>`;
+                });
+            });
+        }
+    };
 
     window.openModal = (id = '', name = '', price = '', time = '') => {
         document.getElementById('modal-clase').style.display = 'flex';
@@ -172,12 +218,14 @@
 
     document.getElementById('btn-save-class').onclick = async () => {
         const id = document.getElementById('edit-id').value;
+        const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
         const data = {
             nombre: document.getElementById('clase-name').value,
             price: Number(document.getElementById('clase-price').value),
             horario: document.getElementById('clase-time').value,
             maestroId: auth.currentUser.uid,
             maestroEmail: auth.currentUser.email,
+            maestroName: userSnap.data().name || auth.currentUser.email,
             creado: new Date()
         };
         if (id) await updateDoc(doc(db, "clases", id), data);
@@ -185,17 +233,32 @@
         closeModal();
     };
 
-    window.deleteClass = async (id) => {
-        if (confirm("¿Seguro que quieres eliminar esta clase?")) await deleteDoc(doc(db, "clases", id));
+    window.deleteClass = async (id) => { if (confirm("¿Borrar clase?")) await deleteDoc(doc(db, "clases", id)); };
+
+    document.getElementById('btn-login').onclick = () => {
+        signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     };
 
-    // AUTH Y DEMÁS FUNCIONES IGUAL QUE ANTES...
-    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     document.getElementById('btn-register').onclick = async () => {
-        const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-        await setDoc(doc(db, "users", res.user.uid), { email: document.getElementById('email').value, role: document.getElementById('role-select').value });
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('email').value;
+        const pass = document.getElementById('password').value;
+        const role = document.getElementById('role-select').value;
+        const res = await createUserWithEmailAndPassword(auth, email, pass);
+        await setDoc(doc(db, "users", res.user.uid), { name, email, role });
     };
+
     document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
+
+    document.getElementById('btn-make-admin').onclick = async () => {
+        const email = document.getElementById('search-admin').value;
+        const q = query(collection(db, "users"), where("email", "==", email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+            await setDoc(doc(db, "users", snap.docs[0].id), { role: 'admin' }, { merge: true });
+            alert("Usuario ahora es Admin");
+        }
+    };
 </script>
 </body>
 </html>
