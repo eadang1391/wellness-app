@@ -25,7 +25,6 @@
             width: 100%; padding: 15px 20px; margin: 8px 0; border-radius: 25px; 
             border: 2px solid #f0f0f0; box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600; outline: none;
         }
-        input:focus { border-color: var(--sage); }
 
         button { 
             width: 100%; padding: 16px; border-radius: 35px; border: none; font-weight: 700; 
@@ -52,7 +51,6 @@
 
         .hidden { display: none !important; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
-        
         .logo-img { width: 45px; height: 45px; object-fit: contain; }
 
         .modal-overlay {
@@ -60,10 +58,7 @@
             background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
             display: none; align-items: center; justify-content: center; z-index: 3000;
         }
-
-        .search-bar {
-            background: #f9f9f9; border: 2px solid #eee; margin-bottom: 15px;
-        }
+        .badge { font-size: 9px; padding: 4px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -84,86 +79,91 @@
 
     <div id="view-auth" class="view hidden">
         <div class="card">
-            <h3 style="text-align:center;">Acceso Studio</h3>
+            <h3 style="text-align:center;">Bienvenida/o</h3>
             <input type="text" id="reg-name" placeholder="Nombre completo">
-            <input type="email" id="email" placeholder="Correo electrónico">
+            <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
-                <option value="alumno">Soy Alumno</option>
-                <option value="maestro">Soy Maestro</option>
+                <option value="alumno">Alumno</option>
+                <option value="maestro">Maestro</option>
             </select>
             <button id="btn-login" style="margin-top:10px;">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Registrar Cuenta</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="section-news"></div>
-        <h4 style="color:white; margin-left:10px;">Membresías</h4>
+        
+        <h4 style="color:white; margin-left:10px;">Membresías y Pagos</h4>
         <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:15px; scrollbar-width:none;">
-            <div class="card" style="min-width:180px; text-align:center; padding:15px;">
-                <small>PLAN 4</small><h3>$600</h3>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:8px; font-size:10px; background:var(--mp-blue);">ADQUIRIR</button>
+            <div class="card" style="min-width:200px; text-align:center; padding:15px;">
+                <small>PLAN 4 CLASES</small><h3>$600</h3>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue); margin-bottom:5px;">MERCADO PAGO</button>
+                <button onclick="showAlert('Solicita tu pago en efectivo en recepción')" style="padding:10px; font-size:10px; background:var(--sage);">PAGO EFECTIVO</button>
             </div>
-            <div class="card" style="min-width:180px; text-align:center; padding:15px; border:2.5px solid var(--gold);">
-                <small>PLAN 8</small><h3>$1,100</h3>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:8px; font-size:10px; background:var(--mp-blue);">ADQUIRIR</button>
+            <div class="card" style="min-width:200px; text-align:center; padding:15px; border:2px solid var(--gold);">
+                <small>PLAN 8 CLASES</small><h3>$1,100</h3>
+                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:10px; font-size:10px; background:var(--mp-blue); margin-bottom:5px;">MERCADO PAGO</button>
+                <button onclick="showAlert('Solicita tu pago en efectivo en recepción')" style="padding:10px; font-size:10px; background:var(--sage);">PAGO EFECTIVO</button>
             </div>
         </div>
+
         <div style="display:flex; justify-content:space-between; align-items:center; color:white;">
-            <h4 style="margin-left:10px;">Clases Disponibles</h4>
-            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:10px;">+ Nueva</button>
+            <h4 style="margin-left:10px;">Próximas Clases</h4>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:10px;">+ Clase</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-left:10px;">Panel de Control</h3>
+        <h3 style="color:white; margin-left:10px;">Administración</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                <button onclick="loadUsersAdmin()">👥 Gestión Usuarios</button>
-                <button onclick="loadPaymentsAdmin()">💰 Historial Pagos</button>
-                <button onclick="showNewsManager()" style="grid-column: span 2;">📢 Nuevo Aviso</button>
+                <button onclick="loadUsersAdmin()">👥 Alumnos</button>
+                <button onclick="loadPaymentsAdmin()">💰 Historial</button>
+                <button onclick="showNewsManager()" style="grid-column: span 2;">📢 Avisos</button>
+                <button onclick="exportFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Reporte PDF Ventas</button>
             </div>
             <div id="admin-content"></div>
         </div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Clases</div>
+        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Inicio</div>
         <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
 <div id="modal-edit-user" class="modal-overlay">
-    <div class="card" style="width:92%; max-width:400px;">
-        <h3 style="margin-top:0;">Editar Usuario</h3>
+    <div class="card" style="width:90%; max-width:400px;">
+        <h3 style="margin-top:0;">Editar Perfil / Cobro</h3>
         <input type="hidden" id="edit-u-id">
-        <label style="font-size:11px; margin-left:15px; font-weight:700;">Nombre</label>
-        <input type="text" id="edit-u-name">
-        <label style="font-size:11px; margin-left:15px; font-weight:700;">Email</label>
-        <input type="email" id="edit-u-email">
-        <label style="font-size:11px; margin-left:15px; font-weight:700;">Créditos</label>
-        <input type="number" id="edit-u-credits">
-        <label style="font-size:11px; margin-left:15px; font-weight:700;">Rol</label>
-        <select id="edit-u-role">
-            <option value="alumno">Alumno</option>
-            <option value="maestro">Maestro</option>
-            <option value="admin">Administrador</option>
-        </select>
-        <button id="btn-save-user" style="margin-top:10px;">Guardar Cambios</button>
-        <button onclick="document.getElementById('modal-edit-user').style.display='none'" style="background:none; color:gray; margin-top:5px; font-size:13px;">Cancelar</button>
+        <input type="text" id="edit-u-name" placeholder="Nombre">
+        <input type="number" id="edit-u-credits" placeholder="Créditos actuales">
+        <label style="font-size:11px; margin-left:10px;">Tipo de usuario:</label>
+        <select id="edit-u-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
+        
+        <div style="background:#f9f9f9; padding:15px; border-radius:20px; margin:10px 0; border:1px dashed var(--sage);">
+            <p style="margin:0 0 10px 0; font-size:12px; font-weight:700;">REGISTRAR PAGO EFECTIVO</p>
+            <input type="number" id="cash-amount" placeholder="Monto recibido $">
+            <input type="number" id="cash-credits" placeholder="Créditos a cargar">
+            <button onclick="registerCashPayment()" style="background:var(--sage); padding:10px; font-size:12px;">REGISTRAR Y SUMAR</button>
+        </div>
+
+        <button id="btn-save-user">Guardar Cambios</button>
+        <button onclick="document.getElementById('modal-edit-user').style.display='none'" style="background:none; color:gray;">Cancelar</button>
     </div>
 </div>
 
 <div id="modal-clase" class="modal-overlay">
     <div class="card" style="width:90%; max-width:400px;">
-        <h3 style="margin-top:0;">Nueva Clase</h3>
-        <input type="text" id="clase-name" placeholder="Nombre de actividad">
-        <input type="number" id="clase-price" placeholder="Precio MXN">
+        <h3>Nueva Clase</h3>
+        <input type="text" id="clase-name" placeholder="Actividad">
+        <input type="number" id="clase-price" placeholder="Costo Unitario (para reporte)">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class">Publicar Clase</button>
-        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray; margin-top:5px;">Cerrar</button>
+        <button id="btn-save-class">Publicar</button>
+        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cancelar</button>
     </div>
 </div>
 
@@ -185,7 +185,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     let myData = null;
-    let allUsers = []; // Para búsqueda local rápida
+    let allUsers = [];
 
     window.showAlert = (msg) => {
         const el = document.getElementById('custom-alert');
@@ -207,9 +207,7 @@
             if (myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
             switchTab('clases');
             loadNews();
-        } else {
-            document.getElementById('view-auth').classList.remove('hidden');
-        }
+        } else { document.getElementById('view-auth').classList.remove('hidden'); }
     });
 
     window.switchTab = (tab) => {
@@ -234,14 +232,11 @@
                 const yaInscrito = c.inscritos?.includes(auth.currentUser?.uid);
                 div.innerHTML += `
                     <div class="card">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <b style="font-size:17px;">${c.nombre}</b> 
-                            <span style="color:var(--gold); font-weight:700;">$${c.price}</span>
-                        </div>
-                        <small style="color:gray;">📅 ${new Date(c.horario).toLocaleString([], {weekday:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</small>
-                        <div style="margin-top:12px; display:flex; gap:10px;">
-                            ${myData.role === 'alumno' ? `<button onclick="reservar('${d.id}')" ${yaInscrito?'disabled':''} style="background:${yaInscrito?'#ccc':'var(--gold)'}; font-size:11px;">${yaInscrito?'LUGAR RESERVADO ✓':'RESERVAR'}</button>` : ''}
-                            ${myData.role !== 'alumno' ? `<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto; padding:10px 15px;">LISTA</button><button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:10px; width:auto; padding:10px 15px;">✕</button>` : ''}
+                        <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b> <span>$${c.price}</span></div>
+                        <small>📅 ${new Date(c.horario).toLocaleString()}</small>
+                        <div style="margin-top:10px; display:flex; gap:8px;">
+                            ${myData.role === 'alumno' ? `<button onclick="reservar('${d.id}')" ${yaInscrito?'disabled':''} style="background:${yaInscrito?'#ccc':'var(--gold)'}; font-size:11px;">${yaInscrito?'YA INSCRITO':'RESERVAR'}</button>` : ''}
+                            ${myData.role !== 'alumno' ? `<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button><button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:10px; width:auto;">✕</button>` : ''}
                         </div>
                     </div>`;
             });
@@ -249,135 +244,140 @@
     }
 
     window.reservar = async (id) => {
-        if(myData.credits <= 0) return showAlert("Sin créditos suficientes.");
-        if(confirm("¿Confirmar reserva de 1 crédito?")) {
+        if(myData.credits <= 0) return showAlert("Sin créditos.");
+        if(confirm("¿Reservar lugar?")) {
+            const snap = await getDoc(doc(db, "clases", id));
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
             await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
-            await addDoc(collection(db, "pagos"), { alumno: myData.name, clase: id, fecha: serverTimestamp() });
-            showAlert("¡Lugar apartado!"); location.reload();
+            await addDoc(collection(db, "pagos"), { 
+                alumno: myData.name, 
+                clase: snap.data().nombre, 
+                monto: snap.data().price, 
+                metodo: 'Credito de Membresía',
+                fecha: serverTimestamp() 
+            });
+            showAlert("¡Reservado!"); location.reload();
         }
     };
 
-    // BÚSQUEDA Y GESTIÓN DE USUARIOS
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `
-            <h4 style="margin-top:0;">Buscar Usuario</h4>
-            <input type="text" id="user-search" class="search-bar" placeholder="🔍 Escribe nombre o correo..." onkeyup="filterUsers(this.value)">
-            <div id="users-list-render">Cargando...</div>
-        `;
+        content.innerHTML = `<input type="text" id="u-search" placeholder="🔍 Buscar alumno..." onkeyup="filterUsers(this.value)"><div id="u-list"></div>`;
         const snap = await getDocs(collection(db, "users"));
-        allUsers = [];
-        snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+        allUsers = []; snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
         filterUsers("");
     };
 
     window.filterUsers = (val) => {
-        const listDiv = document.getElementById('users-list-render');
-        const filtered = allUsers.filter(u => 
-            u.name.toLowerCase().includes(val.toLowerCase()) || 
-            u.email.toLowerCase().includes(val.toLowerCase())
-        );
-        listDiv.innerHTML = "";
-        filtered.forEach(u => {
-            listDiv.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #eee;">
-                    <div>
-                        <b style="font-size:14px;">${u.name}</b><br>
-                        <small style="color:var(--sage); font-weight:700;">${u.role.toUpperCase()} • ${u.credits || 0} CRÉD.</small>
-                    </div>
-                    <button onclick="openEditUser('${u.id}')" style="width:auto; padding:8px 15px; font-size:10px; background:var(--sage); border-radius:20px;">EDITAR</button>
-                </div>`;
+        const div = document.getElementById('u-list'); div.innerHTML = "";
+        allUsers.filter(u => u.name.toLowerCase().includes(val.toLowerCase())).forEach(u => {
+            div.innerHTML += `<div style="display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid #eee;">
+                <div><b>${u.name}</b><br><small>${u.credits || 0} créditos</small></div>
+                <button onclick="openEditUser('${u.id}')" style="width:auto; padding:5px 12px; font-size:10px; background:var(--sage);">COBRO / EDITAR</button>
+            </div>`;
         });
     };
 
     window.openEditUser = async (id) => {
-        const snap = await getDoc(doc(db, "users", id));
-        const u = snap.data();
+        const u = (await getDoc(doc(db, "users", id))).data();
         document.getElementById('edit-u-id').value = id;
         document.getElementById('edit-u-name').value = u.name;
-        document.getElementById('edit-u-email').value = u.email;
         document.getElementById('edit-u-credits').value = u.credits || 0;
         document.getElementById('edit-u-role').value = u.role;
         document.getElementById('modal-edit-user').style.display = 'flex';
     };
 
-    document.getElementById('btn-save-user').onclick = async () => {
+    window.registerCashPayment = async () => {
         const id = document.getElementById('edit-u-id').value;
-        await updateDoc(doc(db, "users", id), {
+        const amount = document.getElementById('cash-amount').value;
+        const creds = document.getElementById('cash-credits').value;
+        const name = document.getElementById('edit-u-name').value;
+
+        if(!amount || !creds) return showAlert("Ingresa monto y créditos");
+
+        await updateDoc(doc(db, "users", id), { credits: increment(Number(creds)) });
+        await addDoc(collection(db, "pagos"), {
+            alumno: name,
+            clase: "Compra Membresía (Efectivo)",
+            monto: Number(amount),
+            metodo: "Efectivo",
+            fecha: serverTimestamp()
+        });
+        showAlert("¡Pago en efectivo registrado!");
+        document.getElementById('modal-edit-user').style.display = 'none';
+        loadUsersAdmin();
+    };
+
+    document.getElementById('btn-save-user').onclick = async () => {
+        await updateDoc(doc(db, "users", document.getElementById('edit-u-id').value), {
             name: document.getElementById('edit-u-name').value,
-            email: document.getElementById('edit-u-email').value,
             credits: Number(document.getElementById('edit-u-credits').value),
             role: document.getElementById('edit-u-role').value
         });
         document.getElementById('modal-edit-user').style.display = 'none';
-        showAlert("Datos actualizados");
-        loadUsersAdmin();
+        showAlert("Actualizado"); loadUsersAdmin();
     };
 
     window.loadPaymentsAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Últimos Movimientos</h4>";
+        content.innerHTML = "<h4>Movimientos Recientes</h4>";
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => { 
             const p = d.data();
-            const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : 'Reciente';
-            content.innerHTML += `<div style="font-size:12px; padding:10px; background:#f5f5f5; border-radius:15px; margin-bottom:8px;"><b>${p.alumno}</b> reservó una clase <br><small>${f}</small></div>`; 
+            const color = p.metodo === 'Efectivo' ? 'green' : 'var(--mp-blue)';
+            content.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee;">
+                <b>${p.alumno}</b> - ${p.clase} <br>
+                <span style="color:${color}; font-weight:700;">$${p.monto} via ${p.metodo}</span>
+            </div>`; 
         });
+    };
+
+    window.exportFinanceReport = async () => {
+        showAlert("Generando Reporte...");
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let rows = []; let total = 0;
+        snap.forEach(d => {
+            const p = d.data(); total += Number(p.monto || 0);
+            rows.push([p.alumno, p.clase, `$${p.monto}`, p.metodo, p.fecha?.toDate().toLocaleDateString() || 'Hoy']);
+        });
+        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
+        docPDF.text("REPORTE FINANCIERO ESCAROLA WELLNESS", 14, 20);
+        docPDF.autoTable({ head:[['Alumno','Concepto','Monto','Método','Fecha']], body:rows, startY:30 });
+        docPDF.text(`TOTAL RECAUDADO: $${total} MXN`, 14, docPDF.lastAutoTable.finalY + 10);
+        docPDF.save("Ventas_Escarola.pdf");
+        showAlert("PDF Descargado");
     };
 
     document.getElementById('btn-save-class').onclick = async () => {
-        const n = document.getElementById('clase-name').value;
-        const p = document.getElementById('clase-price').value;
-        const t = document.getElementById('clase-time').value;
-        if(!n || !p || !t) return showAlert("Faltan datos");
         await addDoc(collection(db, "clases"), {
-            nombre: n, price: Number(p), horario: t,
+            nombre: document.getElementById('clase-name').value,
+            price: Number(document.getElementById('clase-price').value),
+            horario: document.getElementById('clase-time').value,
             maestroId: auth.currentUser.uid, maestroName: myData.name, inscritos: []
         });
-        document.getElementById('modal-clase').style.display = 'none';
-        showAlert("Clase publicada");
+        document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase creada");
     };
 
-    window.deleteClass = async (id) => { if(confirm("¿Eliminar clase permanentemente?")) await deleteDoc(doc(db, "clases", id)); };
-
-    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value).catch(()=>showAlert("Error de acceso"));
+    window.deleteClass = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "clases", id)); };
+    document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     document.getElementById('btn-register').onclick = async () => {
-        try {
-            const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-            await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('email').value, role: document.getElementById('role-select').value, credits: 0 });
-            showAlert("Cuenta creada");
-        } catch(e) { showAlert("Error en el registro"); }
+        const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+        await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('email').value, role: document.getElementById('role-select').value, credits: 0 });
     };
-
-    function loadNews() {
-        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
-            const div = document.getElementById('section-news');
-            div.innerHTML = "";
-            snap.forEach(d => { div.innerHTML += `<div class="news-card"><small style="font-weight:700; color:var(--gold);">AVISO</small><p style="margin:5px 0;">${d.data().texto}</p></div>`; });
-        });
-    }
-
+    function loadNews() { onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
+        const div = document.getElementById('section-news'); div.innerHTML = "";
+        snap.forEach(d => { div.innerHTML += `<div class="news-card"><small>AVISO</small><p>${d.data().texto}</p></div>`; });
+    }); }
     window.showNewsManager = () => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Redactar Aviso</h4><textarea id="new-news-text" style="height:100px;"></textarea><button onclick="postNews()">Publicar para todos</button>`;
+        document.getElementById('admin-content').innerHTML = `<h4>Nuevo Aviso</h4><textarea id="n-txt" style="height:100px;"></textarea><button onclick="postNews()">Publicar Aviso</button>`;
     };
-
     window.postNews = async () => {
-        const txt = document.getElementById('new-news-text').value;
-        if(txt) {
-            await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-            showAlert("Noticia enviada");
-            showNewsManager();
-        }
+        await addDoc(collection(db, "news"), { texto: document.getElementById('n-txt').value, fecha: serverTimestamp() });
+        showAlert("Publicado"); showNewsManager();
     };
-
     window.verLista = async (id) => {
-        const snap = await getDoc(doc(db, "clases", id));
-        const ids = snap.data().inscritos || [];
-        let t = "LISTA DE ASISTENCIA:\n\n";
-        for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); t += `• ${u.data().name}\n`; }
-        if(ids.length === 0) t = "No hay alumnos inscritos todavía.";
+        const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || [];
+        let t = "Alumnos anotados:\n"; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); t += `- ${u.data().name}\n`; }
         alert(t);
     };
 </script>
