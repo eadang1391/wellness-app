@@ -9,7 +9,6 @@
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="icon" type="image/png" href="logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     
@@ -38,7 +37,7 @@
         #custom-alert.show { top: 20px; }
         .hidden { display: none !important; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .delete-btn { background: var(--red); color: white; width: 22px; height: 22px; border-radius: 50%; border:none; position: absolute; top: 8px; right: 8px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .delete-btn { background: var(--red); color: white; width: 22px; height: 22px; border-radius: 50%; border:none; position: absolute; top: 8px; right: 8px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
         .btn-edit-small { background: #f0f0f0; color: #666; padding: 4px 8px; font-size: 9px; border-radius: 10px; width: auto; margin-top: 5px; }
     </style>
 </head>
@@ -100,13 +99,13 @@
 </div>
 
 <div id="modal-clase" class="modal-overlay"><div class="card" style="width:90%; max-width:400px;">
-    <h3 id="modal-clase-title">Nueva Clase</h3>
+    <h3 id="modal-clase-title">Clase</h3>
     <input type="hidden" id="c-id">
     <input type="text" id="c-name" placeholder="Actividad">
     <input type="number" id="c-price" placeholder="Precio">
     <input type="datetime-local" id="c-time">
     <label style="font-size:12px;"><input type="checkbox" id="c-apo"> Es clase de aportación</label>
-    <button onclick="saveClass()" id="btn-save-class">Publicar</button>
+    <button onclick="saveClass()" id="btn-save-class">Guardar</button>
     <button id="btn-delete-class" onclick="confirmDeleteClass()" style="background:var(--red); margin-top:10px;" class="hidden">ELIMINAR Y REEMBOLSAR</button>
     <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
 </div></div>
@@ -193,44 +192,7 @@
         }
     };
 
-    // --- FINANZAS Y REPORTES ---
-    window.loadPaymentsAdmin = async (filter = 'month') => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Finanzas</h4>
-        <div class="filter-btn-group">
-            <button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</button>
-            <button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</button>
-            <button class="filter-btn ${filter==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</button>
-        </div>
-        <div style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px;">
-            <small>TOTAL</small><br><h2 id="total-amt">$0</h2>
-        </div>
-        <button onclick="downloadPDFReport()" style="margin-bottom:15px; background:var(--sage); font-size:11px;">📄 DESCARGAR PDF</button>
-        <div id="p-list"></div>`;
-        
-        let q = filter === 'all' ? query(collection(db, "pagos"), orderBy("fecha", "desc")) : query(collection(db, "pagos"), where("fecha", ">=", filter==='week'?new Date(new Date().setDate(new Date().getDate()-7)):new Date(new Date().getFullYear(), new Date().getMonth(), 1)), orderBy("fecha", "desc"));
-        const snap = await getDocs(q); let total = 0;
-        snap.forEach(d => { 
-            const p = d.data(); total += Number(p.monto||0); 
-            document.getElementById('p-list').innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:11px;">
-                <div><b>${p.alumno}</b><br><small>${p.fecha?.toDate().toLocaleDateString()}</small><br><button class="btn-edit-small" onclick="openEditPayment('${d.id}')">✏️ Editar</button></div>
-                <div style="text-align:right;">$${p.monto}</div>
-            </div>`; 
-        });
-        document.getElementById('total-amt').innerText = `$${total}`;
-    };
-
-    window.downloadPDFReport = async () => {
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        let rows = [];
-        snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, `$${p.monto}`, p.metodo]); });
-        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("Reporte Escarola Wellness", 14, 15);
-        docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
-        docPDF.save("Finanzas_Escarola.pdf");
-    };
-
-    // --- GESTIÓN DE AVISOS (NEWS) ---
+    // --- GESTIÓN DE AVISOS ---
     window.showNewsManager = () => {
         const content = document.getElementById('admin-content');
         content.innerHTML = `<h4>Avisos</h4><textarea id="n-txt" placeholder="Escribe un aviso..."></textarea><button onclick="postNews()">Publicar</button><hr><div id="adm-news-list"></div>`;
@@ -240,7 +202,7 @@
             snap.forEach(d => {
                 list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; position:relative;">
                     <small>${d.data().texto}</small>
-                    <button class="delete-btn" onclick="deleteDoc(doc(db,'news','${d.id}'))">✕</button>
+                    <button class="delete-btn" onclick="deleteGlobalDoc('news','${d.id}')">✕</button>
                 </div>`;
             });
         });
@@ -251,17 +213,17 @@
         document.getElementById('n-txt').value = ""; showAlert("Publicado");
     };
 
-    // --- GESTIÓN DE PLANES (MEMBRESIAS) ---
+    // --- GESTIÓN DE PLANES ---
     window.showMembresiaManager = () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom" placeholder="Nombre"><input type="number" id="m-pre" placeholder="Precio"><input type="text" id="m-link" placeholder="Link MP"><button onclick="saveMem()">Añadir</button><hr><div id="adm-m-list"></div>`;
+        content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom" placeholder="Nombre"><input type="number" id="m-pre" placeholder="Precio"><input type="text" id="m-link" placeholder="Link MP"><button onclick="saveMem()">Añadir Plan</button><hr><div id="adm-m-list"></div>`;
         onSnapshot(collection(db, "membresias"), (snap) => {
             const list = document.getElementById('adm-m-list'); if(!list) return;
             list.innerHTML = "";
             snap.forEach(d => {
                 list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; position:relative;">
                     <b>${d.data().nombre}</b> ($${d.data().precio})
-                    <button class="delete-btn" onclick="deleteDoc(doc(db,'membresias','${d.id}'))">✕</button>
+                    <button class="delete-btn" onclick="deleteGlobalDoc('membresias','${d.id}')">✕</button>
                 </div>`;
             });
         });
@@ -271,6 +233,14 @@
         const l = document.getElementById('m-link').value; if(!n || !p) return;
         await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l });
         showAlert("Plan añadido");
+    };
+
+    // Función global para eliminar documentos simples (avisos, planes)
+    window.deleteGlobalDoc = async (col, id) => {
+        if(confirm("¿Eliminar este elemento?")) {
+            await deleteDoc(doc(db, col, id));
+            showAlert("Eliminado");
+        }
     };
 
     // --- GESTIÓN DE CLASES ---
@@ -287,7 +257,7 @@
         document.getElementById('modal-clase-title').innerText = "Editar Clase";
         document.getElementById('c-id').value = id; document.getElementById('c-name').value = c.nombre;
         document.getElementById('c-price').value = c.price; document.getElementById('c-time').value = c.horario;
-        document.getElementById('c-apo').checked = c.isAportacion; document.getElementById('btn-save-class').innerText = "Guardar";
+        document.getElementById('c-apo').checked = c.isAportacion; document.getElementById('btn-save-class').innerText = "Guardar Cambios";
         document.getElementById('btn-delete-class').classList.remove('hidden'); document.getElementById('modal-clase').style.display = 'flex';
     };
 
@@ -296,18 +266,18 @@
         const data = { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked };
         if(!id) { data.inscritos = []; await addDoc(collection(db, "clases"), data); }
         else { await updateDoc(doc(db, "clases", id), data); }
-        document.getElementById('modal-clase').style.display = 'none'; showAlert("Hecho");
+        document.getElementById('modal-clase').style.display = 'none'; showAlert("Guardado");
     };
 
     window.confirmDeleteClass = async () => {
         const id = document.getElementById('c-id').value;
-        if(confirm("¿Eliminar? Se devolverán créditos.")) {
+        if(confirm("¿Borrar clase? Se devolverán los créditos a los inscritos.")) {
             const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
             if(!c.isAportacion && c.inscritos) {
                 for(let uid of c.inscritos) { await updateDoc(doc(db, "users", uid), { credits: increment(1) }); }
             }
             await deleteDoc(doc(db, "clases", id));
-            document.getElementById('modal-clase').style.display = 'none'; showAlert("Borrada");
+            document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase borrada");
         }
     };
 
@@ -328,7 +298,31 @@
         });
     }
 
-    // --- OTROS (RESERVAR, USUARIOS, PAGOS INDIVIDUALES) ---
+    // --- FINANZAS ---
+    window.loadPaymentsAdmin = async (filter = 'month') => {
+        const content = document.getElementById('admin-content');
+        content.innerHTML = `<h4>Finanzas</h4><div class="filter-btn-group"><button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</button><button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</button><button class="filter-btn ${filter==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</button></div><div style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px;"><small>TOTAL</small><br><h2 id="total-amt">$0</h2></div><button onclick="downloadPDFReport()" style="margin-bottom:15px; background:var(--sage); font-size:11px;">📄 DESCARGAR PDF</button><div id="p-list"></div>`;
+        let q = filter === 'all' ? query(collection(db, "pagos"), orderBy("fecha", "desc")) : query(collection(db, "pagos"), where("fecha", ">=", filter==='week'?new Date(new Date().setDate(new Date().getDate()-7)):new Date(new Date().getFullYear(), new Date().getMonth(), 1)), orderBy("fecha", "desc"));
+        const snap = await getDocs(q); let total = 0;
+        snap.forEach(d => { 
+            const p = d.data(); total += Number(p.monto||0); 
+            document.getElementById('p-list').innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:11px;">
+                <div><b>${p.alumno}</b><br><button class="btn-edit-small" onclick="openEditPayment('${d.id}')">✏️ Editar</button></div>
+                <div style="text-align:right;">$${p.monto}</div>
+            </div>`; 
+        });
+        document.getElementById('total-amt').innerText = `$${total}`;
+    };
+
+    window.downloadPDFReport = async () => {
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let rows = []; snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, `$${p.monto}`, p.metodo]); });
+        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
+        docPDF.text("Finanzas Escarola", 14, 15); docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
+        docPDF.save("Reporte_Escarola.pdf");
+    };
+
+    // --- RESERVAS Y USUARIOS ---
     window.reservar = async (id) => {
         const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
         if(!c.isAportacion && myData.credits <= 0) return showAlert("Sin créditos");
