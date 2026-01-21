@@ -3,22 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wellness App - Escarola</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Escarola Bienestar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root { 
-            --sage: #6b8e83; --cream: #f4f1de; --dark-sage: #4a665e; 
-            --white: #ffffff; --gold: #d4a373; --red: #e63946; 
-            --mp-blue: #009ee3; --glow: rgba(255, 255, 255, 0.6);
+            --sage: #6b8e83; 
+            --cream: #fbfaf5; 
+            --dark-sage: #3a504a; 
+            --white: #ffffff; 
+            --gold: #d4a373; 
+            --red: #ef476f;
+            --mp-blue: #009ee3;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(15px); }
+            from { opacity: 0; transform: translateY(25px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .fade-in { animation: fadeInUp 0.5s ease forwards; }
+        .fade-in { animation: fadeInUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
         body { 
             margin: 0; font-family: 'Montserrat', sans-serif; 
@@ -26,132 +31,154 @@
             -webkit-font-smoothing: antialiased; overflow-x: hidden;
         }
 
-        #app { padding: 20px 20px 110px 20px; min-height: 100vh; box-sizing: border-box; }
+        #app { padding: 30px 20px 120px 20px; min-height: 100vh; box-sizing: border-box; }
 
-        /* Tarjetas y Contenedores */
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 35px; color: var(--white);
+        }
+
+        /* TARJETAS ESTILO APP PREMIUM */
         .card { 
-            background: var(--cream); border-radius: 30px; 
-            padding: 20px; margin-bottom: 20px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-            border: 1px solid rgba(255,255,255,0.4);
-            box-sizing: border-box; /* Mantiene todo adentro */
+            background: var(--white); 
+            border-radius: 35px; 
+            padding: 25px; 
+            margin-bottom: 22px; 
+            box-shadow: var(--shadow); 
+            border: none;
+            box-sizing: border-box;
             width: 100%;
         }
 
-        /* Inputs corregidos para que NO se salgan */
+        /* INPUTS OVALADOS Y SEGUROS */
         input, select { 
-            width: 100%; /* Ocupa el 100% del ancho disponible */
-            padding: 15px; 
-            margin: 8px 0; 
-            border-radius: 25px; 
-            border: 1px solid rgba(0,0,0,0.1); 
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px; 
-            background: var(--white);
-            box-sizing: border-box; /* Clave para que el padding no lo ensanche */
-            display: block;
+            width: 100%; padding: 18px 25px; margin: 10px 0; 
+            border-radius: 40px; border: 1px solid #f0f0f0; 
+            font-family: 'Montserrat', sans-serif; font-size: 15px; 
+            background: #fafafa;
+            box-sizing: border-box; display: block; outline: none;
+            transition: 0.3s;
         }
 
+        input:focus { border-color: var(--sage); background: white; }
+
+        /* BOTONES CON BRILLO */
         button { 
-            width: 100%; padding: 15px; border-radius: 30px; 
+            width: 100%; padding: 18px; border-radius: 40px; 
             border: none; font-weight: 700; cursor: pointer;
-            transition: all 0.3s ease; background: var(--dark-sage); color: white;
-            box-sizing: border-box;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            background: var(--dark-sage); color: white;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
 
-        button:active { transform: scale(0.96); box-shadow: 0 0 20px var(--glow); }
+        button:active { 
+            transform: scale(0.94); 
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+            filter: brightness(1.1);
+        }
 
         .btn-mp { 
             background: var(--mp-blue); color: white; text-decoration: none; 
-            display: block; padding: 16px; border-radius: 35px; 
-            text-align: center; font-weight: 700; margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(0, 158, 227, 0.3);
-            box-sizing: border-box;
+            display: flex; align-items: center; justify-content: center;
+            padding: 18px; border-radius: 40px; font-weight: 700; margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(0, 158, 227, 0.2);
         }
 
+        /* NAVBAR FLOTANTE */
         .nav-bar { 
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: var(--dark-sage); height: 75px; display: flex; 
+            position: fixed; bottom: 25px; left: 25px; right: 25px; 
+            background: var(--dark-sage); height: 85px; display: flex; 
             justify-content: space-around; align-items: center; 
-            border-radius: 35px; box-shadow: 0 15px 30px rgba(0,0,0,0.25); z-index: 1000;
+            border-radius: 45px; box-shadow: 0 20px 45px rgba(0,0,0,0.3); z-index: 1000;
         }
 
-        .nav-item { color: var(--cream); text-align: center; font-size: 10px; font-weight: 600; cursor: pointer; }
-        .nav-item span { font-size: 24px; display: block; }
+        .nav-item { color: rgba(255,255,255,0.5); text-align: center; font-size: 11px; cursor: pointer; }
+        .nav-item span { font-size: 28px; display: block; }
+        .nav-item.active { color: var(--white); }
+
+        .price-badge {
+            background: var(--cream); color: var(--dark-sage);
+            padding: 8px 18px; border-radius: 20px; font-weight: 700;
+        }
 
         .hidden { display: none !important; }
-
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: var(--cream); }
         
         #loading-screen { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: var(--sage); display:flex; flex-direction:column; 
             align-items:center; justify-content:center; z-index:5000; color:white; 
         }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div id="loading-screen"><h3>Wellness App</h3><p>Cargando experiencia...</p></div>
+<div id="loading-screen">
+    <div style="width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+</div>
 
 <div id="app">
     <header class="fade-in">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <img src="logo.png" style="width:40px; height:40px; border-radius:10px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
-            <h2 style="margin:0; font-size:22px; font-weight:700;">Wellness</h2>
+        <div style="display:flex; align-items:center; gap:12px;">
+            <img src="logo.png" style="width:45px; height:45px; border-radius:15px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+            <div>
+                <h2 style="margin:0; font-size:22px; font-weight:700;">Escarola</h2>
+                <small style="opacity:0.8;">Wellness Studio</small>
+            </div>
         </div>
-        <button id="btn-logout" class="hidden" style="width:auto; background:rgba(255,255,255,0.2); padding:8px 15px; font-size:11px;">Salir</button>
+        <button id="btn-logout" class="hidden" style="width:auto; background:rgba(255,255,255,0.2); padding:8px 18px; font-size:11px; border-radius: 20px;">Salir</button>
     </header>
 
     <div id="view-auth" class="view hidden fade-in">
         <div class="card">
-            <h3 style="text-align:center; margin-top:0;">Registro / Acceso</h3>
-            <input type="text" id="reg-name" placeholder="Tu Nombre Completo">
-            <input type="email" id="email" placeholder="Email">
+            <h3 style="text-align:center; margin-top:0;">Bienvenido</h3>
+            <input type="text" id="reg-name" placeholder="Nombre completo">
+            <input type="email" id="email" placeholder="Correo electrónico">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
                 <option value="alumno">Soy Alumno</option>
                 <option value="maestro">Soy Maestro</option>
             </select>
-            <button id="btn-login" style="margin-top:10px;">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:8px;">Crear Cuenta Nueva</button>
+            <button id="btn-login" style="margin-top:15px;">Entrar</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear cuenta</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
-        <div class="fade-in" style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:20px;">
-            <h3 style="margin:0;">Clases Disponibles</h3>
-            <button id="btn-crear-trigger" class="hidden" onclick="openModal()" style="width:auto; padding:10px 20px;">+ Nueva</button>
+        <div class="fade-in" style="display:flex; justify-content:space-between; align-items:center; color:white; margin-bottom:25px;">
+            <h3 style="margin:0; font-weight:600;">Calendario</h3>
+            <button id="btn-crear-trigger" class="hidden" onclick="openModal()" style="width:auto; padding:12px 25px; font-size:12px; background:white; color:var(--dark-sage);">+ Nueva</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
-    <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
+    <div id="view-admin" class="view hidden fade-in">
+        <h3 style="color:white; margin-bottom:20px;">Panel Admin</h3>
         <div class="card">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button onclick="loadAdminSection('users')" style="font-size:12px; padding:10px;">👥 Usuarios</button>
-                <button onclick="loadAdminSection('pagos')" style="font-size:12px; padding:10px;">💰 Pagos</button>
+            <div style="display:flex; gap:12px; margin-bottom:20px;">
+                <button onclick="loadAdminSection('users')" style="font-size:12px;">👤 Usuarios</button>
+                <button onclick="loadAdminSection('pagos')" style="font-size:12px; background:var(--sage);">📊 Pagos</button>
             </div>
-            <div id="admin-results" class="fade-in" style="max-height: 300px; overflow-y: auto;"></div>
+            <div id="admin-results" style="max-height: 350px; overflow-y: auto;"></div>
         </div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item" onclick="switchTab('clases')"><span>🏠</span>Clases</div>
+        <div class="nav-item active" onclick="switchTab('clases')"><span>🏠</span>Inicio</div>
         <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
-<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(5px); z-index:2000; align-items:center; justify-content:center;">
-    <div class="card fade-in" style="width:90%; max-width:400px; border-radius:35px;">
-        <h3 id="modal-title" style="margin:0 0 15px 0">Configurar Clase</h3>
+<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); z-index:2000; align-items:center; justify-content:center;">
+    <div class="card fade-in" style="width:90%; max-width:400px; padding:30px;">
+        <h3 style="margin-top:0; text-align:center;">Configurar Clase</h3>
         <input type="hidden" id="edit-id">
-        <input type="text" id="clase-name" placeholder="Nombre de actividad">
+        <input type="text" id="clase-name" placeholder="Actividad">
         <input type="number" id="clase-price" placeholder="Precio MXN">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class" style="margin-top:15px;">Guardar Cambios</button>
-        <button onclick="closeModal()" style="background:none; color:gray; margin-top:5px;">Cancelar</button>
+        <button id="btn-save-class" style="margin-top:20px;">Guardar</button>
+        <button onclick="closeModal()" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
     </div>
 </div>
 
@@ -160,25 +187,22 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
-  apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
-  authDomain: "escarola-wellness.firebaseapp.com",
-  projectId: "escarola-wellness",
-  storageBucket: "escarola-wellness.firebasestorage.app",
-  messagingSenderId: "212255082736",
-  appId: "1:212255082736:web:66d144fa90308578b75a35"
-};
+        apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
+        authDomain: "escarola-wellness.firebaseapp.com",
+        projectId: "escarola-wellness",
+        storageBucket: "escarola-wellness.firebasestorage.app",
+        messagingSenderId: "212255082736",
+        appId: "1:212255082736:web:66d144fa90308578b75a35"
+    };
 
-    // TU LINK DE MERCADO PAGO INTEGRADO
     const MP_LINK = "https://link.mercadopago.com.mx/escar0la";
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
     onAuthStateChanged(auth, async (user) => {
-        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('loading-screen').style.display = 'none';
         if (user) {
             const snap = await getDoc(doc(db, "users", user.uid));
             window.userRole = snap.data()?.role || 'alumno';
@@ -208,25 +232,27 @@
             div.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data();
-                const isMaestroOwner = c.maestroId === auth.currentUser.uid;
+                const isOwner = c.maestroId === auth.currentUser.uid;
                 const isAdmin = window.userRole === 'admin';
-                
-                // Botón de pago para Alumnos y Admins. El Maestro de esa clase no lo ve.
-                const showPay = !isMaestroOwner || isAdmin;
+                const showPay = !isOwner || isAdmin;
 
                 div.innerHTML += `
                     <div class="card fade-in">
                         <div style="display:flex; justify-content:space-between; align-items:start;">
-                            <b style="font-size:18px;">${c.nombre}</b>
-                            <span style="background:var(--white); padding:5px 12px; border-radius:15px; font-weight:700;">$${c.price}</span>
+                            <div>
+                                <b style="font-size:18px;">${c.nombre}</b><br>
+                                <small style="color:var(--sage); font-weight:700;">
+                                    ${new Date(c.horario).toLocaleString([], {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}
+                                </small>
+                            </div>
+                            <div class="price-badge">$${c.price}</div>
                         </div>
-                        <div style="font-size:12px; margin:10px 0; font-weight:600; color:var(--sage);">📅 ${new Date(c.horario).toLocaleString()}</div>
-                        <small>Prof: ${c.maestroName || 'Instructor'}</small>
+                        <div style="margin-top:15px; font-size:12px; opacity:0.6;">Prof. ${c.maestroName || 'Wellness'}</div>
                         ${showPay ? `<a href="${MP_LINK}" class="btn-mp" target="_blank">PAGAR CLASE</a>` : ''}
-                        ${(isMaestroOwner || isAdmin) ? `
-                            <div style="margin-top:15px; display:flex; gap:8px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                                <button onclick="openModal('${d.id}', '${c.nombre}', '${c.price}', '${c.horario}')" style="background:var(--gold); padding:8px; font-size:11px;">Editar</button>
-                                <button onclick="deleteClass('${d.id}')" style="background:var(--red); padding:8px; font-size:11px;">Borrar</button>
+                        ${(isOwner || isAdmin) ? `
+                            <div style="margin-top:15px; display:flex; gap:10px; border-top:1px solid #f0f0f0; padding-top:15px;">
+                                <button onclick="openModal('${d.id}', '${c.nombre}', '${c.price}', '${c.horario}')" style="background:var(--gold); padding:10px; font-size:11px;">Editar</button>
+                                <button onclick="deleteClass('${d.id}')" style="background:var(--red); padding:10px; font-size:11px;">Borrar</button>
                             </div>
                         ` : ''}
                     </div>`;
@@ -235,26 +261,20 @@
     }
 
     window.loadAdminSection = async (type) => {
-        const results = document.getElementById('admin-results');
-        results.innerHTML = "Cargando...";
+        const res = document.getElementById('admin-results');
+        res.innerHTML = "Cargando...";
         if(type === 'users') {
             const snap = await getDocs(collection(db, "users"));
-            results.innerHTML = "<strong>Usuarios Registrados:</strong><br><br>";
+            res.innerHTML = "";
             snap.forEach(d => {
                 const u = d.data();
-                results.innerHTML += `<div style="padding:10px; border-bottom:1px solid #ddd; font-size:13px;">
-                    <b>${u.name || 'Sin nombre'}</b><br>${u.email} <br> Rol: <i>${u.role}</i>
+                res.innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee;">
+                    <b>${u.name || 'Usuario'}</b><br><small>${u.email} (${u.role})</small>
                 </div>`;
             });
         } else {
             const snap = await getDocs(collection(db, "clases"));
-            results.innerHTML = "<strong>Control de Clases:</strong><br><br>";
-            snap.forEach(d => {
-                const c = d.data();
-                results.innerHTML += `<div style="padding:8px; border-bottom:1px solid #ddd; font-size:13px;">
-                    ${c.nombre} - $${c.price} <br> <small>Maestro: ${c.maestroName}</small>
-                </div>`;
-            });
+            res.innerHTML = `<div style="text-align:center; padding:20px;">Total: ${snap.size} clases activas.</div>`;
         }
     };
 
@@ -283,19 +303,13 @@
         closeModal();
     };
 
-    window.deleteClass = async (id) => { if(confirm("¿Eliminar clase definitivamente?")) await deleteDoc(doc(db, "clases", id)); };
+    window.deleteClass = async (id) => { if(confirm("¿Borrar clase?")) await deleteDoc(doc(db, "clases", id)); };
 
     document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-    
     document.getElementById('btn-register').onclick = async () => {
-        const name = document.getElementById('reg-name').value;
-        const email = document.getElementById('email').value;
-        const pass = document.getElementById('password').value;
-        const role = document.getElementById('role-select').value;
-        const res = await createUserWithEmailAndPassword(auth, email, pass);
-        await setDoc(doc(db, "users", res.user.uid), { name, email, role });
+        const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+        await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('email').value, role: document.getElementById('role-select').value });
     };
-
     document.getElementById('btn-logout').onclick = () => signOut(auth).then(() => location.reload());
 </script>
 </body>
