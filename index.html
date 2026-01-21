@@ -16,7 +16,7 @@
         :root { 
             --sage: #6b8e83; --cream: #fbfaf5; --dark-sage: #3a504a; 
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
-            --mp-blue: #009ee3; --shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
         body { margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--sage); color: var(--dark-sage); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         #app { padding: 25px 20px 120px 20px; min-height: 100vh; box-sizing: border-box; }
@@ -25,16 +25,12 @@
         .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); width: 100%; box-sizing: border-box; position: relative; border: 1px solid rgba(0,0,0,0.03); }
         .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
         input, select, textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 20px; border: 2px solid #f0f0f0; box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--sage); }
         button { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; font-family: 'Quicksand'; }
         button:active { transform: scale(0.98); opacity: 0.9; }
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 70px; display: flex; justify-content: space-around; align-items: center; border-radius: 35px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: white; }
         .nav-item span { font-size: 20px; display: block; }
-        .filter-btn-group { display: flex; gap: 5px; margin-bottom: 15px; }
-        .filter-btn { flex: 1; padding: 8px; font-size: 10px; border-radius: 15px; border: none; background: #eee; cursor: pointer; }
-        .filter-btn.active { background: var(--gold); color: white; }
         
         /* ALERTA Y MODALES NATIVOS */
         #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; background: var(--white); padding: 15px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 6000; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); text-align: center; font-weight: 700; border: 2px solid var(--sage); }
@@ -42,10 +38,11 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .modal-card { background: var(--white); width: 85%; max-width: 400px; border-radius: 35px; padding: 25px; box-sizing: border-box; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
-
+        
         .hidden { display: none !important; }
-        .delete-btn { background: var(--red); color: white; width: 24px; height: 24px; border-radius: 50%; border:none; position: absolute; top: 10px; right: 10px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10; }
-        .btn-edit-small { background: #f0f0f0; color: #666; padding: 4px 10px; font-size: 9px; border-radius: 12px; width: auto; margin-top: 5px; }
+        .delete-btn { background: var(--red); color: white; width: 24px; height: 24px; border-radius: 50%; border:none; position: absolute; top: 10px; right: 10px; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 10; }
+        .btn-cash { background: var(--cash-green) !important; color: white !important; }
+        .btn-mp { background: var(--mp-blue) !important; color: white !important; }
     </style>
 </head>
 <body>
@@ -54,20 +51,12 @@
 
 <div id="modal-confirm" class="modal-overlay">
     <div class="modal-card">
-        <h3 id="confirm-title" style="margin-top:0;">¿Estás seguro?</h3>
+        <h3 id="confirm-title" style="margin-top:0;">¿Confirmar?</h3>
         <p id="confirm-msg" style="font-size:14px; color:gray; margin-bottom:20px;"></p>
         <div style="display:flex; gap:10px;">
-            <button id="btn-confirm-yes" style="background:var(--red);">Confirmar</button>
+            <button id="btn-confirm-yes" style="background:var(--sage);">Sí, confirmar</button>
             <button onclick="closeConfirm()" style="background:#eee; color:#333;">Cancelar</button>
         </div>
-    </div>
-</div>
-
-<div id="modal-list" class="modal-overlay">
-    <div class="modal-card" style="max-height: 80vh; overflow-y: auto;">
-        <h3>Lista de Asistencia</h3>
-        <div id="list-content" style="text-align: left; margin: 20px 0; line-height: 1.8;"></div>
-        <button onclick="document.getElementById('modal-list').style.display='none'">Cerrar</button>
     </div>
 </div>
 
@@ -136,30 +125,24 @@
     <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
 </div></div>
 
-<div id="modal-edit-payment" class="modal-overlay"><div class="modal-card">
-    <h3>Editar Pago</h3>
-    <input type="hidden" id="ep-id">
-    <input type="text" id="ep-alumno" placeholder="Alumno">
-    <input type="number" id="ep-monto" placeholder="Monto">
-    <select id="ep-metodo"><option value="Efectivo">Efectivo</option><option value="Mercado Pago">Mercado Pago</option><option value="Crédito">Crédito</option></select>
-    <button onclick="updatePayment()">Guardar</button>
-    <button onclick="promptDeletePayment()" style="background:var(--red); margin-top:10px;">ELIMINAR</button>
-    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray; margin-top:10px;">Cancelar</button>
-</div></div>
-
 <div id="modal-edit-user" class="modal-overlay"><div class="modal-card">
     <h3>Perfil y Cobro</h3>
-    <input type="hidden" id="eu-id">
-    <input type="text" id="eu-name" placeholder="Nombre">
+    <input type="hidden" id="eu-id"><input type="text" id="eu-name" placeholder="Nombre">
     <input type="number" id="eu-credits" placeholder="Créditos">
     <select id="eu-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
     <div style="background:var(--cream); padding:15px; border-radius:25px; margin:15px 0; border:1px dashed var(--sage);">
-        <p style="font-size:11px; margin-top:0;">REGISTRAR NUEVA VENTA</p>
-        <input type="number" id="pay-amt" placeholder="Monto $">
-        <input type="number" id="pay-creds" placeholder="Créditos +">
+        <input type="number" id="pay-amt" placeholder="Monto $"><input type="number" id="pay-creds" placeholder="Créditos +">
         <button onclick="registerSale()" style="background:var(--sage); padding:10px; font-size:12px;">REGISTRAR PAGO</button>
     </div>
-    <button onclick="saveUser()">Guardar Cambios</button>
+    <button onclick="saveUser()">Guardar</button>
+    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
+</div></div>
+
+<div id="modal-edit-payment" class="modal-overlay"><div class="modal-card">
+    <h3>Editar Pago</h3>
+    <input type="hidden" id="ep-id"><input type="text" id="ep-alumno"><input type="number" id="ep-monto">
+    <select id="ep-metodo"><option value="Efectivo">Efectivo</option><option value="Mercado Pago">Mercado Pago</option><option value="Crédito">Crédito</option></select>
+    <button onclick="updatePayment()">Guardar</button>
     <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
 </div></div>
 
@@ -183,9 +166,7 @@
     let myData = null;
     let isLogin = true;
 
-    // --- SISTEMA DE DIÁLOGOS NATIVOS ---
     window.showAlert = (msg) => { const el = document.getElementById('custom-alert'); el.innerText = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); };
-    
     window.showConfirm = (title, msg, onConfirm) => {
         document.getElementById('confirm-title').innerText = title;
         document.getElementById('confirm-msg').innerText = msg;
@@ -232,89 +213,39 @@
         }
     };
 
-    // --- GESTIÓN DE AVISOS ---
-    window.showNewsManager = () => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Avisos</h4><textarea id="n-txt" placeholder="¿Qué quieres anunciar hoy?"></textarea><button onclick="postNews()">Publicar Aviso</button><hr><div id="adm-news-list"></div>`;
-        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
-            const list = document.getElementById('adm-news-list'); if(!list) return;
-            list.innerHTML = "";
-            snap.forEach(d => {
-                list.innerHTML += `<div class="card" style="padding:15px; border-radius:15px;">
-                    <small>${d.data().texto}</small>
-                    <button class="delete-btn" onclick="promptDeleteDoc('news','${d.id}')">✕</button>
-                </div>`;
-            });
+    // --- OPERACIONES DE PAGO ---
+    window.pagarEfectivoMembresia = (nombre, precio) => {
+        showConfirm("Pago en Efectivo", `¿Confirmas que pagarás $${precio} por "${nombre}" directamente en el estudio?`, async () => {
+            showAlert("¡Avisado! Por favor realiza tu pago al llegar.");
         });
     };
-    window.postNews = async () => {
-        const t = document.getElementById('n-txt').value; if(!t) return;
-        await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() });
-        document.getElementById('n-txt').value = ""; showAlert("Aviso publicado");
-    };
 
-    // --- GESTIÓN DE PLANES ---
-    window.showMembresiaManager = () => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Membresías</h4><input type="text" id="m-nom" placeholder="Ej: Plan 8 Clases"><input type="number" id="m-pre" placeholder="Precio $"><input type="text" id="m-link" placeholder="Enlace de Mercado Pago"><button onclick="saveMem()">Añadir Membresía</button><hr><div id="adm-m-list"></div>`;
-        onSnapshot(collection(db, "membresias"), (snap) => {
-            const list = document.getElementById('adm-m-list'); if(!list) return;
-            list.innerHTML = "";
-            snap.forEach(d => {
-                list.innerHTML += `<div class="card" style="padding:15px; border-radius:15px;">
-                    <b>${d.data().nombre}</b> ($${d.data().precio})
-                    <button class="delete-btn" onclick="promptDeleteDoc('membresias','${d.id}')">✕</button>
-                </div>`;
-            });
-        });
-    };
-    window.saveMem = async () => {
-        const n = document.getElementById('m-nom').value; const p = document.getElementById('m-pre').value;
-        const l = document.getElementById('m-link').value; if(!n || !p) return;
-        await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l });
-        showAlert("Membresía guardada");
-    };
-
-    window.promptDeleteDoc = (col, id) => showConfirm("Eliminar", "¿Estás seguro de que quieres borrar este elemento?", () => deleteDoc(doc(db, col, id)));
-
-    // --- GESTIÓN DE CLASES ---
-    window.openCreateClass = () => {
-        document.getElementById('modal-clase-title').innerText = "Nueva Clase";
-        document.getElementById('c-id').value = ""; document.getElementById('c-name').value = "";
-        document.getElementById('c-price').value = ""; document.getElementById('c-time').value = "";
-        document.getElementById('c-apo').checked = false;
-        document.getElementById('btn-delete-class').classList.add('hidden');
-        document.getElementById('modal-clase').style.display = 'flex';
-    };
-
-    window.openEditClass = async (id) => {
+    window.reservar = async (id) => {
         const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
-        document.getElementById('modal-clase-title').innerText = "Editar Clase";
-        document.getElementById('c-id').value = id; document.getElementById('c-name').value = c.nombre;
-        document.getElementById('c-price').value = c.price; document.getElementById('c-time').value = c.horario;
-        document.getElementById('c-apo').checked = c.isAportacion;
-        document.getElementById('btn-delete-class').classList.remove('hidden');
-        document.getElementById('modal-clase').style.display = 'flex';
-    };
-
-    window.saveClass = async () => {
-        const id = document.getElementById('c-id').value;
-        const data = { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked };
-        if(!id) { data.inscritos = []; await addDoc(collection(db, "clases"), data); }
-        else { await updateDoc(doc(db, "clases", id), data); }
-        document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase guardada");
-    };
-
-    window.promptDeleteClass = () => showConfirm("¿Borrar Clase?", "Se devolverán los créditos automáticamente a todos los inscritos.", async () => {
-        const id = document.getElementById('c-id').value;
-        const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
-        if(!c.isAportacion && c.inscritos) {
-            for(let uid of c.inscritos) { await updateDoc(doc(db, "users", uid), { credits: increment(1) }); }
+        
+        // Si es aportación, entra directo
+        if(c.isAportacion) {
+            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
+            return showAlert("Inscrito en clase de aportación");
         }
-        await deleteDoc(doc(db, "clases", id));
-        document.getElementById('modal-clase').style.display = 'none'; showAlert("Clase cancelada y créditos devueltos");
-    });
 
+        // Si tiene créditos, consume uno
+        if(myData.credits > 0) {
+            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
+            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Crédito', fecha: serverTimestamp() });
+            showAlert("Clase reservada con tu crédito");
+        } else {
+            // Si no tiene créditos, ofrece pagar en efectivo
+            showConfirm("Sin créditos", `No tienes clases disponibles. ¿Deseas reservar y pagar $${c.price} en efectivo al llegar?`, async () => {
+                await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
+                await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Efectivo (Pendiente)', fecha: serverTimestamp() });
+                showAlert("Inscrito. Recuerda pagar en recepción.");
+            });
+        }
+    };
+
+    // --- RENDERIZADO ---
     function renderClases() {
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), (snap) => {
             const div = document.getElementById('list-clases'); div.innerHTML = "";
@@ -326,7 +257,7 @@
                         <div style="text-align:right;"><span style="background:var(--cream); padding:4px 8px; border-radius:10px; font-size:10px; font-weight:700;">${c.isAportacion?'Aportación':'$'+c.price}</span></div>
                     </div>
                     <div style="margin-top:15px; display:flex; gap:8px;">
-                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" ${ya?'disabled':''} style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'ESTÁS INSCRITO':'RESERVAR AHORA'}</button>`:''}
+                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" ${ya?'disabled':''} style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR / PAGAR'}</button>`:''}
                         ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button><button onclick="openEditClass('${d.id}')" style="font-size:10px; width:auto; background:var(--sage);">GESTIONAR</button>`:''}
                     </div>
                 </div>`;
@@ -334,82 +265,62 @@
         });
     }
 
-    // --- FINANZAS ---
+    function loadMembresias() {
+        onSnapshot(collection(db,"membresias"), snap => {
+            const list = document.getElementById('list-membresias'); list.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                list.innerHTML += `<div class="card" style="min-width:180px; text-align:center; padding:15px;">
+                    <b>${m.nombre}</b><h3 style="margin:10px 0;">$${m.precio}</h3>
+                    <button onclick="window.open('${m.link}')" class="btn-mp" style="font-size:10px; padding:8px; margin-bottom:5px;">MERCADO PAGO</button>
+                    <button onclick="pagarEfectivoMembresia('${m.nombre}', '${m.precio}')" class="btn-cash" style="font-size:10px; padding:8px;">PAGAR EFECTIVO</button>
+                </div>`;
+            });
+        });
+    }
+
+    // --- RESTO DE FUNCIONES ADMIN (IGUALES) ---
+    window.loadUsersAdmin = async () => {
+        const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Alumnos</h4><div id="u-list"></div>`;
+        const snap = await getDocs(collection(db, "users"));
+        snap.forEach(d => { const u = d.data(); document.getElementById('u-list').innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${u.name}</b><br><small>${u.credits} creds</small></div><button onclick="openEditUser('${d.id}')" style="width:auto; padding:6px 15px; font-size:10px;">GESTIONAR</button></div>`; });
+    };
+    window.openEditUser = async (id) => { const u = (await getDoc(doc(db,"users",id))).data(); document.getElementById('eu-id').value=id; document.getElementById('eu-name').value=u.name; document.getElementById('eu-credits').value=u.credits; document.getElementById('eu-role').value=u.role; document.getElementById('modal-edit-user').style.display='flex'; };
+    window.registerSale = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { credits: increment(Number(document.getElementById('pay-creds').value)) }); await addDoc(collection(db,"pagos"), { alumno: document.getElementById('eu-name').value, monto: Number(document.getElementById('pay-amt').value), metodo: "Efectivo", fecha: serverTimestamp() }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Venta registrada"); };
+    window.saveUser = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { name: document.getElementById('eu-name').value, credits: Number(document.getElementById('eu-credits').value), role: document.getElementById('eu-role').value }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Guardado"); };
     window.loadPaymentsAdmin = async (filter = 'month') => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Finanzas</h4><div class="filter-btn-group"><button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</button><button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</button><button class="filter-btn ${filter==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</button></div><div style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px;"><small>RECAUDACIÓN</small><br><h2 id="total-amt" style="margin:5px 0;">$0</h2></div><button onclick="downloadPDFReport()" style="margin-bottom:15px; background:var(--sage); font-size:11px;">📄 GENERAR REPORTE PDF</button><div id="p-list"></div>`;
-        let q = filter === 'all' ? query(collection(db, "pagos"), orderBy("fecha", "desc")) : query(collection(db, "pagos"), where("fecha", ">=", filter==='week'?new Date(new Date().setDate(new Date().getDate()-7)):new Date(new Date().getFullYear(), new Date().getMonth(), 1)), orderBy("fecha", "desc"));
+        content.innerHTML = `<h4>Finanzas</h4><div class="filter-btn-group"><button onclick="loadPaymentsAdmin('week')">Semana</button><button onclick="loadPaymentsAdmin('month')">Mes</button></div><div style="background:var(--cream); padding:15px; border-radius:15px; text-align:center; margin-bottom:15px;"><h2 id="total-amt">$0</h2></div><button onclick="downloadPDFReport()" style="margin-bottom:15px; background:var(--sage); font-size:11px;">PDF REPORTE</button><div id="p-list"></div>`;
+        let q = query(collection(db, "pagos"), orderBy("fecha", "desc"));
         const snap = await getDocs(q); let total = 0;
-        snap.forEach(d => { 
-            const p = d.data(); total += Number(p.monto||0); 
-            document.getElementById('p-list').innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${p.alumno}</b><br><button class="btn-edit-small" onclick="openEditPayment('${d.id}')">✏️ Editar</button></div>
-                <div style="text-align:right; font-weight:700;">$${p.monto}</div>
-            </div>`; 
-        });
+        snap.forEach(d => { const p = d.data(); total += Number(p.monto||0); document.getElementById('p-list').innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><b>${p.alumno}</b><span>$${p.monto}</span></div>`; });
         document.getElementById('total-amt').innerText = `$${total}`;
     };
-
     window.downloadPDFReport = async () => {
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         let rows = []; snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, `$${p.monto}`, p.metodo]); });
         const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("Reporte de Ingresos - Escarola Wellness", 14, 15); docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
-        docPDF.save("Finanzas_Escarola.pdf"); showAlert("Reporte generado");
+        docPDF.text("Finanzas Escarola", 14, 15); docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
+        docPDF.save("Reporte_Escarola.pdf");
     };
-
-    // --- OPERACIONES ---
-    window.reservar = async (id) => {
-        const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
-        if(!c.isAportacion && myData.credits <= 0) return showAlert("No tienes créditos disponibles");
-        await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
-        if(!c.isAportacion) {
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
-            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Crédito', fecha: serverTimestamp() });
-        }
-        showAlert("¡Reserva confirmada!");
-    };
-
-    window.verLista = async (id) => {
-        const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || [];
-        let html = ""; 
-        if(ids.length === 0) html = "No hay alumnos inscritos aún.";
-        else {
-            for(let uid of ids) { 
-                const u = await getDoc(doc(db, "users", uid)); 
-                html += `• ${u.data().name}<br>`; 
-            }
-        }
-        document.getElementById('list-content').innerHTML = html;
-        document.getElementById('modal-list').style.display = 'flex';
-    };
-
-    window.loadUsersAdmin = async () => {
-        const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Alumnos</h4><div id="u-list"></div>`;
-        const snap = await getDocs(collection(db, "users"));
-        snap.forEach(d => { const u = d.data(); document.getElementById('u-list').innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${u.name}</b><br><small style="color:var(--gold); font-weight:700;">${u.credits} clases</small></div><button onclick="openEditUser('${d.id}')" style="width:auto; padding:6px 15px; font-size:10px;">GESTIONAR</button></div>`; });
-    };
-
-    window.openEditUser = async (id) => { const u = (await getDoc(doc(db,"users",id))).data(); document.getElementById('eu-id').value=id; document.getElementById('eu-name').value=u.name; document.getElementById('eu-credits').value=u.credits; document.getElementById('eu-role').value=u.role; document.getElementById('modal-edit-user').style.display='flex'; };
-    window.registerSale = async () => { 
-        const amt = Number(document.getElementById('pay-amt').value);
-        const creds = Number(document.getElementById('pay-creds').value);
-        if(!amt || !creds) return showAlert("Completa los datos");
-        await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { credits: increment(creds) }); 
-        await addDoc(collection(db,"pagos"), { alumno: document.getElementById('eu-name').value, monto: amt, metodo: "Efectivo", fecha: serverTimestamp() }); 
-        document.getElementById('modal-edit-user').style.display='none'; showAlert("Venta registrada con éxito"); 
-    };
-    window.saveUser = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { name: document.getElementById('eu-name').value, credits: Number(document.getElementById('eu-credits').value), role: document.getElementById('eu-role').value }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Perfil actualizado"); };
-
+    window.showNewsManager = () => { const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Avisos</h4><textarea id="n-txt"></textarea><button onclick="postNews()">Publicar</button><hr><div id="adm-news-list"></div>`; onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => { const list = document.getElementById('adm-news-list'); list.innerHTML = ""; snap.forEach(d => { list.innerHTML += `<div class="card" style="padding:10px;">${d.data().texto}<button class="delete-btn" onclick="promptDeleteDoc('news','${d.id}')">✕</button></div>`; }); }); };
+    window.postNews = async () => { const t = document.getElementById('n-txt').value; if(!t) return; await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); document.getElementById('n-txt').value = ""; showAlert("Publicado"); };
+    window.showMembresiaManager = () => { const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom"><input type="number" id="m-pre"><input type="text" id="m-link"><button onclick="saveMem()">Añadir</button><hr><div id="adm-m-list"></div>`; onSnapshot(collection(db, "membresias"), snap => { const list = document.getElementById('adm-m-list'); list.innerHTML = ""; snap.forEach(d => { list.innerHTML += `<div class="card" style="padding:10px;">${d.data().nombre}<button class="delete-btn" onclick="promptDeleteDoc('membresias','${d.id}')">✕</button></div>`; }); }); };
+    window.saveMem = async () => { const n = document.getElementById('m-nom').value; const p = document.getElementById('m-pre').value; const l = document.getElementById('m-link').value; await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l }); showAlert("Plan añadido"); };
+    window.promptDeleteDoc = (col, id) => showConfirm("Eliminar", "¿Borrar este elemento?", () => deleteDoc(doc(db, col, id)));
+    window.openCreateClass = () => { document.getElementById('modal-clase-title').innerText = "Nueva Clase"; document.getElementById('c-id').value = ""; document.getElementById('modal-clase').style.display = 'flex'; };
+    window.openEditClass = async (id) => { const snap = await getDoc(doc(db, "clases", id)); const c = snap.data(); document.getElementById('c-id').value = id; document.getElementById('c-name').value = c.nombre; document.getElementById('c-price').value = c.price; document.getElementById('c-time').value = c.horario; document.getElementById('c-apo').checked = c.isAportacion; document.getElementById('btn-delete-class').classList.remove('hidden'); document.getElementById('modal-clase').style.display = 'flex'; };
+    window.saveClass = async () => { const id = document.getElementById('c-id').value; const data = { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked }; if(!id) { data.inscritos = []; await addDoc(collection(db, "clases"), data); } else { await updateDoc(doc(db, "clases", id), data); } document.getElementById('modal-clase').style.display = 'none'; showAlert("Guardado"); };
+    window.promptDeleteClass = () => showConfirm("¿Borrar Clase?", "Se devolverán créditos.", async () => { const id = document.getElementById('c-id').value; await deleteDoc(doc(db, "clases", id)); document.getElementById('modal-clase').style.display = 'none'; showAlert("Borrada"); });
+    window.verLista = async (id) => { const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || []; let h = ""; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); h += `• ${u.data().name}<br>`; } document.getElementById('list-content').innerHTML = h || "Vacío"; document.getElementById('modal-list').style.display = 'flex'; };
+    window.updatePayment = async () => { await updateDoc(doc(db,"pagos",document.getElementById('ep-id').value), { alumno: document.getElementById('ep-alumno').value, monto: Number(document.getElementById('ep-monto').value), metodo: document.getElementById('ep-metodo').value }); document.getElementById('modal-edit-payment').style.display='none'; loadPaymentsAdmin('month'); };
     window.openEditPayment = async (id) => { const p = (await getDoc(doc(db,"pagos",id))).data(); document.getElementById('ep-id').value=id; document.getElementById('ep-alumno').value=p.alumno; document.getElementById('ep-monto').value=p.monto; document.getElementById('ep-metodo').value=p.metodo; document.getElementById('modal-edit-payment').style.display='flex'; };
-    window.updatePayment = async () => { await updateDoc(doc(db,"pagos",document.getElementById('ep-id').value), { alumno: document.getElementById('ep-alumno').value, monto: Number(document.getElementById('ep-monto').value), metodo: document.getElementById('ep-metodo').value }); document.getElementById('modal-edit-payment').style.display='none'; loadPaymentsAdmin('month'); showAlert("Pago actualizado"); };
-    window.promptDeletePayment = () => showConfirm("Eliminar Pago", "¿Deseas borrar este registro de ingresos?", async () => { await deleteDoc(doc(db,"pagos",document.getElementById('ep-id').value)); document.getElementById('modal-edit-payment').style.display='none'; loadPaymentsAdmin('month'); showAlert("Registro borrado"); });
 
     function loadNews() { onSnapshot(query(collection(db,"news"), orderBy("fecha","desc")), snap => { document.getElementById('section-news').innerHTML = ""; snap.forEach(d => { document.getElementById('section-news').innerHTML += `<div class="news-card"><p style="margin:0;">${d.data().texto}</p></div>`; }); }); }
-    function loadMembresias() { onSnapshot(collection(db,"membresias"), snap => { document.getElementById('list-membresias').innerHTML = ""; snap.forEach(d => { const m = d.data(); document.getElementById('list-membresias').innerHTML += `<div class="card" style="min-width:160px; text-align:center; padding:15px;"><b>${m.nombre}</b><h3 style="margin:10px 0; color:var(--dark-sage);">$${m.precio}</h3><button onclick="window.open('${m.link}')" style="background:var(--mp-blue); font-size:10px; padding:8px;">COMPRAR</button></div>`; }); }); }
-    
     document.getElementById('auth-toggle').onclick = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin ? 'Bienvenida/o' : 'Crea tu cuenta'; document.getElementById('btn-auth-main').innerText = isLogin ? 'Entrar' : 'Registrarme'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); document.getElementById('role-select').classList.toggle('hidden', isLogin); };
-    document.getElementById('btn-auth-main').onclick = async () => { const email = document.getElementById('auth-email').value; const pass = document.getElementById('auth-password').value; if(isLogin) { signInWithEmailAndPassword(auth, email, pass).catch(() => showAlert("Error de acceso")); } else { const res = await createUserWithEmailAndPassword(auth, email, pass); await setDoc(doc(db,"users",res.user.uid), { name: document.getElementById('reg-name').value, email, role: document.getElementById('role-select').value, credits: 0 }); } };
+    document.getElementById('btn-auth-main').onclick = async () => { const email = document.getElementById('auth-email').value; const pass = document.getElementById('auth-password').value; if(isLogin) { signInWithEmailAndPassword(auth, email, pass).catch(() => showAlert("Error")); } else { const res = await createUserWithEmailAndPassword(auth, email, pass); await setDoc(doc(db,"users",res.user.uid), { name: document.getElementById('reg-name').value, email, role: document.getElementById('role-select').value, credits: 0 }); } };
 </script>
+
+<div id="modal-list" class="modal-overlay"><div class="modal-card"><h3>Inscritos</h3><div id="list-content" style="text-align:left; margin:15px 0;"></div><button onclick="document.getElementById('modal-list').style.display='none'">Cerrar</button></div></div>
 </body>
 </html>
