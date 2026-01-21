@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escarola Wellness Pro</title>
+    <title>Escarola Wellness OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -18,44 +18,20 @@
         body { margin: 0; font-family: 'Montserrat', sans-serif; background-color: var(--sage); color: var(--dark-sage); overflow-x: hidden; }
         #app { padding: 25px 20px 120px 20px; min-height: 100vh; box-sizing: border-box; }
 
-        .card { 
-            background: var(--white); border-radius: 30px; 
-            padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); 
-            box-sizing: border-box; width: 100%; position: relative;
-        }
+        .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 20px; box-shadow: var(--shadow); width: 100%; position: relative; box-sizing: border-box;}
+        .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid var(--gold); }
 
-        .news-card {
-            background: var(--dark-sage); color: white; border-radius: 25px;
-            padding: 15px 20px; margin-bottom: 20px; border-left: 5px solid var(--gold);
-        }
+        input, select, textarea { width: 100%; padding: 15px 20px; margin: 8px 0; border-radius: 25px; border: 1px solid #eee; box-sizing: border-box; font-family: 'Montserrat'; }
+        button { width: 100%; padding: 15px; border-radius: 30px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
 
-        input, select, textarea { 
-            width: 100%; padding: 15px 20px; margin: 8px 0; 
-            border-radius: 25px; border: 1px solid #eee; box-sizing: border-box; font-family: 'Montserrat';
-        }
-
-        button { 
-            width: 100%; padding: 15px; border-radius: 30px; border: none;
-            font-weight: 700; cursor: pointer; transition: 0.3s;
-            background: var(--dark-sage); color: white;
-        }
-
-        button:active { transform: scale(0.96); opacity: 0.9; }
-
-        .nav-bar { 
-            position: fixed; bottom: 20px; left: 20px; right: 20px; 
-            background: var(--dark-sage); height: 75px; display: flex; 
-            justify-content: space-around; align-items: center; 
-            border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); z-index: 1000;
-        }
-
+        .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; display: flex; justify-content: space-around; align-items: center; border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); z-index: 1000; }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: white; }
         .nav-item span { font-size: 24px; display: block; }
 
         .hidden { display: none !important; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
-        
         .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
     </style>
 </head>
@@ -64,102 +40,73 @@
 <div id="app">
     <header>
         <div style="display:flex; align-items:center; gap:12px;">
-            <img src="logo.png" style="width:42px; height:42px; border-radius:12px; background:white; padding:2px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
+            <img src="logo.png" style="width:42px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
                 <h2 style="margin:0; font-size:18px;">Escarola</h2>
-                <div id="user-credits-display" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);">Cargando créditos...</div>
+                <div id="user-credits-display" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);">0 CRÉDITOS</div>
             </div>
         </div>
-        <button onclick="auth.signOut().then(()=>location.reload())" style="width:auto; background:rgba(255,255,255,0.1); padding:8px 12px; font-size:10px; border-radius:20px;">Salir</button>
+        <button onclick="auth.signOut().then(()=>location.reload())" style="width:auto; background:rgba(255,255,255,0.1); padding:8px 12px; font-size:10px;">Salir</button>
     </header>
 
     <div id="view-auth" class="view hidden">
         <div class="card">
-            <h3 style="text-align:center; margin-bottom:20px;">Registro / Acceso</h3>
-            <input type="text" id="reg-name" placeholder="Tu nombre completo (solo para registro)">
-            <input type="email" id="email" placeholder="Correo electrónico">
+            <h3 style="text-align:center;">Wellness Studio</h3>
+            <input type="text" id="reg-name" placeholder="Nombre (para nuevos)">
+            <input type="email" id="email" placeholder="Correo">
             <input type="password" id="password" placeholder="Contraseña">
             <select id="role-select">
                 <option value="alumno">Soy Alumno</option>
                 <option value="maestro">Soy Maestro</option>
             </select>
             <button id="btn-login" style="margin-top:10px;">Entrar</button>
-            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta Nueva</button>
+            <button id="btn-register" style="background:var(--sage); margin-top:10px;">Crear Cuenta</button>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="section-news"></div>
-
-        <h4 style="color:white; margin: 15px 0 10px 5px;">Paquetes de Clases</h4>
-        <div style="display:flex; gap:12px; overflow-x:auto; padding-bottom:15px; scrollbar-width: none;">
-            <div class="card" style="min-width:180px; text-align:center;">
-                <small>BÁSICO</small><br><b>4 Clases</b><br><h3>$600</h3>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:8px; font-size:10px; background:var(--mp-blue);">PAGAR AQUÍ</button>
-            </div>
-            <div class="card" style="min-width:180px; text-align:center; border: 2px solid var(--gold);">
-                <small>RECOMENDADO</small><br><b>8 Clases</b><br><h3>$1,100</h3>
-                <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="padding:8px; font-size:10px; background:var(--mp-blue);">PAGAR AQUÍ</button>
-            </div>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin-top:10px;">
-            <h4 style="margin-left:5px;">Horario de Clases</h4>
-            <button id="btn-crear-trigger" class="hidden" onclick="openClassModal()" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:11px;">+ Nueva Clase</button>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; color:white;">
+            <h4 style="margin-left:5px;">Próximas Clases</h4>
+            <button id="btn-crear-trigger" class="hidden" onclick="document.getElementById('modal-clase').style.display='flex'" style="width:auto; padding:8px 15px; background:white; color:var(--dark-sage); font-size:11px;">+ Nueva</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white;">Panel Admin</h3>
+        <h3 style="color:white;">Gestión Pro</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:20px;">
-                <button onclick="loadUsersAdmin()">👥 Gestión Alumnos</button>
-                <button onclick="showNewsManager()">📢 Publicar Avisos</button>
-                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Exportar PDF Ingresos</button>
+                <button onclick="loadUsersAdmin()">👥 Alumnos</button>
+                <button onclick="showNewsManager()">📢 Avisos</button>
+                <button onclick="loadFinanceReport()" style="grid-column: span 2; background:var(--sage);">📊 Reporte PDF</button>
             </div>
             <div id="admin-content"></div>
         </div>
     </div>
 
     <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Clases</div>
+        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Inicio</div>
         <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
-<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+<div id="modal-clase" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; align-items:center; justify-content:center;">
     <div class="card" style="width:90%; max-width:400px;">
-        <h3>Configurar Actividad</h3>
-        <input type="text" id="clase-name" placeholder="Ej. Yoga Vinyasa">
+        <h3>Nueva Clase</h3>
+        <input type="text" id="clase-name" placeholder="Nombre de la actividad">
         <input type="number" id="clase-price" placeholder="Precio MXN">
         <input type="datetime-local" id="clase-time">
-        <button id="btn-save-class" style="margin-top:15px;">Crear Clase</button>
-        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cerrar</button>
-    </div>
-</div>
-
-<div id="modal-edit-user" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:2000; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
-    <div class="card" style="width:90%; max-width:400px;">
-        <h3>Ajustar Perfil</h3>
-        <input type="hidden" id="edit-u-id">
-        <label style="font-size:12px;">Nombre</label><input type="text" id="edit-u-name">
-        <label style="font-size:12px;">Créditos Totales</label><input type="number" id="edit-u-credits">
-        <label style="font-size:12px;">Rol</label>
-        <select id="edit-u-role">
-            <option value="alumno">Alumno</option>
-            <option value="maestro">Maestro</option>
-            <option value="admin">Administrador</option>
-        </select>
-        <button id="btn-save-user-changes" style="margin-top:15px;">Guardar Cambios</button>
-        <button onclick="document.getElementById('modal-edit-user').style.display='none'" style="background:none; color:gray;">Cerrar</button>
+        <button id="btn-save-class" style="margin-top:15px;">Publicar Clase</button>
+        <button onclick="document.getElementById('modal-clase').style.display='none'" style="background:none; color:gray;">Cancelar</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, increment, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
@@ -173,7 +120,6 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     let myData = null;
 
     onAuthStateChanged(auth, async (user) => {
@@ -192,7 +138,6 @@
             loadNews();
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
-            document.getElementById('nav-bottom').classList.add('hidden');
         }
     });
 
@@ -209,127 +154,122 @@
         }
     };
 
-    function loadNews() {
-        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
-            const div = document.getElementById('section-news');
-            div.innerHTML = "";
-            snap.forEach(d => {
-                const n = d.data();
-                div.innerHTML += `<div class="news-card"><small>AVISO</small><p style="margin:5px 0 0 0;">${n.texto}</p></div>`;
-            });
-        });
-    }
-
-    window.showNewsManager = () => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = `<h4>Nuevo Aviso</h4><textarea id="new-news-text"></textarea><button onclick="postNews()">Publicar</button><div id="admin-news-list" style="margin-top:20px;"></div>`;
-        onSnapshot(collection(db, "news"), (snap) => {
-            const list = document.getElementById('admin-news-list');
-            list.innerHTML = "";
-            snap.forEach(d => {
-                list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">${d.data().texto} <button onclick="deleteNews('${d.id}')" style="width:auto; padding:5px; background:var(--red);">✕</button></div>`;
-            });
-        });
-    };
-
-    window.postNews = async () => {
-        const txt = document.getElementById('new-news-text').value;
-        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-        document.getElementById('new-news-text').value = "";
-    };
-    window.deleteNews = async (id) => { await deleteDoc(doc(db, "news", id)); };
-
+    // --- SISTEMA DE CLASES Y RESERVAS ---
     function renderClases() {
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), (snap) => {
             const div = document.getElementById('list-clases');
             div.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data();
-                div.innerHTML += `<div class="card">
-                    <b>${c.nombre}</b> <span style="float:right; color:var(--sage);">$${c.price}</span><br>
-                    <small>📅 ${new Date(c.horario).toLocaleString([], {weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'})}</small><br>
-                    <small>Prof. ${c.maestroName}</small>
-                    <div style="margin-top:10px;">
-                        ${(myData.role === 'admin' || c.maestroId === auth.currentUser.uid) ? `<button onclick="deleteClass('${d.id}')" style="background:var(--red); padding:5px; font-size:10px; width:auto; margin-right:5px;">Eliminar</button>` : ''}
-                        <button onclick="window.open('https://link.mercadopago.com.mx/escar0la')" style="background:var(--mp-blue); padding:5px; font-size:10px; width:auto;">Pagar Ticket</button>
-                    </div>
-                </div>`;
+                const inscritosCount = c.inscritos ? c.inscritos.length : 0;
+                const yaInscrito = c.inscritos && c.inscritos.includes(auth.currentUser.uid);
+
+                div.innerHTML += `
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between;">
+                            <b>${c.nombre}</b> <span style="color:var(--sage)">$${c.price}</span>
+                        </div>
+                        <small>📅 ${new Date(c.horario).toLocaleString()}</small><br>
+                        <small>👥 ${inscritosCount} inscritos</small>
+                        <div style="margin-top:15px; display:flex; gap:8px;">
+                            ${myData.role === 'alumno' ? 
+                                `<button onclick="reservarClase('${d.id}')" ${yaInscrito ? 'disabled' : ''} style="background:${yaInscrito ? '#ccc' : 'var(--gold)'}; font-size:11px;">
+                                    ${yaInscrito ? 'YA APARTADO' : 'APARTAR LUGAR'}
+                                </button>` : ''
+                            }
+                            ${(myData.role === 'admin' || c.maestroId === auth.currentUser.uid) ? 
+                                `<button onclick="verLista('${d.id}')" style="background:var(--dark-sage); font-size:11px;">LISTA</button>
+                                 <button onclick="deleteClass('${d.id}')" style="background:var(--red); font-size:11px; width:auto;">✕</button>` : ''
+                            }
+                        </div>
+                    </div>`;
             });
         });
     }
 
-    window.openClassModal = () => document.getElementById('modal-clase').style.display = 'flex';
-    document.getElementById('btn-save-class').onclick = async () => {
-        await addDoc(collection(db, "clases"), {
-            nombre: document.getElementById('clase-name').value,
-            price: Number(document.getElementById('clase-price').value),
-            horario: document.getElementById('clase-time').value,
-            maestroId: auth.currentUser.uid,
-            maestroName: myData.name
-        });
-        document.getElementById('modal-clase').style.display = 'none';
+    window.reservarClase = async (id) => {
+        if(myData.credits <= 0) return alert("No tienes créditos. Por favor adquiere un paquete.");
+        if(confirm("¿Apartar lugar? Se descontará 1 crédito de tu cuenta.")) {
+            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
+            alert("¡Lugar reservado!");
+            location.reload();
+        }
     };
 
+    window.verLista = async (id) => {
+        const snap = await getDoc(doc(db, "clases", id));
+        const ids = snap.data().inscritos || [];
+        if(ids.length === 0) return alert("No hay alumnos inscritos aún.");
+        let listaNombres = "Inscritos:\n";
+        for(let uid of ids) {
+            const uSnap = await getDoc(doc(db, "users", uid));
+            listaNombres += `- ${uSnap.data()?.name || 'Usuario'}\n`;
+        }
+        alert(listaNombres);
+    };
+
+    // --- CREACIÓN DE CLASE CORREGIDA ---
+    document.getElementById('btn-save-class').onclick = async () => {
+        const n = document.getElementById('clase-name').value;
+        const p = document.getElementById('clase-price').value;
+        const t = document.getElementById('clase-time').value;
+        if(!n || !p || !t) return alert("Faltan datos");
+
+        try {
+            await addDoc(collection(db, "clases"), {
+                nombre: n,
+                price: Number(p),
+                horario: t,
+                maestroId: auth.currentUser.uid,
+                maestroName: myData.name || "Admin",
+                inscritos: []
+            });
+            document.getElementById('modal-clase').style.display = 'none';
+            alert("Clase creada");
+        } catch(e) { alert("Error: " + e.message); }
+    };
+
+    // --- FUNCIONES ADMIN ---
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Gestión de Créditos</h4>";
+        content.innerHTML = "Cargando...";
         const snap = await getDocs(collection(db, "users"));
+        content.innerHTML = "<h4>Gestión de Créditos</h4>";
         snap.forEach(d => {
             const u = d.data();
             content.innerHTML += `<div class="user-row">
-                <div><b>${u.name}</b><br><small>${u.credits || 0} créd. • ${u.role}</small></div>
-                <div style="display:flex; gap:5px;">
-                    <button onclick="discountCredit('${d.id}', ${u.credits || 0})" style="width:auto; padding:5px 10px; background:var(--sage); font-size:10px;">Pase Lista</button>
-                    <button onclick="openUserEdit('${d.id}', '${u.name}', ${u.credits || 0}, '${u.role}')" style="width:auto; padding:5px 10px; background:var(--dark-sage); font-size:10px;">✎</button>
-                </div>
+                <div><b>${u.name}</b><br><small>${u.credits || 0} créd.</small></div>
+                <button onclick="editCredits('${d.id}', ${u.credits || 0})" style="width:auto; padding:5px 10px; font-size:10px;">Editar</button>
             </div>`;
         });
     };
 
-    window.discountCredit = async (uid, current) => {
-        if(current > 0 && confirm("¿Descontar 1 clase?")) await updateDoc(doc(db, "users", uid), { credits: increment(-1) });
-        else if(current <= 0) alert("Sin créditos.");
+    window.editCredits = async (id, current) => {
+        const n = prompt("Nuevos créditos:", current);
+        if(n !== null) await updateDoc(doc(db, "users", id), { credits: Number(n) });
         loadUsersAdmin();
     };
 
-    window.openUserEdit = (id, name, credits, role) => {
-        document.getElementById('modal-edit-user').style.display = 'flex';
-        document.getElementById('edit-u-id').value = id;
-        document.getElementById('edit-u-name').value = name;
-        document.getElementById('edit-u-credits').value = credits;
-        document.getElementById('edit-u-role').value = role;
-    };
+    window.deleteClass = async (id) => { if(confirm("¿Borrar clase?")) await deleteDoc(doc(db, "clases", id)); };
 
-    document.getElementById('btn-save-user-changes').onclick = async () => {
-        await updateDoc(doc(db, "users", document.getElementById('edit-u-id').value), {
-            name: document.getElementById('edit-u-name').value,
-            credits: Number(document.getElementById('edit-u-credits').value),
-            role: document.getElementById('edit-u-role').value
-        });
-        document.getElementById('modal-edit-user').style.display = 'none';
-        loadUsersAdmin();
-    };
-
-    window.loadFinanceReport = async () => {
-        const snap = await getDocs(collection(db, "clases"));
-        let rows = []; let total = 0;
-        snap.forEach(d => {
-            const c = d.data(); total += Number(c.price);
-            rows.push([c.nombre, c.maestroName, `$${c.price}`, new Date(c.horario).toLocaleDateString()]);
-        });
-        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("REPORTE FINANCIERO ESCAROLA", 14, 20);
-        docPDF.autoTable({ head:[['Clase','Prof','Precio','Fecha']], body:rows, startY:30 });
-        docPDF.text(`TOTAL ESTIMADO: $${total} MXN`, 14, docPDF.lastAutoTable.finalY+10);
-        docPDF.save("Reporte_Escarola.pdf");
-    };
-
+    // --- AUTH ---
     document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
     document.getElementById('btn-register').onclick = async () => {
         const res = await createUserWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
         await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, email: document.getElementById('email').value, role: document.getElementById('role-select').value, credits: 0 });
     };
-    window.deleteClass = async (id) => { if(confirm("¿Borrar?")) await deleteDoc(doc(db, "clases", id)); };
+
+    // --- OTROS ---
+    function loadNews() {
+        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), (snap) => {
+            const div = document.getElementById('section-news');
+            div.innerHTML = "";
+            snap.forEach(d => {
+                div.innerHTML += `<div class="news-card"><small>AVISO</small><p>${d.data().texto}</p></div>`;
+            });
+        });
+    }
 </script>
 </body>
 </html>
