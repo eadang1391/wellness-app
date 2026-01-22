@@ -4,11 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Escarola Wellness</title>
-    
     <meta name="theme-color" content="#6b8e83">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -19,49 +17,37 @@
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        html, body { margin: 0; padding: 0; background-color: var(--sage); height: 100%; overflow-x: hidden; font-family: 'Quicksand', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
+        html, body { margin: 0; padding: 0; background-color: var(--sage); height: 100%; font-family: 'Quicksand', sans-serif; -webkit-tap-highlight-color: transparent; }
         #app { padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 120px) 20px; min-height: 100vh; box-sizing: border-box; }
-        
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         .logo-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: white; }
-        
-        .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); width: 100%; box-sizing: border-box; position: relative; border: 1px solid rgba(0,0,0,0.03); }
+        .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; border: 1px solid rgba(0,0,0,0.03); }
         .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
-        
-        input, select, textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 20px; border: 2px solid #f0f0f0; box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600; outline: none; }
-        button { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; font-family: 'Quicksand'; }
+        input, select, textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 20px; border: 2px solid #f0f0f0; outline: none; font-family: 'Quicksand'; font-weight: 600; }
+        button { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; background: var(--dark-sage); color: white; font-family: 'Quicksand'; transition: 0.3s; }
         button:active { transform: scale(0.96); }
-
-        /* Navegación */
+        .btn-mp { background: var(--mp-blue) !important; font-size: 11px; margin-bottom: 8px; }
+        .btn-cash { background: var(--cash-green) !important; font-size: 11px; }
         .nav-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 20px); left: 20px; right: 20px; background: var(--dark-sage); height: 70px; display: flex; justify-content: space-around; align-items: center; border-radius: 35px; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; position: relative; }
         .nav-item.active { color: white; }
         .nav-item span { font-size: 20px; display: block; }
-        
-        .notification-badge { position: absolute; top: -5px; right: 5px; width: 12px; height: 12px; background: var(--red); border-radius: 50%; border: 2px solid var(--dark-sage); display: none; }
-        .unread { border-left: 5px solid var(--gold) !important; background: #fffdf5 !important; }
-
-        /* Chat Window */
+        .badge { position: absolute; top: -5px; right: 5px; width: 10px; height: 10px; background: var(--red); border-radius: 50%; border: 2px solid var(--dark-sage); display: none; }
+        .unread-chat { border-left: 5px solid var(--gold) !important; }
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 5000; display: none; flex-direction: column; }
         .chat-header { background: var(--sage); color: white; padding: calc(env(safe-area-inset-top) + 15px) 20px 15px 20px; display: flex; align-items: center; gap: 15px; font-weight: 700; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
         .msg { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 14px; }
         .msg.me { align-self: flex-end; background: var(--sage); color: white; border-bottom-right-radius: 4px; }
         .msg.them { align-self: flex-start; background: white; color: var(--dark-sage); border-bottom-left-radius: 4px; border: 1px solid #eee; }
-        .chat-input-area { padding: 10px 20px calc(env(safe-area-inset-bottom) + 10px) 20px; background: white; display: flex; gap: 10px; border-top: 1px solid #eee; }
-
-        /* Modales */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
-        .modal-card { background: var(--white); width: 85%; max-width: 400px; border-radius: 35px; padding: 25px; box-sizing: border-box; text-align: center; }
-        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 4000; }
+        .modal-card { background: var(--white); width: 85%; max-width: 400px; border-radius: 35px; padding: 25px; text-align: center; }
         .hidden { display: none !important; }
-        .delete-btn { background: var(--red); color: white; width: 24px; height: 24px; border-radius: 50%; border:none; position: absolute; top: 10px; right: 10px; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div id="custom-alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; background: var(--white); padding: 15px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 6000; transition: 0.6s; text-align: center; font-weight: 700; border: 2px solid var(--sage);"></div>
+<div id="custom-alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; background: white; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 9999; transition: 0.5s; text-align: center; font-weight: 700;"></div>
 
 <div id="app">
     <header>
@@ -69,10 +55,10 @@
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
                 <h2 style="margin:0; font-size:17px;">Escarola</h2>
-                <div id="user-credits-display" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);">...</div>
+                <div id="user-creds" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);"></div>
             </div>
         </div>
-        <button id="btn-logout" class="hidden" onclick="logout()" style="width:auto; background:rgba(255,255,255,0.2); padding:5px 12px; font-size:10px;">Salir</button>
+        <button id="btn-logout" class="hidden" onclick="signOut(auth)" style="width:auto; padding:5px 12px; font-size:10px; background:rgba(255,255,255,0.2);">Salir</button>
     </header>
 
     <div id="view-auth" class="view hidden">
@@ -82,19 +68,19 @@
             <input type="email" id="auth-email" placeholder="Correo">
             <input type="password" id="auth-password" placeholder="Contraseña">
             <select id="role-select" class="hidden"><option value="alumno">Alumno</option><option value="maestro">Maestro</option></select>
-            <button id="btn-auth-main" onclick="handleAuth()">Entrar</button>
-            <p id="auth-toggle" onclick="toggleAuthMode()" style="text-align:center; font-size:12px; margin-top:15px; text-decoration:underline;">¿No tienes cuenta? Regístrate</p>
+            <button onclick="handleAuth()" id="btn-auth-text">Entrar</button>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:15px; text-decoration:underline; cursor:pointer;">¿No tienes cuenta? Regístrate</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
-        <div id="section-news"></div>
-        <div id="list-membresias" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;"></div>
+        <div id="news-list"></div>
+        <div id="m-list" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin:20px 0 10px 0;">
-            <h4 style="margin:0;">Horarios</h4>
-            <button id="btn-crear-clase" class="hidden" onclick="openClaseModal()" style="width:auto; padding:6px 12px; background:white; color:var(--dark-sage); font-size:10px;">+ Clase</button>
+            <h4 style="margin:0;">Clases</h4>
+            <button id="admin-add-class" class="hidden" onclick="openClassModal()" style="width:auto; padding:5px 12px; font-size:10px; background:white; color:var(--dark-sage);">+ Clase</button>
         </div>
-        <div id="list-clases"></div>
+        <div id="c-list"></div>
     </div>
 
     <div id="view-chats" class="view hidden">
@@ -103,58 +89,47 @@
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Panel Admin</h3>
+        <h3 style="color:white; margin-bottom:15px;">Panel Control</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                <button onclick="loadUsersAdmin()">👥 Alumnos</button>
-                <button onclick="loadPaymentsAdmin()">💰 Finanzas</button>
-                <button onclick="showNewsManager()">📢 Avisos</button>
-                <button onclick="showMembresiaManager()">💳 Planes</button>
+                <button onclick="adminLoadUsers()">👥 Alumnos</button>
+                <button onclick="adminLoadFinances()">💰 Finanzas</button>
+                <button onclick="adminLoadNews()">📢 Avisos</button>
+                <button onclick="adminLoadPlanes()">💳 Planes</button>
             </div>
-            <div id="admin-content" style="margin-top:20px;"></div>
+            <div id="admin-view-content" style="margin-top:20px;"></div>
         </div>
     </div>
 
-    <nav id="nav-bottom" class="nav-bar hidden">
-        <div class="nav-item active" id="nav-clases" onclick="switchTab('clases')"><span>🏠</span>Inicio</div>
-        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><div id="chat-badge" class="notification-badge"></div><span>💬</span>Chat</div>
-        <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
+    <nav class="nav-bar hidden" id="nav">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
+        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><div id="chat-badge" class="badge"></div><span>💬</span>Chat</div>
+        <div class="nav-item hidden" id="nav-admin" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
 <div id="chat-window">
-    <div class="chat-header"><span onclick="closeChat()" style="font-size:24px; cursor:pointer;">‹ Regresar</span><div id="chat-with-name"></div></div>
+    <div class="chat-header"><span onclick="closeChat()">‹ Regresar</span><div id="chat-with-name"></div></div>
     <div id="chat-messages"></div>
     <div class="chat-input-area">
-        <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
-        <button onclick="sendMsg()" style="width:auto;">↑</button>
+        <input type="text" id="chat-input" placeholder="Mensaje..."><button onclick="sendChat()" style="width:auto;">↑</button>
     </div>
 </div>
 
 <div id="modal-clase" class="modal-overlay"><div class="modal-card">
-    <h3>Clase</h3>
-    <input type="hidden" id="c-id"><input type="text" id="c-name" placeholder="Actividad">
-    <input type="number" id="c-price" placeholder="Precio $"><input type="datetime-local" id="c-time">
-    <label style="font-size:12px;"><input type="checkbox" id="c-apo"> Aportación</label>
+    <h3>Nueva Clase</h3>
+    <input type="text" id="cl-name" placeholder="Actividad">
+    <input type="number" id="cl-price" placeholder="Precio $">
+    <input type="datetime-local" id="cl-time">
+    <label style="font-size:12px;"><input type="checkbox" id="cl-apo"> Aportación</label>
     <button onclick="saveClass()" style="margin-top:10px;">Guardar</button>
-    <button onclick="closeModal('modal-clase')" style="background:none; color:gray;">Cerrar</button>
-</div></div>
-
-<div id="modal-user" class="modal-overlay"><div class="modal-card">
-    <h3 id="u-edit-name">Alumno</h3>
-    <input type="hidden" id="u-edit-id"><input type="number" id="u-edit-creds" placeholder="Créditos totales">
-    <div style="background:var(--cream); padding:15px; border-radius:20px; margin:15px 0;">
-        <input type="number" id="sale-amt" placeholder="Monto $"><input type="text" id="sale-concept" placeholder="Concepto">
-        <button onclick="registerSale()" style="background:var(--sage); margin-top:5px;">Registrar Venta</button>
-    </div>
-    <button onclick="saveUserEdit()">Guardar Cambios</button>
-    <button onclick="closeModal('modal-user')" style="background:none; color:gray;">Cerrar</button>
+    <button onclick="closeModal('modal-clase')" style="background:none; color:gray;">Cancelar</button>
 </div></div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, increment, arrayUnion, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
@@ -170,116 +145,118 @@
     const db = getFirestore(app);
     let myData = null, isLogin = true, activeChatId = null, chatUnsub = null;
 
-    // --- SESIÓN Y NAVEGACIÓN ---
+    // --- SESIÓN ---
     onAuthStateChanged(auth, async user => {
         if (user) {
             const snap = await getDoc(doc(db, "users", user.uid));
             myData = { ...snap.data(), id: user.uid };
             document.getElementById('view-auth').classList.add('hidden');
             document.querySelectorAll('.nav-bar, #btn-logout').forEach(e => e.classList.remove('hidden'));
-            if(myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
-            if(myData.role !== 'alumno') document.getElementById('btn-crear-clase').classList.remove('hidden');
+            if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+            if(myData.role !== 'alumno') document.getElementById('admin-add-class').classList.remove('hidden');
             if(myData.role === 'alumno') {
-                document.getElementById('user-credits-display').classList.remove('hidden');
-                document.getElementById('user-credits-display').innerText = `${myData.credits || 0} CLASES`;
+                const credEl = document.getElementById('user-creds');
+                credEl.classList.remove('hidden');
+                credEl.innerText = `${myData.credits || 0} CLASES DISPONIBLES`;
             }
-            switchTab('clases');
+            switchTab('main');
             listenNotifications();
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
-            document.querySelectorAll('.nav-bar, #btn-logout, #nav-admin-btn').forEach(e => e.classList.add('hidden'));
+            document.querySelectorAll('.nav-bar, #btn-logout, #nav-admin').forEach(e => e.classList.add('hidden'));
         }
     });
 
-    window.switchTab = tab => {
+    window.switchTab = t => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        if(tab === 'clases') { document.getElementById('view-main').classList.remove('hidden'); renderClases(); loadNews(); loadMembresias(); }
-        else if(tab === 'chats') { document.getElementById('view-chats').classList.remove('hidden'); loadChatList(); }
-        else if(tab === 'admin') { document.getElementById('view-admin').classList.remove('hidden'); }
-        document.getElementById('nav-' + (tab === 'chats' ? 'chat' : tab)).classList.add('active');
+        if(t === 'main') { document.getElementById('view-main').classList.remove('hidden'); renderMain(); }
+        else if(t === 'chats') { document.getElementById('view-chats').classList.remove('hidden'); loadChatList(); }
+        else if(t === 'admin') { document.getElementById('view-admin').classList.remove('hidden'); }
+        document.getElementById('nav-' + (t === 'main' ? 'home' : (t === 'chats' ? 'chat' : 'admin'))).classList.add('active');
     };
 
-    // --- CLASES Y RESERVAS ---
-    window.renderClases = () => {
+    // --- RENDER MAIN ---
+    function renderMain() {
+        // Noticias
+        onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
+            const div = document.getElementById('news-list'); div.innerHTML = "";
+            snap.forEach(d => div.innerHTML += `<div class="news-card">${d.data().texto}</div>`);
+        });
+        // Membresías (Botones de Pago Restaurados)
+        onSnapshot(collection(db, "membresias"), snap => {
+            const div = document.getElementById('m-list'); div.innerHTML = "";
+            snap.forEach(d => {
+                const m = d.data();
+                div.innerHTML += `<div class="card" style="min-width:180px; text-align:center;">
+                    <b>${m.nombre}</b><h3 style="margin:10px 0;">$${m.precio}</h3>
+                    <button class="btn-mp" onclick="window.open('${m.link}')">MERCADO PAGO</button>
+                    <button class="btn-cash" onclick="payCash('${m.nombre}', ${m.precio})">EFECTIVO</button>
+                </div>`;
+            });
+        });
+        // Clases
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
-            const div = document.getElementById('list-clases'); div.innerHTML = "";
+            const div = document.getElementById('c-list'); div.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id);
                 div.innerHTML += `<div class="card">
                     <div style="display:flex; justify-content:space-between;">
-                        <b>${c.nombre}</b><span>${c.isAportacion?'Aportación':'$'+c.price}</span>
+                        <b>${c.nombre}</b><span>${c.isAportacion?'Apo':'$'+c.price}</span>
                     </div>
                     <small style="color:gray;">📅 ${new Date(c.horario).toLocaleString()}</small>
-                    <div style="margin-top:10px; display:flex; gap:5px;">
-                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
-                        ${myData.role!=='alumno'?`<button onclick="verInscritos('${d.id}')" style="font-size:11px;">LISTA</button>`:''}
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        ${myData.role==='alumno'?`<button onclick="reservaClase('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
+                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button>`:''}
                     </div>
                 </div>`;
             });
         });
+    }
+
+    // --- FUNCIONES PAGO Y RESERVA ---
+    window.payCash = (name, price) => {
+        showAlert("Aviso enviado. Paga en recepción.");
+        addDoc(collection(db, "pagos"), { alumno: myData.name, monto: price, concepto: "Plan: "+name, metodo: "Efectivo (Pendiente)", fecha: serverTimestamp() });
     };
 
-    window.reservar = async id => {
-        const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
+    window.reservaClase = async id => {
+        const c = (await getDoc(doc(db, "clases", id))).data();
         if(c.isAportacion || myData.credits > 0) {
             if(!c.isAportacion) await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, metodo: c.isAportacion?'Aportación':'Crédito', fecha: serverTimestamp() });
-            showAlert("¡Reservado!");
+            addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: "Clase: "+c.nombre, metodo: c.isAportacion?"Aportación":"Crédito", fecha: serverTimestamp() });
+            showAlert("¡Inscrito!");
         } else {
-            showAlert("No tienes créditos.");
+            showAlert("No tienes créditos suficientes.");
         }
     };
 
-    // --- FINANZAS DETALLADAS ---
-    window.loadPaymentsAdmin = async () => {
-        const content = document.getElementById('admin-content');
-        content.innerHTML = "<h4>Finanzas</h4><button onclick='downloadPDF()' style='background:var(--gold); font-size:10px;'>BAJAR PDF</button><div id='p-list'></div>";
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        snap.forEach(d => {
-            const p = d.data();
-            document.getElementById('p-list').innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;">
-                <b>${p.alumno}</b> - $${p.monto}<br><small>${p.concepto} (${p.metodo})</small>
-            </div>`;
-        });
-    };
-
-    window.downloadPDF = async () => {
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        let rows = []; snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, p.concepto, `$${p.monto}`, p.metodo]); });
-        const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("Escarola Wellness - Reporte", 14, 15);
-        docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Concepto', 'Monto', 'Metodo']], body: rows, startY: 20 });
-        docPDF.save("Finanzas_Escarola.pdf");
-    };
-
-    // --- CHAT CON NOTIFICACIONES ---
+    // --- CHAT Y NOTIFICACIONES ---
     function listenNotifications() {
         onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id)), snap => {
-            let hasUnread = false;
+            let hasNew = false;
             snap.forEach(d => {
                 const c = d.data();
-                if(c.lastSenderId !== myData.id && (c.lastMsgTime?.seconds > (c.lastRead?.[myData.id]?.seconds || 0))) hasUnread = true;
+                if(c.lastSenderId !== myData.id && c.lastMsgTime?.seconds > (c.lastRead?.[myData.id]?.seconds || 0)) hasNew = true;
             });
-            document.getElementById('chat-badge').style.display = hasUnread ? 'block' : 'none';
+            document.getElementById('chat-badge').style.display = hasNew ? 'block' : 'none';
         });
     }
 
     window.loadChatList = async () => {
-        const container = document.getElementById('chat-list-container'); container.innerHTML = "";
+        const cont = document.getElementById('chat-list-container'); cont.innerHTML = "Cargando...";
         if(myData.role === 'alumno') {
             const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-            snap.forEach(d => {
-                container.innerHTML += `<div onclick="openChat('${d.id}', '${d.data().name}')" class="card"><b>${d.data().name}</b></div>`;
-            });
+            cont.innerHTML = "<p style='font-size:10px; color:gray;'>MAESTROS:</p>";
+            snap.forEach(d => cont.innerHTML += `<div onclick="openChat('${d.id}', '${d.data().name}')" class="card"><b>${d.data().name}</b></div>`);
         } else {
             onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastMsgTime", "desc")), snap => {
-                container.innerHTML = "";
+                cont.innerHTML = "";
                 snap.forEach(d => {
                     const c = d.data(); const otherName = c.names.find(n => n !== myData.name);
-                    const isUnread = c.lastSenderId !== myData.id && (c.lastMsgTime?.seconds > (c.lastRead?.[myData.id]?.seconds || 0));
-                    container.innerHTML += `<div onclick="openChat('${c.participants.find(p=>p!==myData.id)}', '${otherName}')" class="card ${isUnread?'unread':''}">
+                    const isNew = c.lastSenderId !== myData.id && c.lastMsgTime?.seconds > (c.lastRead?.[myData.id]?.seconds || 0);
+                    cont.innerHTML += `<div onclick="openChat('${c.participants.find(p=>p!==myData.id)}', '${otherName}')" class="card ${isNew?'unread-chat':''}">
                         <b>${otherName}</b><br><small>${c.lastMsg || ''}</small>
                     </div>`;
                 });
@@ -300,55 +277,49 @@
         });
     };
 
-    window.sendMsg = async () => {
-        const txt = document.getElementById('chat-input').value.trim(); if(!txt) return;
+    window.sendChat = async () => {
+        const t = document.getElementById('chat-input').value.trim(); if(!t) return;
         document.getElementById('chat-input').value = "";
-        await addDoc(collection(db, "chats", activeChatId, "messages"), { text: txt, senderId: myData.id, time: serverTimestamp() });
-        await updateDoc(doc(db, "chats", activeChatId), { lastMsg: txt, lastMsgTime: serverTimestamp(), lastSenderId: myData.id, [`lastRead.${myData.id}`]: serverTimestamp() });
+        await addDoc(collection(db, "chats", activeChatId, "messages"), { text: t, senderId: myData.id, time: serverTimestamp() });
+        await updateDoc(doc(db, "chats", activeChatId), { lastMsg: t, lastMsgTime: serverTimestamp(), lastSenderId: myData.id, [`lastRead.${myData.id}`]: serverTimestamp() });
     };
 
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(chatUnsub) chatUnsub(); };
 
-    // --- UTILIDADES ---
-    window.showAlert = m => { const el = document.getElementById('custom-alert'); el.innerText = m; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'), 3000); };
-    window.logout = () => signOut(auth);
-    window.toggleAuthMode = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin?'Bienvenida/o':'Registro'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); document.getElementById('role-select').classList.toggle('hidden', isLogin); };
-    window.handleAuth = async () => {
-        const e = document.getElementById('auth-email').value, p = document.getElementById('auth-password').value;
-        if(isLogin) signInWithEmailAndPassword(auth, e, p).catch(()=>showAlert("Error"));
-        else {
-            const r = await createUserWithEmailAndPassword(auth, e, p);
-            await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('reg-name').value, role: document.getElementById('role-select').value, credits: 0, email: e });
-        }
+    // --- ADMIN ---
+    window.adminLoadFinances = async () => {
+        const cont = document.getElementById('admin-view-content'); cont.innerHTML = "<h4>Ventas</h4><button onclick='genPDF()' style='font-size:10px; background:var(--gold);'>REPORTE PDF</button><div id='adm-p-list'></div>";
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => { const p = d.data(); document.getElementById('adm-p-list').innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${p.alumno}</b>: $${p.monto}<br><small>${p.concepto}</small></div>`; });
     };
 
-    // Funciones faltantes para que no den error
-    window.loadNews = () => { onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => { const s = document.getElementById('section-news'); s.innerHTML = ""; snap.forEach(d => s.innerHTML += `<div class="news-card">${d.data().texto}</div>`); }); };
-    window.loadMembresias = () => { onSnapshot(collection(db, "membresias"), snap => { const l = document.getElementById('list-membresias'); l.innerHTML = ""; snap.forEach(d => { const m = d.data(); l.innerHTML += `<div class="card" style="min-width:150px; text-align:center;"><b>${m.nombre}</b><br>$${m.precio}<br><button onclick="window.open('${m.link}')" style="font-size:9px; padding:5px; margin-top:5px;">PAGAR</button></div>`; }); }); };
-    window.openClaseModal = () => { document.getElementById('modal-clase').style.display = 'flex'; };
-    window.closeModal = id => { document.getElementById(id).style.display = 'none'; };
+    window.genPDF = async () => {
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let r = []; snap.forEach(d => { const p = d.data(); r.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, p.concepto, `$${p.monto}`, p.metodo]); });
+        const { jsPDF } = window.jspdf; const docP = new jsPDF();
+        docP.text("Reporte Escarola", 14, 15);
+        docP.autoTable({ head: [['Fecha', 'Alumno', 'Concepto', 'Monto', 'Metodo']], body: r, startY: 20 });
+        docP.save("Finanzas.pdf");
+    };
+
+    // --- UTILS ---
+    window.showAlert = m => { const e = document.getElementById('custom-alert'); e.innerText = m; e.style.top = "20px"; setTimeout(()=>e.style.top="-100px", 3000); };
+    window.toggleAuth = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin?'Entrar':'Registro'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); document.getElementById('role-select').classList.toggle('hidden', isLogin); };
+    window.handleAuth = async () => {
+        const em = document.getElementById('auth-email').value, ps = document.getElementById('auth-password').value;
+        if(isLogin) signInWithEmailAndPassword(auth, em, ps).catch(()=>showAlert("Error"));
+        else {
+            const res = await createUserWithEmailAndPassword(auth, em, ps);
+            await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('reg-name').value, role: document.getElementById('role-select').value, credits: 0 });
+        }
+    };
+    window.openClassModal = () => document.getElementById('modal-clase').style.display='flex';
+    window.closeModal = id => document.getElementById(id).style.display='none';
     window.saveClass = async () => {
-        const d = { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked, inscritos: [] };
-        await addDoc(collection(db, "clases"), d); closeModal('modal-clase'); showAlert("Clase creada");
+        await addDoc(collection(db, "clases"), { nombre: document.getElementById('cl-name').value, price: Number(document.getElementById('cl-price').value), horario: document.getElementById('cl-time').value, isAportacion: document.getElementById('cl-apo').checked, inscritos: [] });
+        closeModal('modal-clase'); showAlert("Clase lista");
     };
-    window.loadUsersAdmin = async () => {
-        const c = document.getElementById('admin-content'); c.innerHTML = "<h4>Alumnos</h4>";
-        const s = await getDocs(collection(db, "users"));
-        s.forEach(d => { c.innerHTML += `<div class="card" onclick="openEditUser('${d.id}')"><b>${d.data().name}</b> - ${d.data().credits} cr.</div>`; });
-    };
-    window.openEditUser = async id => {
-        const u = (await getDoc(doc(db, "users", id))).data();
-        document.getElementById('u-edit-id').value = id; document.getElementById('u-edit-creds').value = u.credits;
-        document.getElementById('u-edit-name').innerText = u.name;
-        document.getElementById('modal-user').style.display = 'flex';
-    };
-    window.registerSale = async () => {
-        const id = document.getElementById('u-edit-id').value;
-        const amt = Number(document.getElementById('sale-amt').value);
-        await updateDoc(doc(db, "users", id), { credits: increment(1) });
-        await addDoc(collection(db, "pagos"), { alumno: document.getElementById('u-edit-name').innerText, monto: amt, concepto: document.getElementById('sale-concept').value, metodo: 'Efectivo', fecha: serverTimestamp() });
-        closeModal('modal-user'); showAlert("Venta registrada");
-    };
+    window.signOut = signOut; window.auth = auth;
 </script>
 </body>
 </html>
