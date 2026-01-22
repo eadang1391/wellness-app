@@ -15,88 +15,91 @@
         :root { 
             --sage: #6b8e83; --cream: #fbfaf5; --dark-sage: #3a504a; 
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
-            --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 15px 35px rgba(0,0,0,0.1);
+            --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
         html, body { margin: 0; padding: 0; background-color: var(--sage); height: 100%; font-family: 'Quicksand', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        #app { padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 110px) 20px; min-height: 100vh; box-sizing: border-box; }
         
-        /* Estética Cards */
-        .card { background: var(--white); border-radius: 25px; padding: 18px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; border: 1px solid rgba(0,0,0,0.03); }
-        .news-card { background: var(--dark-sage); color: white; border-radius: 20px; padding: 15px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; font-size: 14px; }
+        /* Layout Compacto */
+        #app { padding: calc(env(safe-area-inset-top) + 10px) 15px calc(env(safe-area-inset-bottom) + 90px) 15px; min-height: 100vh; box-sizing: border-box; }
         
-        /* Formularios Optimizados */
-        .form-group { margin-bottom: 12px; text-align: left; }
-        .form-group label { font-size: 12px; font-weight: 700; color: var(--dark-sage); margin-left: 10px; }
-        input, select, textarea { width: 100%; padding: 14px; margin-top: 5px; border-radius: 15px; border: 2px solid #eee; outline: none; font-family: 'Quicksand'; font-size: 15px; box-sizing: border-box; background: #fafafa; }
-        input:focus { border-color: var(--sage); background: white; }
+        /* Header Mini */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: white; padding: 5px 0; }
+        .logo-img { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: white; border: 1px solid rgba(255,255,255,0.3); }
+        header h2 { font-size: 15px; margin: 0; }
+        
+        .card { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: var(--shadow); position: relative; border: 1px solid rgba(0,0,0,0.02); }
+        .news-card { background: var(--dark-sage); color: white; border-radius: 18px; padding: 12px 15px; margin-bottom: 12px; border-left: 4px solid var(--gold); position: relative; font-size: 13px; line-height: 1.4; }
+        
+        /* Formulario Compacto */
+        .form-group { margin-bottom: 10px; text-align: left; }
+        .form-group label { font-size: 11px; font-weight: 700; color: var(--dark-sage); margin-left: 5px; }
+        input, select, textarea { width: 100%; padding: 10px 14px; margin-top: 4px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Quicksand'; font-size: 14px; box-sizing: border-box; }
 
-        button { width: 100%; padding: 14px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; background: var(--dark-sage); color: white; font-family: 'Quicksand'; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .btn-mp { background: var(--mp-blue) !important; font-size: 11px; margin-bottom: 8px; }
-        .btn-cash { background: var(--cash-green) !important; font-size: 11px; }
+        button { width: 100%; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; background: var(--dark-sage); color: white; font-family: 'Quicksand'; font-size: 14px; }
+        .btn-mp { background: var(--mp-blue) !important; font-size: 10px; margin-bottom: 6px; padding: 8px; }
+        .btn-cash { background: var(--cash-green) !important; font-size: 10px; padding: 8px; }
         
-        /* Navegación */
-        .nav-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 15px); left: 15px; right: 15px; background: var(--dark-sage); height: 65px; display: flex; justify-content: space-around; align-items: center; border-radius: 30px; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; }
+        /* Nav Reducida */
+        .nav-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 10px); left: 10px; right: 10px; background: var(--dark-sage); height: 60px; display: flex; justify-content: space-around; align-items: center; border-radius: 25px; z-index: 1000; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 9px; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { font-size: 20px; display: block; }
+        .nav-item span { font-size: 18px; display: block; margin-bottom: 2px; }
         
-        /* Modales */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 20px; box-sizing: border-box; }
-        .modal-card { background: var(--white); width: 100%; max-width: 400px; border-radius: 30px; padding: 25px; box-sizing: border-box; position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 15px; box-sizing: border-box; }
+        .modal-card { background: var(--white); width: 100%; max-width: 360px; border-radius: 25px; padding: 20px; box-sizing: border-box; position: relative; max-height: 85vh; overflow-y: auto; }
         
-        .delete-icon { position: absolute; top: 12px; right: 12px; color: var(--red); font-size: 18px; cursor: pointer; padding: 5px; }
+        .delete-icon { position: absolute; top: 8px; right: 8px; color: var(--red); font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.7; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="custom-alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 85%; max-width: 320px; background: white; padding: 15px; border-radius: 20px; box-shadow: var(--shadow); z-index: 9999; transition: 0.5s; text-align: center; font-weight: 700; border-top: 4px solid var(--sage);"></div>
+<div id="custom-alert" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 280px; background: white; padding: 12px; border-radius: 15px; box-shadow: var(--shadow); z-index: 9999; transition: 0.5s; text-align: center; font-weight: 700; border-top: 3px solid var(--sage); font-size: 13px;"></div>
 
 <div id="app">
     <header>
-        <div style="display:flex; align-items:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
-                <h2 style="margin:0; font-size:16px; color:white;">Escarola Wellness</h2>
-                <div id="user-info-bar" class="hidden" style="font-size:10px; font-weight:700; color:var(--gold);"></div>
+                <h2>Escarola</h2>
+                <div id="user-info-bar" class="hidden" style="font-size:9px; font-weight:700; color:var(--gold);"></div>
             </div>
         </div>
-        <button id="btn-logout" class="hidden" onclick="signOut(auth)" style="width:auto; padding:6px 15px; font-size:10px; background:rgba(255,255,255,0.2);">Salir</button>
+        <button id="btn-logout" class="hidden" onclick="signOut(auth)" style="width:auto; padding:4px 10px; font-size:9px; background:rgba(255,255,255,0.2);">Salir</button>
     </header>
 
     <div id="view-auth" class="view hidden">
-        <div class="card">
-            <h3 id="auth-title" style="text-align:center;">Bienvenida/o</h3>
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="text-align:center; margin-top:0;">Bienvenida/o</h3>
             <input type="text" id="reg-name" class="hidden" placeholder="Nombre completo">
-            <input type="email" id="auth-email" placeholder="Correo electrónico">
+            <input type="email" id="auth-email" placeholder="Correo">
             <input type="password" id="auth-password" placeholder="Contraseña">
-            <button onclick="handleAuth()" id="btn-auth-text" style="margin-top:10px;">Entrar</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; color:var(--dark-sage);">¿No tienes cuenta? Regístrate</p>
+            <button onclick="handleAuth()" id="btn-auth-text">Entrar</button>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:11px; margin-top:15px; text-decoration:underline;">¿No tienes cuenta? Regístrate</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="news-box"></div>
-        <div id="membresias-box" style="display:flex; gap:12px; overflow-x:auto; padding:5px 0 15px 0; scroll-snap-type: x mandatory;"></div>
+        <div id="membresias-box" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; scroll-snap-type: x mandatory;"></div>
         
-        <div style="display:flex; justify-content:space-between; align-items:center; margin:15px 0;">
-            <h3 style="margin:0; color:white; font-size:18px;">Horarios</h3>
-            <button id="btn-add-clase" class="hidden" onclick="openModal('modal-clase')" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ Crear Clase</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
+            <h3 style="margin:0; color:white; font-size:16px;">Horarios</h3>
+            <button id="btn-add-clase" class="hidden" onclick="openModal('modal-clase')" style="width:auto; padding:5px 12px; font-size:10px; background:white; color:var(--dark-sage);">+ Nueva Clase</button>
         </div>
         <div id="clases-box"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Panel de Control</h3>
+        <h3 style="color:white; margin:0 0 10px 0; font-size:18px;">Panel Admin</h3>
         <div class="card">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button onclick="adminLoadUsers()">👥 Usuarios</button>
-                <button onclick="adminLoadFinances()">💰 Finanzas</button>
-                <button onclick="openModal('modal-membresia')">💳 Nuevo Plan</button>
-                <button onclick="openModal('modal-news')">📢 Nuevo Aviso</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                <button onclick="adminLoadUsers()" style="font-size:11px;">👥 Usuarios</button>
+                <button onclick="adminLoadFinances()" style="font-size:11px;">💰 Finanzas</button>
+                <button onclick="openModal('modal-membresia')" style="font-size:11px;">💳 Nuevo Plan</button>
+                <button onclick="openModal('modal-news')" style="font-size:11px;">📢 Nuevo Aviso</button>
             </div>
-            <div id="admin-display" style="margin-top:20px; border-top:1px solid #eee; padding-top:15px;"></div>
+            <div id="admin-display" style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;"></div>
         </div>
     </div>
 
@@ -108,49 +111,45 @@
 </div>
 
 <div id="modal-clase" class="modal-overlay"><div class="modal-card">
-    <h3 style="margin-top:0;">Programar Clase</h3>
-    <div class="form-group"><label>Actividad</label><input type="text" id="cl-nom" placeholder="Ej. Yoga Vinyasa"></div>
-    <div class="form-group"><label>Precio sugerido ($)</label><input type="number" id="cl-pre" placeholder="0.00"></div>
-    <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="cl-fec"></div>
-    <div style="text-align:left; margin:10px 0 20px 10px;">
-        <label style="font-size:14px; font-weight:600;"><input type="checkbox" id="cl-is-apo"> ¿Es Aportación Voluntaria?</label>
+    <h3 style="margin:0 0 15px 0; font-size:18px;">Programar Clase</h3>
+    <div class="form-group"><label>Actividad</label><input type="text" id="cl-nom" placeholder="Ej. Yoga"></div>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+        <div class="form-group"><label>Precio ($)</label><input type="number" id="cl-pre" value="0"></div>
+        <div class="form-group"><label>Fecha/Hora</label><input type="datetime-local" id="cl-fec"></div>
+    </div>
+    <div style="text-align:left; margin:5px 0 15px 5px;">
+        <label style="font-size:12px;"><input type="checkbox" id="cl-is-apo"> Aportación Voluntaria</label>
     </div>
     <button onclick="saveClase()">Publicar Clase</button>
-    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:5px;">Cancelar</button>
-</div></div>
-
-<div id="modal-membresia" class="modal-overlay"><div class="modal-card">
-    <h3>Nuevo Plan de Pago</h3>
-    <div class="form-group"><label>Nombre del Plan</label><input type="text" id="m-nom" placeholder="Ej. Paquete 10 Clases"></div>
-    <div class="form-group"><label>Precio ($)</label><input type="number" id="m-pre" placeholder="0.00"></div>
-    <div class="form-group"><label>Link Mercado Pago</label><input type="url" id="m-link" placeholder="https://mpago.la/..."></div>
-    <button onclick="saveMembresia()">Guardar Plan</button>
-    <button onclick="closeModal('modal-membresia')" style="background:none; color:gray;">Cerrar</button>
+    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:5px; font-size:12px;">Cancelar</button>
 </div></div>
 
 <div id="modal-user-edit" class="modal-overlay"><div class="modal-card">
-    <h3 id="ed-user-name">Usuario</h3>
-    <div class="form-group"><label>Créditos Disponibles</label><input type="number" id="ed-user-credits"></div>
+    <h3 id="ed-user-name" style="margin-top:0;">Usuario</h3>
+    <div class="form-group"><label>Créditos</label><input type="number" id="ed-user-credits"></div>
     <div class="form-group">
-        <label>Rol del Usuario</label>
+        <label>Rol</label>
         <select id="ed-user-role">
             <option value="alumno">Alumno</option>
             <option value="maestro">Maestro</option>
             <option value="admin">Administrador</option>
         </select>
     </div>
-    <button onclick="saveUserEdit()">Actualizar Usuario</button>
+    <button onclick="saveUserEdit()">Actualizar</button>
     <button onclick="closeModal('modal-user-edit')" style="background:none; color:gray; margin-top:5px;">Cerrar</button>
 </div></div>
 
-<div id="modal-news" class="modal-overlay"><div class="modal-card">
-    <h3>Publicar Aviso</h3>
-    <textarea id="news-txt" rows="4" placeholder="Escribe el mensaje para la comunidad..."></textarea>
-    <button onclick="saveNews()" style="margin-top:10px;">Publicar</button>
-    <button onclick="closeModal('modal-news')" style="background:none; color:gray;">Cerrar</button>
+<div id="modal-membresia" class="modal-overlay"><div class="modal-card">
+    <h3>Nuevo Plan</h3>
+    <div class="form-group"><label>Nombre</label><input type="text" id="m-nom" placeholder="Paquete"></div>
+    <div class="form-group"><label>Precio</label><input type="number" id="m-pre"></div>
+    <div class="form-group"><label>Link Mercado Pago</label><input type="url" id="m-link"></div>
+    <button onclick="saveMembresia()">Guardar</button>
+    <button onclick="closeModal('modal-membresia')" style="background:none; color:gray;">Cerrar</button>
 </div></div>
 
 <script type="module">
+    // --- FIREBASE IMPORT & CONFIG (Idéntico a versión anterior para no romper nada) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -169,23 +168,19 @@
     const db = getFirestore(app);
     let myData = null, isLogin = true, selectedUserId = null;
 
-    // --- SESIÓN ---
     onAuthStateChanged(auth, async user => {
         if (user) {
             const snap = await getDoc(doc(db, "users", user.uid));
             myData = { ...snap.data(), id: user.uid };
             document.getElementById('view-auth').classList.add('hidden');
             document.querySelectorAll('.nav-bar, #btn-logout').forEach(e => e.classList.remove('hidden'));
-            
             if(myData.role === 'admin' || myData.role === 'maestro') {
                 document.getElementById('btn-add-clase').classList.remove('hidden');
                 if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
             }
-            
             const info = document.getElementById('user-info-bar');
             info.classList.remove('hidden');
-            info.innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase();
-            
+            info.innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES` : myData.role.toUpperCase();
             switchTab('main');
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
@@ -202,109 +197,66 @@
         if(t === 'main') renderMain();
     };
 
-    // --- RENDERIZADO PRINCIPAL ---
     function renderMain() {
-        // Avisos
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
             const cont = document.getElementById('news-box'); cont.innerHTML = "";
-            snap.forEach(d => {
-                cont.innerHTML += `<div class="news-card">
-                    ${myData.role === 'admin' ? `<span class="delete-icon" onclick="deleteDoc(doc(db,'news','${d.id}'))">×</span>` : ''}
-                    ${d.data().texto}
-                </div>`;
-            });
+            snap.forEach(d => cont.innerHTML += `<div class="news-card">${myData.role==='admin'?`<span class="delete-icon" onclick="deleteDoc(doc(db,'news','${d.id}'))">×</span>`:''}${d.data().texto}</div>`);
         });
-
-        // Membresías / Planes
         onSnapshot(collection(db, "membresias"), snap => {
             const cont = document.getElementById('membresias-box'); cont.innerHTML = "";
             snap.forEach(d => {
                 const m = d.data();
-                cont.innerHTML += `<div class="card" style="min-width:200px; text-align:center; scroll-snap-align: center;">
-                    ${myData.role === 'admin' ? `<span class="delete-icon" onclick="deleteDoc(doc(db,'membresias','${d.id}'))">×</span>` : ''}
-                    <b style="font-size:16px;">${m.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${m.precio}</h2>
-                    <button class="btn-mp" onclick="window.open('${m.link}')">PAGAR CON MERCADO PAGO</button>
-                    <button class="btn-cash" onclick="reqCash('${m.nombre}', ${m.precio})">PAGAR EN EFECTIVO</button>
+                cont.innerHTML += `<div class="card" style="min-width:160px; text-align:center; flex-shrink:0;">
+                    ${myData.role==='admin'?`<span class="delete-icon" onclick="deleteDoc(doc(db,'membresias','${d.id}'))">×</span>`:''}
+                    <b style="font-size:13px;">${m.nombre}</b><h3 style="margin:5px 0;">$${m.precio}</h3>
+                    <button class="btn-mp" onclick="window.open('${m.link}')">Pagar</button>
                 </div>`;
             });
         });
-
-        // Clases
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
             const cont = document.getElementById('clases-box'); cont.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id);
                 cont.innerHTML += `<div class="card">
-                    ${(myData.role === 'admin' || myData.role === 'maestro') ? `<span class="delete-icon" onclick="deleteDoc(doc(db,'clases','${d.id}'))">×</span>` : ''}
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div><b>${c.nombre}</b><br><small style="color:gray;">📅 ${new Date(c.horario).toLocaleString()}</small></div>
-                        <span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APO' : '$'+c.price}</span>
+                    ${(myData.role==='admin'||myData.role==='maestro')?`<span class="delete-icon" onclick="deleteDoc(doc(db,'clases','${d.id}'))">×</span>`:''}
+                    <div style="display:flex; justify-content:space-between;">
+                        <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:gray;">${new Date(c.horario).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</small></div>
+                        <span style="font-weight:700; color:var(--gold); font-size:13px;">${c.isAportacion?'APO':'$'+c.price}</span>
                     </div>
-                    <div style="margin-top:15px; display:flex; gap:10px;">
-                        ${myData.role === 'alumno' ? `<button onclick="reservar('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'};">${ya?'INSCRITO':'RESERVAR'}</button>` : ''}
-                        ${myData.role !== 'alumno' ? `<button onclick="verLista('${d.id}')" style="background:var(--sage); font-size:12px;">LISTA (${c.inscritos?.length || 0})</button>` : ''}
+                    <div style="margin-top:10px; display:flex; gap:8px;">
+                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}; padding:8px; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
+                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:11px; padding:8px;">LISTA (${c.inscritos?.length||0})</button>`:''}
                     </div>
                 </div>`;
             });
         });
     }
 
-    // --- GESTIÓN ADMIN USUARIOS ---
+    // --- FUNCIONES ADMIN & ACCIONES ---
     window.adminLoadUsers = async () => {
-        const display = document.getElementById('admin-display');
-        display.innerHTML = "<h4>Gestión de Usuarios</h4>";
-        const snap = await getDocs(collection(db, "users"));
+        const display = document.getElementById('admin-display'); display.innerHTML = "Cargando...";
+        const snap = await getDocs(collection(db, "users")); display.innerHTML = "";
         snap.forEach(d => {
             const u = d.data();
-            display.innerHTML += `<div class="card" style="padding:12px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${u.name}</b><br><small>${u.role.toUpperCase()} | ${u.credits || 0} Cr.</small></div>
-                <button onclick="editUser('${d.id}')" style="width:auto; padding:5px 12px; font-size:10px;">EDITAR</button>
+            display.innerHTML += `<div class="card" style="padding:10px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:12px;"><b>${u.name}</b><br>${u.role} | ${u.credits||0} cr.</div>
+                <button onclick="editUser('${d.id}')" style="width:auto; padding:5px 10px; font-size:10px;">EDITAR</button>
             </div>`;
         });
     };
-
-    window.editUser = async (id) => {
-        selectedUserId = id;
-        const u = (await getDoc(doc(db, "users", id))).data();
-        document.getElementById('ed-user-name').innerText = u.name;
-        document.getElementById('ed-user-credits').value = u.credits || 0;
-        document.getElementById('ed-user-role').value = u.role;
-        openModal('modal-user-edit');
-    };
-
-    window.saveUserEdit = async () => {
-        const newCredits = Number(document.getElementById('ed-user-credits').value);
-        const newRole = document.getElementById('ed-user-role').value;
-        await updateDoc(doc(db, "users", selectedUserId), { credits: newCredits, role: newRole });
-        closeModal('modal-user-edit');
-        showAlert("Usuario actualizado");
-        adminLoadUsers();
-    };
-
-    // --- ACCIONES GENERALES ---
-    window.saveClase = async () => {
-        const n = document.getElementById('cl-nom').value, p = document.getElementById('cl-pre').value, f = document.getElementById('cl-fec').value;
-        if(!n || !f) return showAlert("Completa los datos");
-        await addDoc(collection(db, "clases"), { nombre: n, price: Number(p), horario: f, isAportacion: document.getElementById('cl-is-apo').checked, inscritos: [] });
-        closeModal('modal-clase'); showAlert("Clase creada");
-    };
-
-    window.saveMembresia = async () => {
-        const n = document.getElementById('m-nom').value, p = document.getElementById('m-pre').value, l = document.getElementById('m-link').value;
-        await addDoc(collection(db, "membresias"), { nombre: n, precio: Number(p), link: l });
-        closeModal('modal-membresia'); showAlert("Plan guardado");
-    };
-
-    window.reservar = async id => {
+    window.editUser = async id => { selectedUserId = id; const u = (await getDoc(doc(db, "users", id))).data(); document.getElementById('ed-user-name').innerText = u.name; document.getElementById('ed-user-credits').value = u.credits||0; document.getElementById('ed-user-role').value = u.role; openModal('modal-user-edit'); };
+    window.saveUserEdit = async () => { await updateDoc(doc(db, "users", selectedUserId), { credits: Number(document.getElementById('ed-user-credits').value), role: document.getElementById('ed-user-role').value }); closeModal('modal-user-edit'); showAlert("Actualizado"); adminLoadUsers(); };
+    window.saveClase = async () => { await addDoc(collection(db, "clases"), { nombre: document.getElementById('cl-nom').value, price: Number(document.getElementById('cl-pre').value), horario: document.getElementById('cl-fec').value, isAportacion: document.getElementById('cl-is-apo').checked, inscritos: [] }); closeModal('modal-clase'); showAlert("Clase lista"); };
+    window.reservar = async id => { 
         const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
         if(c.isAportacion || myData.credits > 0) {
             if(!c.isAportacion) await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            showAlert("¡Inscrito correctamente!");
-        } else showAlert("No tienes créditos");
+            showAlert("¡Inscrito!");
+        } else showAlert("Sin créditos");
     };
-
-    // --- UTILS ---
+    window.saveMembresia = async () => { await addDoc(collection(db, "membresias"), { nombre: document.getElementById('m-nom').value, precio: Number(document.getElementById('m-pre').value), link: document.getElementById('m-link').value }); closeModal('modal-membresia'); showAlert("Plan guardado"); };
+    window.saveNews = async () => { await addDoc(collection(db, "news"), { texto: document.getElementById('news-txt').value, fecha: serverTimestamp() }); closeModal('modal-news'); showAlert("Aviso publicado"); };
     window.showAlert = m => { const e = document.getElementById('custom-alert'); e.innerText = m; e.style.top = "20px"; setTimeout(()=>e.style.top="-100px", 3000); };
     window.openModal = id => document.getElementById(id).style.display = 'flex';
     window.closeModal = id => document.getElementById(id).style.display = 'none';
@@ -317,12 +269,6 @@
             await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('reg-name').value, role: 'alumno', credits: 0, email: em });
         }
     };
-
-    window.saveNews = async () => {
-        await addDoc(collection(db, "news"), { texto: document.getElementById('news-txt').value, fecha: serverTimestamp() });
-        closeModal('modal-news'); showAlert("Aviso publicado");
-    };
-
     window.deleteDoc = deleteDoc; window.doc = doc; window.db = db; window.signOut = signOut; window.auth = auth;
 </script>
 </body>
