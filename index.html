@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Panel Pro</title>
+    <title>Escarola Wellness | Sistema Nativo</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root { 
             --sage: #6b8e83; --cream: #fbfaf5; --dark-sage: #3a504a; 
@@ -14,37 +12,31 @@
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; }
+        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; }
         #app { padding: calc(env(safe-area-inset-top) + 15px) 15px calc(env(safe-area-inset-bottom) + 100px) 15px; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; }
         .logo-img { width: 45px; height: 45px; border-radius: 12px; background: white; object-fit: cover; }
         .card { background: var(--white); border-radius: 22px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
         .news-card { background: var(--dark-sage); color: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
         .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 10; }
-        .btn-del { background: var(--red); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
-        .btn-edt { background: var(--sage); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
-        button { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; }
+        button { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-del { background: var(--red); color: white; width: auto; padding: 5px 10px; font-size: 11px; border-radius: 8px; }
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-reserve { background: var(--gold); color: white; margin-top: 15px; }
         .btn-mp { background: var(--mp-blue); color: white; margin-top: 10px; }
         .btn-cash { background: var(--cash-green); color: white; margin-top: 8px; }
-        .btn-pay-confirm { background: var(--cash-green); color: white; padding: 5px 10px; width: auto; font-size: 10px; border-radius: 8px; margin-top: 5px; margin-right: 5px; }
-        .btn-pay-del { background: var(--red); color: white; padding: 5px 10px; width: auto; font-size: 10px; border-radius: 8px; margin-top: 5px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--dark-sage); }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; font-family: 'Quicksand'; font-size: 15px; }
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display:none; align-items:center; justify-content:center; z-index: 5000; padding: 20px; }
-        .modal-card { background: white; border-radius: 28px; padding: 25px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
         .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 4000; }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; text-decoration: none; cursor: pointer; }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { display: block; font-size: 24px; margin-bottom: 2px; }
+        .nav-item span { display: block; font-size: 24px; }
         .hidden { display: none !important; }
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
+        input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 10px; font-family: 'Quicksand'; }
     </style>
 </head>
 <body>
-<div id="alert-box" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 30px; border-radius: 20px; box-shadow: var(--shadow); z-index: 9999; transition: 0.5s; font-weight: 700; border-bottom: 4px solid var(--sage);"></div>
+
 <div id="app">
     <header>
         <div style="display:flex; align-items:center; gap:12px;">
@@ -56,83 +48,53 @@
         </div>
         <button onclick="triggerSignOut()" id="logout-btn" class="hidden" style="width:auto; padding:6px 15px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">SALIR</button>
     </header>
+
     <div id="view-auth" class="view">
         <div class="card">
-            <h3 style="text-align:center;">Acceso Comunidad</h3>
-            <div id="reg-fields" class="hidden"><div class="form-group"><label>Nombre Completo</label><input type="text" id="auth-name"></div></div>
-            <div class="form-group"><label>Correo</label><input type="email" id="auth-email"></div>
-            <div class="form-group"><label>Contraseña</label><input type="password" id="auth-pass"></div>
+            <h3 style="text-align:center;">Acceso</h3>
+            <input type="text" id="auth-name" placeholder="Nombre Completo (Solo registro)" class="reg-only hidden">
+            <input type="email" id="auth-email" placeholder="Correo Electrónico">
+            <input type="password" id="auth-pass" placeholder="Contraseña">
             <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;">¿No tienes cuenta? Regístrate aquí</p>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿No tienes cuenta? Regístrate</p>
         </div>
     </div>
+
     <div id="view-main" class="view hidden">
         <div id="container-news"></div>
-        <h3 style="color:white; margin:20px 0 10px;">Planes y Membresías</h3>
+        <h3 style="color:white; margin:20px 0 10px;">Planes</h3>
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0 10px;">
-            <h3 style="color:white; margin:0;">Próximas Clases</h3>
-            <button id="btn-new-clase" class="hidden" onclick="modalClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR CLASE</button>
+            <h3 style="color:white; margin:0;">Clases</h3>
+            <button id="btn-new-clase" class="hidden" onclick="crearClaseNativa()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ NUEVA</button>
         </div>
         <div id="container-clases"></div>
     </div>
+
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Mensajes Directos</h3>
+        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
         <div id="container-chat-list"></div>
     </div>
+
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Panel de Control</h3>
+        <h3 style="color:white; margin-bottom:20px;">Panel Pro</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="adminUsers()">👥 Usuarios</button>
                 <button class="btn-main" onclick="adminFinances()">💰 Finanzas</button>
-                <button class="btn-main" style="background:var(--sage);" onclick="openModal('modal-news')">📢 Aviso</button>
-                <button class="btn-main" style="background:var(--sage);" onclick="openModal('modal-plan')">💳 Nuevo Plan</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="crearAvisoNativo()">📢 Aviso</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="crearPlanNativo()">💳 Plan</button>
             </div>
             <div id="admin-render-area" style="margin-top:25px; border-top:1px solid #eee; padding-top:20px;"></div>
         </div>
     </div>
+
     <nav id="navbar" class="nav-bar hidden">
         <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
         <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><span>💬</span>Chat</div>
         <div id="nav-admin" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
-
-<div id="modal-clase" class="modal-overlay"><div class="modal-card">
-    <h3 id="clase-title">Programar Clase</h3>
-    <div class="form-group"><label>Nombre</label><input type="text" id="f-cl-nom"></div>
-    <div class="form-group"><label>Costo ($)</label><input type="number" id="f-cl-pre"></div>
-    <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="f-cl-fec"></div>
-    <div style="margin-bottom:20px;"><label><input type="checkbox" id="f-cl-apo"> Aportación voluntaria</label></div>
-    <button class="btn-main" onclick="saveClase()">GUARDAR CLASE</button>
-    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:10px;">Cancelar</button>
-</div></div>
-
-<div id="modal-news" class="modal-overlay"><div class="modal-card">
-    <h3>Aviso Comunitario</h3>
-    <textarea id="f-news-txt" rows="5" placeholder="Escribe el mensaje..."></textarea>
-    <button class="btn-main" onclick="saveNews()" style="margin-top:15px;">PUBLICAR</button>
-    <button onclick="closeModal('modal-news')" style="background:none;">Cerrar</button>
-</div></div>
-
-<div id="modal-plan" class="modal-overlay"><div class="modal-card">
-    <h3>Nuevo Plan</h3>
-    <div class="form-group"><label>Nombre</label><input type="text" id="f-pl-nom"></div>
-    <div class="form-group"><label>Precio</label><input type="number" id="f-pl-pre"></div>
-    <div class="form-group"><label>Link Mercado Pago</label><input type="url" id="f-pl-link"></div>
-    <div class="form-group"><label>Créditos</label><input type="number" id="f-pl-cr" value="1"></div>
-    <button class="btn-main" onclick="savePlan()">CREAR PLAN</button>
-    <button onclick="closeModal('modal-plan')" style="background:none;">Cerrar</button>
-</div></div>
-
-<div id="modal-user-edit" class="modal-overlay"><div class="modal-card">
-    <h3 id="ed-user-name">Usuario</h3>
-    <div class="form-group"><label>Créditos</label><input type="number" id="ed-user-cr"></div>
-    <div class="form-group"><label>Rol</label><select id="ed-user-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Administrador</option></select></div>
-    <button class="btn-main" onclick="updateUser()">ACTUALIZAR</button>
-    <button onclick="closeModal('modal-user-edit')" style="background:none;">Cerrar</button>
-</div></div>
 
 <div id="chat-window">
     <div style="background:var(--sage); color:white; padding:18px; display:flex; gap:15px; align-items:center;">
@@ -141,8 +103,8 @@
     </div>
     <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
     <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1px solid #eee;">
-        <input type="text" id="chat-in" placeholder="Mensaje...">
-        <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage);">↑</button>
+        <input type="text" id="chat-in" placeholder="Escribe..." style="margin-bottom:0">
+        <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage); color:white">↑</button>
     </div>
 </div>
 
@@ -164,7 +126,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let myData = null, isLogin = true, editClaseId = null, editUserId = null, activeChat = null, unsubChat = null;
+    let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
     onAuthStateChanged(auth, async user => {
         if (user) {
@@ -183,7 +145,7 @@
         }
     });
 
-    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase(); }
+    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -214,7 +176,7 @@
                     ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del" onclick="deleteItem('membresias','${d.id}')">×</button></div>` : ''}
                     <b>${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
                     <button class="btn-mp" onclick="window.open('${p.link}')">MERCADO PAGO</button>
-                    <button class="btn-cash" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">PAGAR EFECTIVO</button>
+                    <button class="btn-cash" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">EFECTIVO</button>
                 </div>`;
             });
         });
@@ -225,80 +187,141 @@
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id);
                 container.innerHTML += `<div class="card">
                     ${myData.role === 'admin' ? `<div class="admin-controls">
-                        <button class="btn-edt" onclick="modalClase('${d.id}')">Editar</button>
                         <button class="btn-del" onclick="deleteItem('clases','${d.id}')">×</button>
                     </div>` : ''}
                     <div style="margin-right:80px;"><b>${c.nombre}</b><br><small>📅 ${new Date(c.horario).toLocaleString()}</small></div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
-                        <span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span>
-                    </div>
-                    <button class="btn-reserve" onclick="inscribirClase('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}">${ya?'INSCRITO':'RESERVAR'}</button>
+                    <div style="margin-top:10px;"><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span></div>
+                    <button class="btn-reserve" onclick="inscribirClase('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}">${ya?'YA INSCRITO':'RESERVAR'}</button>
                     ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">VER LISTA (${c.inscritos?.length || 0})</button>` : ''}
                 </div>`;
             });
         });
     }
 
-    window.verLista = async (claseId) => {
-        const snap = await getDoc(doc(db, "clases", claseId));
-        const inscritosIds = snap.data().inscritos || [];
-        if(inscritosIds.length === 0) return alert("No hay inscritos aún.");
-        let nombres = [];
-        for(let id of inscritosIds) {
-            const u = await getDoc(doc(db, "users", id));
-            if(u.exists()) nombres.push(u.data().name);
+    // --- FUNCIONES NATIVAS (ADMIN) ---
+    window.crearAvisoNativo = async () => {
+        const txt = prompt("Escribe el aviso comunitario:");
+        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
+    };
+
+    window.crearPlanNativo = async () => {
+        const nom = prompt("Nombre del Plan:");
+        const pre = prompt("Precio ($):");
+        const link = prompt("Link de Mercado Pago:");
+        const cr = prompt("¿Cuántos créditos otorga?");
+        if(nom && pre) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+    };
+
+    window.crearClaseNativa = async () => {
+        const nom = prompt("Nombre de la clase:");
+        const pre = prompt("Precio ($):");
+        const fec = prompt("Fecha y hora (Ej: 2024-12-31 18:00):");
+        const apo = confirm("¿Es aportación voluntaria?");
+        if(nom && pre) await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, isAportacion: apo, inscritos: [] });
+    };
+
+    window.adminUsers = async () => {
+        const area = document.getElementById('admin-render-area');
+        const snap = await getDocs(collection(db, "users"));
+        area.innerHTML = "<h4>Gestión de Alumnos</h4>";
+        snap.forEach(d => {
+            const u = d.data();
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${u.name}</b><br><small>${u.credits} cr.</small></div>
+                <button onclick="editUserNativo('${d.id}', '${u.name}', ${u.credits})" style="width:auto; padding:5px 10px; font-size:10px;">EDITAR</button>
+            </div>`;
+        });
+    };
+
+    window.editUserNativo = async (id, nombre, creditos) => {
+        const nCr = prompt(`Nuevos créditos para ${nombre}:`, creditos);
+        const nRo = prompt(`Nuevo rol (alumno, maestro, admin):`);
+        if(nCr !== null) await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRo || 'alumno' });
+        adminUsers();
+    };
+
+    window.adminFinances = async () => {
+        const area = document.getElementById('admin-render-area');
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-main" onclick="descargarExcel()" style="background:var(--gold); margin-bottom:15px;">DESCARGAR EXCEL (CSV)</button><div id="list-f"></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            area.innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee;">
+                <b>${p.alumno}</b> - $${p.monto} [${p.status}]<br>
+                ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" style="width:auto; padding:4px 8px; font-size:10px; background:var(--cash-green); color:white; border-radius:5px;">CONFIRMAR PAGO</button>` : ''}
+                <button onclick="deleteItem('pagos', '${d.id}')" style="width:auto; padding:4px 8px; font-size:10px; background:var(--red); color:white; border-radius:5px;">BORRAR</button>
+            </div>`;
+        });
+    };
+
+    window.descargarExcel = async () => {
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let csv = "Fecha,Alumno,Concepto,Monto,Status\n";
+        snap.forEach(d => {
+            const p = d.data();
+            const f = p.fecha?.toDate().toLocaleDateString() || "---";
+            csv += `${f},${p.alumno},${p.concepto},${p.monto},${p.status}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "finanzas_escarola.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // --- LOGICA DE CLASES Y CHAT ---
+    window.verLista = async (id) => {
+        const s = await getDoc(doc(db, "clases", id));
+        const ins = s.data().inscritos || [];
+        if(!ins.length) return alert("No hay inscritos.");
+        let txt = "LISTA:\n";
+        for(let uid of ins) {
+            const u = await getDoc(doc(db, "users", uid));
+            txt += `- ${u.data()?.name || 'Anonimo'}\n`;
         }
-        alert("Lista de Asistencia:\n" + nombres.join("\n"));
+        alert(txt);
     };
 
     window.inscribirClase = async (id) => {
         const c = (await getDoc(doc(db, "clases", id))).data();
         if(c.inscritos?.includes(myData.id)) return;
-        const gratis = (myData.role !== 'alumno' || c.isAportacion);
-        if(gratis || myData.credits > 0) {
-            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
-            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, fecha: serverTimestamp(), metodo: "Registro", status: "Pagado" });
-            showAlert("Inscrito correctamente");
-        } else showAlert("Sin créditos");
-    };
-
-    window.adminFinances = async () => {
-        const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-main" onclick="genPDF()" style="background:var(--gold); margin-bottom:15px;">DESCARGAR PDF</button><div id="list-f"></div>`;
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        snap.forEach(d => {
-            const p = d.data(); const esP = p.status === "Pendiente";
-            document.getElementById('list-f').innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee;">
-                <b>${p.alumno}</b> - $${p.monto} [${p.status}]<br><small>${p.concepto}</small><br>
-                ${esP ? `<button class="btn-pay-confirm" onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})">PAGADO</button>` : ''}
-                <button class="btn-pay-del" onclick="deleteItem('pagos', '${d.id}')">ELIMINAR</button>
-            </div>`;
-        });
-    };
-
-    window.confirmarPago = async (pId, uId, cr) => {
-        await updateDoc(doc(db, "pagos", pId), { status: "Pagado" });
-        if(cr > 0) await updateDoc(doc(db, "users", uId), { credits: increment(cr) });
-        showAlert("Pago confirmado"); adminFinances();
-    };
-
-    async function loadChatList() {
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando...";
-        const q = myData.role === 'alumno' ? 
-            query(collection(db, "users"), where("role", "!=", "alumno")) : 
-            query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastT", "desc"));
-        
-        const snap = await getDocs(q); container.innerHTML = "";
-        snap.forEach(d => {
-            if(myData.role === 'alumno') {
-                container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>${d.data().name}</b><br><small>${d.data().role}</small></div>`;
-            } else {
-                const c = d.data(); const oN = c.names.find(n => n !== myData.name); const oI = c.participants.find(p => p !== myData.id);
-                container.innerHTML += `<div class="card" onclick="openChat('${oI}','${oN}')"><b>${oN}</b><br><small>${c.lastM || '...'}</small></div>`;
+        if(myData.role !== 'alumno' || c.isAportacion || myData.credits > 0) {
+            if(myData.role === 'alumno' && !c.isAportacion) {
+                await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
+                myData.credits--; updateStats();
             }
-        });
-    }
+            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: c.nombre, status: 'Pagado', fecha: serverTimestamp() });
+            alert("¡Inscrito!");
+        } else alert("Sin créditos");
+    };
+
+    window.confirmarPago = async (pid, uid, cr) => {
+        if(!confirm("¿Confirmar ingreso de dinero y créditos?")) return;
+        await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
+        if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
+        alert("Pago Procesado"); adminFinances();
+    };
+
+    window.loadChatList = async () => {
+        const container = document.getElementById('container-chat-list');
+        container.innerHTML = "Cargando...";
+        if(myData.role === 'alumno') {
+            const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
+            container.innerHTML = "";
+            snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b><br><small>${d.data().role}</small></div>`);
+        } else {
+            onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastT", "desc")), snap => {
+                container.innerHTML = "";
+                snap.forEach(d => {
+                    const c = d.data(); const oN = c.names.find(n => n !== myData.name); const oI = c.participants.find(p => p !== myData.id);
+                    container.innerHTML += `<div class="card" onclick="openChat('${oI}','${oN}')"><b>${oN}</b><br><small>${c.lastM || 'Mensaje nuevo'}</small></div>`;
+                });
+            });
+        }
+    };
 
     window.openChat = async (id, name) => {
         activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
@@ -308,7 +331,10 @@
         if(unsubChat) unsubChat();
         unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
             const box = document.getElementById('chat-msgs'); box.innerHTML = "";
-            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:10px 15px; border-radius:18px; max-width:80%; font-size:14px;">${m.text}</div>`; });
+            snap.forEach(d => {
+                const m = d.data();
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:10px 15px; border-radius:18px; max-width:80%; font-size:14px;">${m.text}</div>`;
+            });
             box.scrollTop = box.scrollHeight;
         });
     };
@@ -320,26 +346,32 @@
         await updateDoc(doc(db, "chats", activeChat), { lastM: txt, lastT: serverTimestamp() });
     };
 
-    window.saveClase = async () => {
-        const payload = { nombre: document.getElementById('f-cl-nom').value, price: Number(document.getElementById('f-cl-pre').value), horario: document.getElementById('f-cl-fec').value, isAportacion: document.getElementById('f-cl-apo').checked };
-        if(editClaseId) await updateDoc(doc(db, "clases", editClaseId), payload); else await addDoc(collection(db, "clases"), { ...payload, inscritos: [] });
-        closeModal('modal-clase'); showAlert("Clase lista");
+    // --- ACCIONES CORE ---
+    window.handleAuth = async () => {
+        const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
+        try {
+            if(isLogin) await signInWithEmailAndPassword(auth, e, p);
+            else {
+                const r = await createUserWithEmailAndPassword(auth, e, p);
+                await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e });
+            }
+        } catch(err) { alert("Error de acceso"); }
     };
-    window.modalClase = async (id = null) => { editClaseId = id; if(id) { const d = (await getDoc(doc(db, "clases", id))).data(); document.getElementById('f-cl-nom').value = d.nombre; document.getElementById('f-cl-pre').value = d.price; document.getElementById('f-cl-fec').value = d.horario; document.getElementById('f-cl-apo').checked = d.isAportacion; } openModal('modal-clase'); };
-    window.adminUsers = async () => { const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users")); area.innerHTML = "<h4>Alumnos</h4>"; snap.forEach(d => { const u = d.data(); area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;"><div><b>${u.name}</b><br><small>${u.credits} cr.</small></div><button onclick="openEditUser('${d.id}')" style="width:auto; padding:5px;">EDITAR</button></div>`; }); };
-    window.openEditUser = async (id) => { editUserId = id; const u = (await getDoc(doc(db, "users", id))).data(); document.getElementById('ed-user-name').innerText = u.name; document.getElementById('ed-user-cr').value = u.credits; document.getElementById('ed-user-role').value = u.role; openModal('modal-user-edit'); };
-    window.updateUser = async () => { await updateDoc(doc(db, "users", editUserId), { credits: Number(document.getElementById('ed-user-cr').value), role: document.getElementById('ed-user-role').value }); closeModal('modal-user-edit'); adminUsers(); };
-    window.reqCash = async (n, p, c) => { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: "Pendiente", creditosAOtorgar: c, fecha: serverTimestamp() }); showAlert("Pendiente de pago"); };
-    window.deleteItem = async (c, i) => { if(confirm("¿Eliminar?")) { await deleteDoc(doc(db, c, i)); if(c==='pagos') adminFinances(); showAlert("Borrado"); } };
-    window.saveNews = async () => { await addDoc(collection(db, "news"), { texto: document.getElementById('f-news-txt').value, fecha: serverTimestamp() }); closeModal('modal-news'); };
-    window.savePlan = async () => { await addDoc(collection(db, "membresias"), { nombre: document.getElementById('f-pl-nom').value, precio: Number(document.getElementById('f-pl-pre').value), link: document.getElementById('f-pl-link').value, creditos: Number(document.getElementById('f-pl-cr').value) }); closeModal('modal-plan'); };
-    window.handleAuth = async () => { const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value; try { if(isLogin) await signInWithEmailAndPassword(auth, e, p); else { const r = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e }); } } catch(x) { showAlert("Error"); } };
-    window.toggleAuth = () => { isLogin = !isLogin; document.getElementById('reg-fields').classList.toggle('hidden', isLogin); };
+    window.toggleAuth = () => {
+        isLogin = !isLogin;
+        document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin));
+        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME';
+        document.getElementById('auth-toggle-msg').innerText = isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Entra';
+    };
+    window.reqCash = async (n, p, c) => {
+        if(confirm(`¿Solicitar pago en efectivo de ${n} por $${p}?`)) {
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
+            alert("Solicitud enviada.");
+        }
+    };
+    window.deleteItem = async (col, id) => { if(confirm("¿Eliminar para siempre?")) { await deleteDoc(doc(db, col, id)); if(col==='pagos') adminFinances(); } };
     window.triggerSignOut = () => signOut(auth);
-    window.openModal = i => document.getElementById(i).style.display = 'flex';
-    window.closeModal = i => document.getElementById(i).style.display = 'none';
-    window.closeChat = () => document.getElementById('chat-window').style.display = 'none';
-    window.showAlert = m => { const b = document.getElementById('alert-box'); b.innerText = m; b.style.top = "20px"; setTimeout(()=>b.style.top="-100px", 2000); };
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
 </script>
 </body>
 </html>
