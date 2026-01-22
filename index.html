@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Sistema Nativo</title>
+    <title>Escarola Wellness | Nativo Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -12,27 +12,28 @@
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; }
+        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; }
         #app { padding: calc(env(safe-area-inset-top) + 15px) 15px calc(env(safe-area-inset-bottom) + 100px) 15px; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; }
         .logo-img { width: 45px; height: 45px; border-radius: 12px; background: white; object-fit: cover; }
-        .card { background: var(--white); border-radius: 22px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        .card { background: var(--white); border-radius: 22px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; }
         .news-card { background: var(--dark-sage); color: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
-        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 10; }
-        button { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .btn-del { background: var(--red); color: white; width: auto; padding: 5px 10px; font-size: 11px; border-radius: 8px; }
+        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        button { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.3s; }
+        button:active { transform: scale(0.96); opacity: 0.8; }
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-reserve { background: var(--gold); color: white; margin-top: 15px; }
         .btn-mp { background: var(--mp-blue); color: white; margin-top: 10px; }
         .btn-cash { background: var(--cash-green); color: white; margin-top: 8px; }
+        .btn-del-mini { background: var(--red); color: white; padding: 5px 10px; width: auto; font-size: 10px; border-radius: 8px; }
+        .btn-pay-mini { background: var(--cash-green); color: white; padding: 5px 10px; width: auto; font-size: 10px; border-radius: 8px; margin-right: 5px; }
         .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 4000; }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { display: block; font-size: 24px; }
+        .nav-item span { display: block; font-size: 24px; margin-bottom: 2px; }
         .hidden { display: none !important; }
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
-        input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 10px; font-family: 'Quicksand'; }
+        input { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; margin-bottom: 12px; font-family: 'Quicksand'; }
     </style>
 </head>
 <body>
@@ -43,7 +44,7 @@
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
                 <h2 style="margin:0; font-size:18px;">Escarola Wellness</h2>
-                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;"></div>
+                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;">CARGANDO...</div>
             </div>
         </div>
         <button onclick="triggerSignOut()" id="logout-btn" class="hidden" style="width:auto; padding:6px 15px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">SALIR</button>
@@ -51,12 +52,12 @@
 
     <div id="view-auth" class="view">
         <div class="card">
-            <h3 style="text-align:center;">Acceso</h3>
-            <input type="text" id="auth-name" placeholder="Nombre Completo (Solo registro)" class="reg-only hidden">
-            <input type="email" id="auth-email" placeholder="Correo Electrónico">
+            <h3 style="text-align:center;">Bienvenido</h3>
+            <input type="text" id="auth-name" placeholder="Nombre Completo" class="reg-only hidden">
+            <input type="email" id="auth-email" placeholder="Correo">
             <input type="password" id="auth-pass" placeholder="Contraseña">
             <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿No tienes cuenta? Regístrate</p>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿Eres nuevo? Regístrate</p>
         </div>
     </div>
 
@@ -65,25 +66,25 @@
         <h3 style="color:white; margin:20px 0 10px;">Planes</h3>
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0 10px;">
-            <h3 style="color:white; margin:0;">Clases</h3>
-            <button id="btn-new-clase" class="hidden" onclick="crearClaseNativa()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ NUEVA</button>
+            <h3 style="color:white; margin:0;">Clases Hoy</h3>
+            <button id="btn-new-clase" class="hidden" onclick="crearClaseNativa()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
         </div>
         <div id="container-clases"></div>
     </div>
 
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
+        <h3 style="color:white; margin-bottom:20px;">Mensajes Directos</h3>
         <div id="container-chat-list"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Panel Pro</h3>
+        <h3 style="color:white; margin-bottom:20px;">Panel de Administración</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="adminUsers()">👥 Usuarios</button>
                 <button class="btn-main" onclick="adminFinances()">💰 Finanzas</button>
                 <button class="btn-main" style="background:var(--sage);" onclick="crearAvisoNativo()">📢 Aviso</button>
-                <button class="btn-main" style="background:var(--sage);" onclick="crearPlanNativo()">💳 Plan</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="crearPlanNativo()">💳 Nuevo Plan</button>
             </div>
             <div id="admin-render-area" style="margin-top:25px; border-top:1px solid #eee; padding-top:20px;"></div>
         </div>
@@ -103,7 +104,7 @@
     </div>
     <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
     <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1px solid #eee;">
-        <input type="text" id="chat-in" placeholder="Escribe..." style="margin-bottom:0">
+        <input type="text" id="chat-in" placeholder="Escribe un mensaje..." style="margin-bottom:0">
         <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage); color:white">↑</button>
     </div>
 </div>
@@ -162,7 +163,7 @@
             snap.forEach(d => {
                 const n = d.data();
                 container.innerHTML += `<div class="news-card">
-                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del" onclick="deleteItem('news','${d.id}')">Eliminar</button></div>` : ''}
+                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del-mini" onclick="deleteItem('news','${d.id}')">Eliminar</button></div>` : ''}
                     ${n.texto}
                 </div>`;
             });
@@ -173,10 +174,10 @@
             snap.forEach(d => {
                 const p = d.data();
                 container.innerHTML += `<div class="card" style="min-width:220px; flex-shrink:0; text-align:center;">
-                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del" onclick="deleteItem('membresias','${d.id}')">×</button></div>` : ''}
+                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del-mini" onclick="deleteItem('membresias','${d.id}')">×</button></div>` : ''}
                     <b>${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
                     <button class="btn-mp" onclick="window.open('${p.link}')">MERCADO PAGO</button>
-                    <button class="btn-cash" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">EFECTIVO</button>
+                    <button class="btn-cash" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">PAGAR EFECTIVO</button>
                 </div>`;
             });
         });
@@ -186,38 +187,38 @@
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id);
                 container.innerHTML += `<div class="card">
-                    ${myData.role === 'admin' ? `<div class="admin-controls">
-                        <button class="btn-del" onclick="deleteItem('clases','${d.id}')">×</button>
-                    </div>` : ''}
-                    <div style="margin-right:80px;"><b>${c.nombre}</b><br><small>📅 ${new Date(c.horario).toLocaleString()}</small></div>
+                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del-mini" onclick="deleteItem('clases','${d.id}')">×</button></div>` : ''}
+                    <div style="margin-right:80px;"><b>${c.nombre}</b><br><small>📅 ${c.horario}</small></div>
                     <div style="margin-top:10px;"><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span></div>
-                    <button class="btn-reserve" onclick="inscribirClase('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}">${ya?'YA INSCRITO':'RESERVAR'}</button>
-                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">VER LISTA (${c.inscritos?.length || 0})</button>` : ''}
+                    <button class="btn-reserve" onclick="inscribirClase('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}">${ya?'YA ESTÁS INSCRITO':'RESERVAR LUGAR'}</button>
+                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">LISTA DE ASISTENCIA (${c.inscritos?.length || 0})</button>` : ''}
                 </div>`;
             });
         });
     }
 
-    // --- FUNCIONES NATIVAS (ADMIN) ---
+    // --- ACCIONES NATIVAS (ADMIN) ---
     window.crearAvisoNativo = async () => {
-        const txt = prompt("Escribe el aviso comunitario:");
+        const txt = prompt("📢 Escribe el aviso para la comunidad:");
         if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
     };
 
     window.crearPlanNativo = async () => {
-        const nom = prompt("Nombre del Plan:");
-        const pre = prompt("Precio ($):");
-        const link = prompt("Link de Mercado Pago:");
-        const cr = prompt("¿Cuántos créditos otorga?");
-        if(nom && pre) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+        const nom = prompt("💳 Nombre del plan (ej. Mensualidad):");
+        if(!nom) return;
+        const pre = prompt("💰 Precio en pesos:");
+        const cr = prompt("🎟️ ¿Cuántos créditos otorga?");
+        const link = prompt("🔗 Link de Mercado Pago:");
+        await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link || "#", creditos: Number(cr) });
     };
 
     window.crearClaseNativa = async () => {
-        const nom = prompt("Nombre de la clase:");
-        const pre = prompt("Precio ($):");
-        const fec = prompt("Fecha y hora (Ej: 2024-12-31 18:00):");
-        const apo = confirm("¿Es aportación voluntaria?");
-        if(nom && pre) await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, isAportacion: apo, inscritos: [] });
+        const nom = prompt("🧘 Nombre de la clase:");
+        if(!nom) return;
+        const pre = prompt("💵 Precio (pon 0 si es aportación):");
+        const fec = prompt("⏰ Fecha y hora (ej. Lunes 18:00):");
+        const apo = confirm("¿Es de aportación voluntaria?");
+        await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, isAportacion: apo, inscritos: [] });
     };
 
     window.adminUsers = async () => {
@@ -226,85 +227,99 @@
         area.innerHTML = "<h4>Gestión de Alumnos</h4>";
         snap.forEach(d => {
             const u = d.data();
-            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${u.name}</b><br><small>${u.credits} cr.</small></div>
-                <button onclick="editUserNativo('${d.id}', '${u.name}', ${u.credits})" style="width:auto; padding:5px 10px; font-size:10px;">EDITAR</button>
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px;">
+                <div><b>${u.name}</b><br><small>${u.credits} cr. | ${u.role}</small></div>
+                <button onclick="editUserNativo('${d.id}', '${u.name}', ${u.credits})" style="width:auto; padding:5px 12px; font-size:10px;">EDITAR</button>
             </div>`;
         });
     };
 
-    window.editUserNativo = async (id, nombre, creditos) => {
-        const nCr = prompt(`Nuevos créditos para ${nombre}:`, creditos);
+    window.editUserNativo = async (id, nombre, actuales) => {
+        const nCr = prompt(`Nuevos créditos para ${nombre}:`, actuales);
+        if(nCr === null) return;
         const nRo = prompt(`Nuevo rol (alumno, maestro, admin):`);
-        if(nCr !== null) await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRo || 'alumno' });
+        await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRo || 'alumno' });
         adminUsers();
     };
 
     window.adminFinances = async () => {
         const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-main" onclick="descargarExcel()" style="background:var(--gold); margin-bottom:15px;">DESCARGAR EXCEL (CSV)</button><div id="list-f"></div>`;
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-main" onclick="descargarExcel()" style="background:var(--gold); margin-bottom:15px;">📥 DESCARGAR REPORTE EXCEL</button><div id="list-f"></div>`;
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
-            area.innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee;">
-                <b>${p.alumno}</b> - $${p.monto} [${p.status}]<br>
-                ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" style="width:auto; padding:4px 8px; font-size:10px; background:var(--cash-green); color:white; border-radius:5px;">CONFIRMAR PAGO</button>` : ''}
-                <button onclick="deleteItem('pagos', '${d.id}')" style="width:auto; padding:4px 8px; font-size:10px; background:var(--red); color:white; border-radius:5px;">BORRAR</button>
+            area.innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
+                <div>
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-pay-mini">PAGÓ</button>` : ''}
+                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-del-mini">BORRAR</button>
+                </div>
             </div>`;
         });
     };
 
     window.descargarExcel = async () => {
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        let csv = "Fecha,Alumno,Concepto,Monto,Status\n";
+        let csvContent = "\uFEFF"; // BOM para acentos en Excel
+        csvContent += "Fecha,Alumno,Concepto,Monto,Metodo,Estatus\n";
+        
         snap.forEach(d => {
             const p = d.data();
-            const f = p.fecha?.toDate().toLocaleDateString() || "---";
-            csv += `${f},${p.alumno},${p.concepto},${p.monto},${p.status}\n`;
+            const fecha = p.fecha ? p.fecha.toDate().toLocaleDateString() : '---';
+            csvContent += `"${fecha}","${p.alumno}","${p.concepto}","${p.monto}","${p.metodo || 'Efectivo'}","${p.status}"\n`;
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "finanzas_escarola.csv");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Reporte_Wellness_${new Date().toLocaleDateString()}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
 
-    // --- LOGICA DE CLASES Y CHAT ---
+    // --- LÓGICA DE CLASES Y LISTAS ---
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id));
         const ins = s.data().inscritos || [];
-        if(!ins.length) return alert("No hay inscritos.");
-        let txt = "LISTA:\n";
+        if(!ins.length) return alert("❌ No hay inscritos todavía.");
+        let nombres = "";
         for(let uid of ins) {
             const u = await getDoc(doc(db, "users", uid));
-            txt += `- ${u.data()?.name || 'Anonimo'}\n`;
+            nombres += `- ${u.data()?.name || 'Usuario'}\n`;
         }
-        alert(txt);
+        alert(`LISTA DE ASISTENCIA:\n\n${nombres}`);
     };
 
     window.inscribirClase = async (id) => {
         const c = (await getDoc(doc(db, "clases", id))).data();
-        if(c.inscritos?.includes(myData.id)) return;
-        if(myData.role !== 'alumno' || c.isAportacion || myData.credits > 0) {
-            if(myData.role === 'alumno' && !c.isAportacion) {
+        if(c.inscritos?.includes(myData.id)) return alert("Ya estás en la lista.");
+        
+        const esGratis = (myData.role !== 'alumno' || c.isAportacion);
+        
+        if(esGratis || myData.credits > 0) {
+            if(!esGratis) {
                 await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
                 myData.credits--; updateStats();
             }
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: c.nombre, status: 'Pagado', fecha: serverTimestamp() });
-            alert("¡Inscrito!");
-        } else alert("Sin créditos");
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, status: 'Pagado', metodo: 'Créditos', fecha: serverTimestamp() });
+            alert("✅ ¡Inscripción exitosa!");
+        } else {
+            alert("❌ No tienes créditos suficientes.");
+        }
     };
 
     window.confirmarPago = async (pid, uid, cr) => {
-        if(!confirm("¿Confirmar ingreso de dinero y créditos?")) return;
+        if(!confirm("¿Confirmar que recibiste el dinero en efectivo?")) return;
         await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
         if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
-        alert("Pago Procesado"); adminFinances();
+        alert("💰 Pago confirmado. Créditos cargados al alumno.");
+        adminFinances();
     };
 
+    // --- CHAT ---
     window.loadChatList = async () => {
         const container = document.getElementById('container-chat-list');
         container.innerHTML = "Cargando...";
@@ -346,7 +361,7 @@
         await updateDoc(doc(db, "chats", activeChat), { lastM: txt, lastT: serverTimestamp() });
     };
 
-    // --- ACCIONES CORE ---
+    // --- ACCIONES GENERALES ---
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try {
@@ -355,21 +370,21 @@
                 const r = await createUserWithEmailAndPassword(auth, e, p);
                 await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e });
             }
-        } catch(err) { alert("Error de acceso"); }
+        } catch(err) { alert("Error: Verifica tus datos."); }
     };
     window.toggleAuth = () => {
         isLogin = !isLogin;
         document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin));
-        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME';
-        document.getElementById('auth-toggle-msg').innerText = isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Entra';
+        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'CREAR MI CUENTA';
+        document.getElementById('auth-toggle-msg').innerText = isLogin ? '¿Eres nuevo? Regístrate' : '¿Ya tienes cuenta? Entra';
     };
     window.reqCash = async (n, p, c) => {
-        if(confirm(`¿Solicitar pago en efectivo de ${n} por $${p}?`)) {
+        if(confirm(`¿Confirmar solicitud de pago para ${n} por $${p}?`)) {
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
-            alert("Solicitud enviada.");
+            alert("Solicitud enviada. Paga en recepción.");
         }
     };
-    window.deleteItem = async (col, id) => { if(confirm("¿Eliminar para siempre?")) { await deleteDoc(doc(db, col, id)); if(col==='pagos') adminFinances(); } };
+    window.deleteItem = async (col, id) => { if(confirm("¿Estás seguro de eliminar este registro?")) { await deleteDoc(doc(db, col, id)); if(col==='pagos') adminFinances(); } };
     window.triggerSignOut = () => signOut(auth);
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
 </script>
