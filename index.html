@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Premium Edition</title>
+    <title>Escarola Wellness | Control de Aforo</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -14,12 +14,10 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; }
         
-        /* Layout */
         #app { padding: calc(env(safe-area-inset-top) + 15px) 15px calc(env(safe-area-inset-bottom) + 100px) 15px; max-width: 500px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         .logo-img { width: 48px; height: 48px; border-radius: 14px; background: white; object-fit: cover; }
         
-        /* Cards & Buttons */
         .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; }
         .news-card { background: var(--dark-sage); color: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
         button { width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.2s; }
@@ -38,10 +36,8 @@
         .popup-card input { width: 100%; padding: 12px; border-radius: 14px; border: 2px solid #eee; margin-bottom: 15px; text-align: center; font-family: 'Quicksand'; font-size: 16px; }
         .popup-btns { display: flex; gap: 10px; }
 
-        /* Form Inputs */
         input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 12px; font-family: 'Quicksand'; }
 
-        /* Navigation */
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
@@ -49,6 +45,9 @@
         
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
+
+        /* Badge de cupos */
+        .quota-badge { position: absolute; bottom: 20px; right: 20px; font-size: 11px; font-weight: 700; color: var(--sage); background: var(--cream); padding: 4px 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -68,7 +67,7 @@
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
                 <h4 style="margin:0; font-size:16px;">Escarola Wellness</h4>
-                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;">VERIFICANDO...</div>
+                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;">CONECTANDO...</div>
             </div>
         </div>
         <button onclick="triggerSignOut()" id="logout-btn" class="hidden" style="width:auto; padding:6px 12px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">SALIR</button>
@@ -76,28 +75,28 @@
 
     <div id="view-auth" class="view">
         <div class="card">
-            <h3 style="text-align:center; margin-top:0;">Bienvenido</h3>
+            <h3 style="text-align:center; margin-top:0;">Acceso</h3>
             <input type="text" id="auth-name" placeholder="Nombre completo" class="reg-only hidden">
             <input type="email" id="auth-email" placeholder="Correo electrónico">
             <input type="password" id="auth-pass" placeholder="Contraseña">
             <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿No tienes cuenta? Regístrate</p>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿Eres nuevo? Regístrate</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="container-news"></div>
-        <h3 style="color:white; margin:25px 0 10px;">Planes Disponibles</h3>
+        <h3 style="color:white; margin:25px 0 10px;">Membresías</h3>
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px; scrollbar-width: none;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; margin:25px 0 15px;">
-            <h3 style="color:white; margin:0;">Clases Hoy</h3>
-            <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ NUEVA</button>
+            <h3 style="color:white; margin:0;">Clases Disponibles</h3>
+            <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
         </div>
         <div id="container-clases"></div>
     </div>
 
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Mensajes Directos</h3>
+        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
         <div id="container-chat-list"></div>
     </div>
 
@@ -108,7 +107,7 @@
                 <button class="btn-main" onclick="uiAdminUsers()">👥 Usuarios</button>
                 <button class="btn-main" onclick="uiAdminFinanzas()">💰 Finanzas</button>
                 <button class="btn-main" style="background:var(--sage);" onclick="uiCrearAviso()">📢 Aviso</button>
-                <button class="btn-main" style="background:var(--sage);" onclick="uiCrearPlan()">💳 Nuevo Plan</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="uiCrearPlan()">💳 Plan</button>
             </div>
             <div id="admin-render-area" style="margin-top:25px; border-top:1px solid #eee; padding-top:20px;"></div>
         </div>
@@ -128,7 +127,7 @@
     </div>
     <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
     <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1px solid #eee;">
-        <input type="text" id="chat-in" placeholder="Escribe aquí..." style="margin-bottom:0">
+        <input type="text" id="chat-in" placeholder="Escribe..." style="margin-bottom:0">
         <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage); color:white">↑</button>
     </div>
 </div>
@@ -153,7 +152,7 @@
 
     let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
-    // --- POPUP ENGINE LOGIC ---
+    // --- POPUP ENGINE ---
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
             return new Promise((resolve) => {
@@ -161,15 +160,11 @@
                 document.getElementById('pop-text').innerText = text;
                 const inputArea = document.getElementById('pop-input-area');
                 inputArea.innerHTML = hasInput ? `<input type="text" id="pop-input" placeholder="${placeholder}">` : "";
-                
-                const btnArea = document.getElementById('pop-btns');
-                btnArea.innerHTML = `
+                document.getElementById('pop-btns').innerHTML = `
                     <button class="btn-outline" id="pop-cancel">Cancelar</button>
                     <button class="btn-main" id="pop-ok">Aceptar</button>
                 `;
-                
                 document.getElementById('popup-engine').style.display = 'flex';
-                
                 document.getElementById('pop-ok').onclick = () => {
                     const val = hasInput ? document.getElementById('pop-input').value : true;
                     popup.hide(); resolve(val);
@@ -182,7 +177,7 @@
                 document.getElementById('pop-title').innerText = title;
                 document.getElementById('pop-text').innerText = text;
                 document.getElementById('pop-input-area').innerHTML = "";
-                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Entendido</button>`;
+                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Ok</button>`;
                 document.getElementById('popup-engine').style.display = 'flex';
                 document.getElementById('pop-ok').onclick = () => { popup.hide(); resolve(true); };
             });
@@ -207,7 +202,7 @@
         }
     });
 
-    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase(); }
+    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES` : myData.role.toUpperCase(); }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -222,10 +217,9 @@
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
             const container = document.getElementById('container-news'); container.innerHTML = "";
             snap.forEach(d => {
-                const n = d.data();
                 container.innerHTML += `<div class="news-card">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); color:white; float:right;" onclick="deleteItem('news','${d.id}')">Eliminar</button>` : ''}
-                    <div style="font-size:14px; line-height:1.5;">${n.texto}</div>
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); float:right;" onclick="deleteItem('news','${d.id}')">Eliminar</button>` : ''}
+                    ${d.data().texto}
                 </div>`;
             });
         });
@@ -234,11 +228,11 @@
             const container = document.getElementById('container-plans'); container.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                container.innerHTML += `<div class="card" style="min-width:240px; text-align:center; padding:25px;">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:10px; right:10px; background:var(--red); color:white;" onclick="deleteItem('membresias','${d.id}')">×</button>` : ''}
-                    <b style="font-size:18px;">${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage); font-size:32px;">$${p.precio}</h2>
+                container.innerHTML += `<div class="card" style="min-width:240px; text-align:center;">
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:10px; right:10px; background:var(--red);" onclick="deleteItem('membresias','${d.id}')">×</button>` : ''}
+                    <b>${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
                     <button class="btn-main" style="background:var(--mp-blue); margin-bottom:8px;" onclick="window.open('${p.link}')">MERCADO PAGO</button>
-                    <button class="btn-outline" style="color:var(--cash-green); border-color:var(--cash-green);" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">EFECTIVO</button>
+                    <button class="btn-outline" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">EFECTIVO</button>
                 </div>`;
             });
         });
@@ -246,80 +240,66 @@
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
             const container = document.getElementById('container-clases'); container.innerHTML = "";
             snap.forEach(d => {
-                const c = d.data(); const ya = c.inscritos?.includes(myData.id);
+                const c = d.data(); 
+                const inscritosCount = c.inscritos?.length || 0;
+                const capacidad = c.limit || 0;
+                const yaInscrito = c.inscritos?.includes(myData.id);
+                const llena = inscritosCount >= capacidad && capacidad > 0;
+
                 container.innerHTML += `<div class="card">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red); color:white;" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
-                    <div style="margin-right:40px;"><b>${c.nombre}</b><br><small style="color:#888;">📅 ${c.horario}</small></div>
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
+                    <div style="margin-right:40px;"><b>${c.nombre}</b><br><small>📅 ${c.horario}</small></div>
                     <div style="margin-top:12px;"><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span></div>
-                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya?'#e0e0e0':'var(--gold)'}; color:${ya?'#999':'white'}; margin-top:15px;">${ya?'ESTÁS INSCRITO':'RESERVAR AHORA'}</button>
-                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">LISTA DE ASISTENCIA (${c.inscritos?.length || 0})</button>` : ''}
+                    
+                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" 
+                        style="background:${yaInscrito ? '#e0e0e0' : (llena ? '#ffccd5' : 'var(--gold)')}; 
+                        color:${yaInscrito ? '#999' : (llena ? '#d62828' : 'white')}; margin-top:15px;" 
+                        ${llena && !yaInscrito ? 'disabled' : ''}>
+                        ${yaInscrito ? 'INSCRITO' : (llena ? 'CLASE LLENA' : 'RESERVAR')}
+                    </button>
+
+                    <div class="quota-badge">${inscritosCount} / ${capacidad === 0 ? '∞' : capacidad} LUGARES</div>
+                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">VER LISTA</button>` : ''}
                 </div>`;
             });
         });
     }
 
-    // --- ACCIONES UI CUSTOM (ADMIN) ---
-    window.uiCrearAviso = async () => {
-        const txt = await popup.show("Nuevo Aviso", "Escribe el mensaje para la comunidad:", true, "Escribe aquí...");
-        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-    };
-
-    window.uiCrearPlan = async () => {
-        const nom = await popup.show("Nuevo Plan", "Nombre del plan:", true, "Ej: Membresía VIP");
-        if(!nom) return;
-        const pre = await popup.show("Precio", "Costo en pesos:", true, "0.00");
-        const cr = await popup.show("Créditos", "¿Cuántas clases incluye?", true, "1");
-        const link = await popup.show("Pago", "Link de Mercado Pago:", true, "https://...");
-        await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link || "#", creditos: Number(cr) });
-    };
-
+    // --- ACCIONES ADMIN ---
     window.uiCrearClase = async () => {
-        const nom = await popup.show("Nueva Clase", "Nombre de la disciplina:", true, "Ej: Yoga Integral");
+        const nom = await popup.show("Nueva Clase", "Nombre:", true, "Yoga, Box...");
         if(!nom) return;
-        const pre = await popup.show("Costo", "Precio de la clase:", true, "0");
-        const fec = await popup.show("Horario", "Día y Hora:", true, "Lunes 10:00 AM");
-        const apo = await popup.show("Tipo", "¿Es aportación voluntaria?", false);
-        await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, isAportacion: !!apo, inscritos: [] });
-    };
-
-    window.uiAdminUsers = async () => {
-        const area = document.getElementById('admin-render-area');
-        const snap = await getDocs(collection(db, "users"));
-        area.innerHTML = "<h4>Gestión de Alumnos</h4>";
-        snap.forEach(d => {
-            const u = d.data();
-            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px;">
-                <div><b>${u.name}</b><br><small>${u.credits} cr. | ${u.role}</small></div>
-                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button>
-            </div>`;
+        const pre = await popup.show("Costo", "Precio:", true, "0");
+        const fec = await popup.show("Horario", "Día y Hora:", true, "Lunes 18:00");
+        const lim = await popup.show("Límite", "Cupos máximos (0 para ilimitado):", true, "15");
+        const apo = await popup.show("Tipo", "¿Es aportación?", false);
+        await addDoc(collection(db, "clases"), { 
+            nombre: nom, price: Number(pre), horario: fec, 
+            limit: Number(lim), isAportacion: !!apo, inscritos: [] 
         });
     };
 
-    window.uiEditUser = async (id, nombre, actual) => {
-        const nCr = await popup.show(`Editar a ${nombre}`, "Nuevos créditos:", true, actual);
-        if(nCr === null) return;
-        const nRo = await popup.show("Rol", "Escribe: alumno, maestro o admin", true, "alumno");
-        await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRo || 'alumno' });
-        uiAdminUsers();
+    window.inscribirClase = async (id) => {
+        const docRef = doc(db, "clases", id);
+        const c = (await getDoc(docRef)).data();
+        if(c.inscritos?.includes(myData.id)) return;
+        
+        // Validar límite
+        if(c.limit > 0 && c.inscritos.length >= c.limit) {
+            return popup.alert("Lo sentimos", "Esta clase ya alcanzó su límite de asistentes.");
+        }
+
+        const gratis = (myData.role !== 'alumno' || c.isAportacion);
+        if(gratis || myData.credits > 0) {
+            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
+            await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
+            popup.alert("Listo", "Inscripción confirmada.");
+        } else {
+            popup.alert("Sin créditos", "Necesitas comprar un plan.");
+        }
     };
 
-    window.uiAdminFinanzas = async () => {
-        const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" onclick="descargarReporte()" style="margin-bottom:20px;">📥 DESCARGAR EXCEL (.CSV)</button><div id="list-f"></div>`;
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        snap.forEach(d => {
-            const p = d.data();
-            area.innerHTML += `<div style="font-size:12px; padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
-                <div style="display:flex; gap:5px;">
-                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
-                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">BORRAR</button>
-                </div>
-            </div>`;
-        });
-    };
-
-    // --- LOGICA DE NEGOCIO ---
     window.descargarReporte = async () => {
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
@@ -331,70 +311,99 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `Reporte_Wellness_${new Date().toISOString().split('T')[0]}.csv`;
+        link.download = "Reporte_Escarola.csv";
         link.click();
+    };
+
+    // Funciones de apoyo
+    window.uiCrearAviso = async () => {
+        const txt = await popup.show("Aviso", "Mensaje:", true);
+        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
+    };
+
+    window.uiCrearPlan = async () => {
+        const nom = await popup.show("Plan", "Nombre:", true);
+        const pre = await popup.show("Precio", "$:", true);
+        const cr = await popup.show("Créditos", "Cantidad:", true);
+        const link = await popup.show("Link", "MP:", true);
+        if(nom) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+    };
+
+    window.uiAdminUsers = async () => {
+        const area = document.getElementById('admin-render-area');
+        const snap = await getDocs(collection(db, "users"));
+        area.innerHTML = "<h4>Alumnos</h4>";
+        snap.forEach(d => {
+            const u = d.data();
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;">
+                <div><b>${u.name}</b><br><small>${u.credits} cr. | ${u.role}</small></div>
+                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button>
+            </div>`;
+        });
+    };
+
+    window.uiEditUser = async (id, nombre, actual) => {
+        const nCr = await popup.show(`Editar ${nombre}`, "Créditos:", true, actual);
+        if(nCr !== null) await updateDoc(doc(db, "users", id), { credits: Number(nCr) });
+        uiAdminUsers();
+    };
+
+    window.uiAdminFinanzas = async () => {
+        const area = document.getElementById('admin-render-area');
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" onclick="descargarReporte()">📥 REPORTE EXCEL</button><div id="list-f"></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            area.innerHTML += `<div style="font-size:12px; padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
+                <div style="display:flex; gap:5px;">
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-mini" style="background:var(--cash-green);">PAGÓ</button>` : ''}
+                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red);">×</button>
+                </div>
+            </div>`;
+        });
+    };
+
+    window.confirmarPago = async (pid, uid, cr) => {
+        if(await popup.show("Confirmar", "¿Pago recibido?", false)) {
+            await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
+            if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
+            uiAdminFinanzas();
+        }
+    };
+
+    window.deleteItem = async (col, id) => {
+        if(await popup.show("¿Borrar?", "No se puede deshacer.", false)) {
+            await deleteDoc(doc(db, col, id));
+            if(col==='pagos') uiAdminFinanzas();
+        }
     };
 
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id));
         const ins = s.data().inscritos || [];
-        if(!ins.length) return popup.alert("Lista Vacía", "No hay inscritos todavía.");
-        let lista = "";
+        let lista = ins.length ? "" : "Nadie inscrito.";
         for(let uid of ins) {
             const u = await getDoc(doc(db, "users", uid));
-            lista += `• ${u.data()?.name || 'Usuario'}\n`;
+            lista += `• ${u.data()?.name}\n`;
         }
-        popup.alert("Lista de Asistencia", lista);
-    };
-
-    window.inscribirClase = async (id) => {
-        const c = (await getDoc(doc(db, "clases", id))).data();
-        if(c.inscritos?.includes(myData.id)) return;
-        const gratis = (myData.role !== 'alumno' || c.isAportacion);
-        if(gratis || myData.credits > 0) {
-            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
-            await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("¡Éxito!", "Tu lugar ha sido reservado.");
-        } else {
-            popup.alert("Atención", "No tienes créditos suficientes. Adquiere un plan para continuar.");
-        }
-    };
-
-    window.confirmarPago = async (pid, uid, cr) => {
-        const ok = await popup.show("Confirmar", "¿Recibiste el pago en efectivo?", false);
-        if(!ok) return;
-        await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
-        if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
-        popup.alert("Dinero Recibido", "El pago y los créditos han sido procesados.");
-        uiAdminFinanzas();
+        popup.alert("Asistentes", lista);
     };
 
     window.reqCash = async (n, p, c) => {
-        const ok = await popup.show("Pagar Efectivo", `¿Deseas solicitar ${n} por $${p}?`, false);
-        if(ok) {
+        if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) {
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
-            popup.alert("Pendiente", "Acude a recepción para finalizar tu pago.");
+            popup.alert("Pedido", "Paga en recepción.");
         }
     };
 
-    // --- CHAT LOGIC ---
+    // Chat simplificado para la versión
     window.loadChatList = async () => {
         const container = document.getElementById('container-chat-list');
         container.innerHTML = "Cargando...";
-        if(myData.role === 'alumno') {
-            const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-            container.innerHTML = "";
-            snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b><br><small>${d.data().role}</small></div>`);
-        } else {
-            onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastT", "desc")), snap => {
-                container.innerHTML = "";
-                snap.forEach(d => {
-                    const c = d.data(); const oN = c.names.find(n => n !== myData.name); const oI = c.participants.find(p => p !== myData.id);
-                    container.innerHTML += `<div class="card" onclick="openChat('${oI}','${oN}')"><b>${oN}</b><br><small>${c.lastM || 'Escribe un mensaje...'}</small></div>`;
-                });
-            });
-        }
+        const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
+        container.innerHTML = "";
+        snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`);
     };
 
     window.openChat = async (id, name) => {
@@ -407,7 +416,7 @@
             const box = document.getElementById('chat-msgs'); box.innerHTML = "";
             snap.forEach(d => {
                 const m = d.data();
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px 18px; border-radius:20px; max-width:85%; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`;
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:14px;">${m.text}</div>`;
             });
             box.scrollTop = box.scrollHeight;
         });
@@ -415,12 +424,10 @@
 
     window.sendMsg = async () => {
         const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return;
-        const txt = inp.value; inp.value = "";
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: txt, uid: myData.id, time: serverTimestamp() });
-        await updateDoc(doc(db, "chats", activeChat), { lastM: txt, lastT: serverTimestamp() });
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() });
+        inp.value = "";
     };
 
-    // --- AUTH & MISC ---
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try {
@@ -429,23 +436,17 @@
                 const r = await createUserWithEmailAndPassword(auth, e, p);
                 await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e });
             }
-        } catch(err) { popup.alert("Error", "Los datos son incorrectos o el correo ya existe."); }
+        } catch(err) { popup.alert("Error", "Revisa tus datos."); }
     };
 
     window.toggleAuth = () => {
         isLogin = !isLogin;
         document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin));
-        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'CREAR CUENTA';
-        document.getElementById('auth-toggle-msg').innerText = isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Entra';
-    };
-
-    window.deleteItem = async (col, id) => {
-        const ok = await popup.show("¿Eliminar?", "Esta acción no se puede deshacer.", false);
-        if(ok) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); }
+        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME';
     };
 
     window.triggerSignOut = () => signOut(auth);
-    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
 </script>
 </body>
 </html>
