@@ -18,38 +18,27 @@
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 25px rgba(0,0,0,0.08);
         }
         html, body { margin: 0; padding: 0; background-color: var(--sage); height: 100%; font-family: 'Quicksand', sans-serif; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
-        
-        /* Layout Compacto */
         #app { padding: calc(env(safe-area-inset-top) + 10px) 15px calc(env(safe-area-inset-bottom) + 90px) 15px; min-height: 100vh; box-sizing: border-box; }
-        
-        /* Header Mini */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: white; padding: 5px 0; }
-        .logo-img { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: white; border: 1px solid rgba(255,255,255,0.3); }
+        .logo-img { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; background: white; }
         header h2 { font-size: 15px; margin: 0; }
-        
-        .card { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: var(--shadow); position: relative; border: 1px solid rgba(0,0,0,0.02); }
-        .news-card { background: var(--dark-sage); color: white; border-radius: 18px; padding: 12px 15px; margin-bottom: 12px; border-left: 4px solid var(--gold); position: relative; font-size: 13px; line-height: 1.4; }
-        
-        /* Formulario Compacto */
-        .form-group { margin-bottom: 10px; text-align: left; }
-        .form-group label { font-size: 11px; font-weight: 700; color: var(--dark-sage); margin-left: 5px; }
-        input, select, textarea { width: 100%; padding: 10px 14px; margin-top: 4px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Quicksand'; font-size: 14px; box-sizing: border-box; }
-
-        button { width: 100%; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; background: var(--dark-sage); color: white; font-family: 'Quicksand'; font-size: 14px; }
-        .btn-mp { background: var(--mp-blue) !important; font-size: 10px; margin-bottom: 6px; padding: 8px; }
-        .btn-cash { background: var(--cash-green) !important; font-size: 10px; padding: 8px; }
-        
-        /* Nav Reducida */
-        .nav-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 10px); left: 10px; right: 10px; background: var(--dark-sage); height: 60px; display: flex; justify-content: space-around; align-items: center; border-radius: 25px; z-index: 1000; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 9px; cursor: pointer; }
+        .card { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 12px; box-shadow: var(--shadow); position: relative; }
+        .news-card { background: var(--dark-sage); color: white; border-radius: 18px; padding: 12px 15px; margin-bottom: 12px; border-left: 4px solid var(--gold); position: relative; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 4px; border-radius: 12px; border: 1px solid #ddd; font-family: 'Quicksand'; font-size: 14px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; background: var(--dark-sage); color: white; font-family: 'Quicksand'; }
+        .nav-bar { position: fixed; bottom: calc(env(safe-area-inset-bottom) + 10px); left: 10px; right: 10px; background: var(--dark-sage); height: 60px; display: flex; justify-content: space-around; align-items: center; border-radius: 25px; z-index: 1000; }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 9px; cursor: pointer; position: relative; }
         .nav-item.active { color: white; }
-        .nav-item span { font-size: 18px; display: block; margin-bottom: 2px; }
-        
+        .nav-item span { font-size: 18px; display: block; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 15px; box-sizing: border-box; }
-        .modal-card { background: var(--white); width: 100%; max-width: 360px; border-radius: 25px; padding: 20px; box-sizing: border-box; position: relative; max-height: 85vh; overflow-y: auto; }
-        
-        .delete-icon { position: absolute; top: 8px; right: 8px; color: var(--red); font-size: 16px; cursor: pointer; padding: 4px; opacity: 0.7; }
+        .modal-card { background: var(--white); width: 100%; max-width: 360px; border-radius: 25px; padding: 20px; box-sizing: border-box; max-height: 85vh; overflow-y: auto; }
+        .delete-icon { position: absolute; top: 8px; right: 8px; color: var(--red); font-size: 16px; cursor: pointer; }
         .hidden { display: none !important; }
+        #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 6000; display: none; flex-direction: column; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { padding: 8px 12px; border-radius: 15px; max-width: 80%; font-size: 13px; }
+        .msg.me { align-self: flex-end; background: var(--sage); color: white; }
+        .msg.them { align-self: flex-start; background: white; border: 1px solid #ddd; }
     </style>
 </head>
 <body>
@@ -70,28 +59,32 @@
 
     <div id="view-auth" class="view hidden">
         <div class="card" style="margin-top: 20px;">
-            <h3 style="text-align:center; margin-top:0;">Bienvenida/o</h3>
+            <h3 style="text-align:center;">Bienvenida/o</h3>
             <input type="text" id="reg-name" class="hidden" placeholder="Nombre completo">
             <input type="email" id="auth-email" placeholder="Correo">
             <input type="password" id="auth-password" placeholder="Contraseña">
             <button onclick="handleAuth()" id="btn-auth-text">Entrar</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:11px; margin-top:15px; text-decoration:underline;">¿No tienes cuenta? Regístrate</p>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:11px; margin-top:15px; text-decoration:underline;">Regístrate aquí</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="news-box"></div>
-        <div id="membresias-box" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px; scroll-snap-type: x mandatory;"></div>
-        
-        <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0;">
-            <h3 style="margin:0; color:white; font-size:16px;">Horarios</h3>
-            <button id="btn-add-clase" class="hidden" onclick="openModal('modal-clase')" style="width:auto; padding:5px 12px; font-size:10px; background:white; color:var(--dark-sage);">+ Nueva Clase</button>
+        <div id="membresias-box" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0; color:white;">
+            <h3 style="margin:0; font-size:16px;">Horarios</h3>
+            <button id="btn-add-clase" class="hidden" onclick="openModal('modal-clase')" style="width:auto; padding:5px 12px; font-size:10px; background:white; color:var(--dark-sage);">+ Clase</button>
         </div>
         <div id="clases-box"></div>
     </div>
 
+    <div id="view-chats" class="view hidden">
+        <h3 style="color:white; margin:0 0 15px 0;">Mensajes</h3>
+        <div id="chat-list-container"></div>
+    </div>
+
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin:0 0 10px 0; font-size:18px;">Panel Admin</h3>
+        <h3 style="color:white; margin:0 0 10px 0;">Panel Admin</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button onclick="adminLoadUsers()" style="font-size:11px;">👥 Usuarios</button>
@@ -110,46 +103,41 @@
     </nav>
 </div>
 
-<div id="modal-clase" class="modal-overlay"><div class="modal-card">
-    <h3 style="margin:0 0 15px 0; font-size:18px;">Programar Clase</h3>
-    <div class="form-group"><label>Actividad</label><input type="text" id="cl-nom" placeholder="Ej. Yoga"></div>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <div class="form-group"><label>Precio ($)</label><input type="number" id="cl-pre" value="0"></div>
-        <div class="form-group"><label>Fecha/Hora</label><input type="datetime-local" id="cl-fec"></div>
+<div id="chat-window">
+    <div style="background:var(--sage); color:white; padding:15px; display:flex; gap:15px; align-items:center;">
+        <span onclick="closeChat()">‹ Regresar</span><b id="chat-title">Chat</b>
     </div>
-    <div style="text-align:left; margin:5px 0 15px 5px;">
-        <label style="font-size:12px;"><input type="checkbox" id="cl-is-apo"> Aportación Voluntaria</label>
+    <div id="chat-messages"></div>
+    <div style="padding:10px; display:flex; gap:5px; background:white;">
+        <input type="text" id="chat-input" placeholder="Escribe..."><button onclick="sendMsg()" style="width:auto;">↑</button>
     </div>
-    <button onclick="saveClase()">Publicar Clase</button>
-    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:5px; font-size:12px;">Cancelar</button>
-</div></div>
+</div>
 
-<div id="modal-user-edit" class="modal-overlay"><div class="modal-card">
-    <h3 id="ed-user-name" style="margin-top:0;">Usuario</h3>
-    <div class="form-group"><label>Créditos</label><input type="number" id="ed-user-credits"></div>
-    <div class="form-group">
-        <label>Rol</label>
-        <select id="ed-user-role">
-            <option value="alumno">Alumno</option>
-            <option value="maestro">Maestro</option>
-            <option value="admin">Administrador</option>
-        </select>
-    </div>
-    <button onclick="saveUserEdit()">Actualizar</button>
-    <button onclick="closeModal('modal-user-edit')" style="background:none; color:gray; margin-top:5px;">Cerrar</button>
+<div id="modal-news" class="modal-overlay"><div class="modal-card">
+    <h3>Nuevo Aviso</h3>
+    <textarea id="news-txt" rows="4"></textarea>
+    <button onclick="saveNews()" style="margin-top:10px;">Publicar</button>
+    <button onclick="closeModal('modal-news')" style="background:none; color:gray;">Cancelar</button>
 </div></div>
 
 <div id="modal-membresia" class="modal-overlay"><div class="modal-card">
     <h3>Nuevo Plan</h3>
-    <div class="form-group"><label>Nombre</label><input type="text" id="m-nom" placeholder="Paquete"></div>
-    <div class="form-group"><label>Precio</label><input type="number" id="m-pre"></div>
-    <div class="form-group"><label>Link Mercado Pago</label><input type="url" id="m-link"></div>
-    <button onclick="saveMembresia()">Guardar</button>
+    <input type="text" id="m-nom" placeholder="Nombre">
+    <input type="number" id="m-pre" placeholder="Precio">
+    <input type="url" id="m-link" placeholder="Link Mercado Pago">
+    <button onclick="saveMembresia()" style="margin-top:10px;">Guardar</button>
     <button onclick="closeModal('modal-membresia')" style="background:none; color:gray;">Cerrar</button>
 </div></div>
 
+<div id="modal-user-edit" class="modal-overlay"><div class="modal-card">
+    <h3 id="ed-user-name">Usuario</h3>
+    <input type="number" id="ed-user-credits" placeholder="Créditos">
+    <select id="ed-user-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
+    <button onclick="saveUserEdit()" style="margin-top:10px;">Guardar</button>
+    <button onclick="closeModal('modal-user-edit')" style="background:none; color:gray;">Cerrar</button>
+</div></div>
+
 <script type="module">
-    // --- FIREBASE IMPORT & CONFIG (Idéntico a versión anterior para no romper nada) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -166,7 +154,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let myData = null, isLogin = true, selectedUserId = null;
+    let myData = null, isLogin = true, selectedUserId = null, activeChatId = null, chatUnsub = null;
 
     onAuthStateChanged(auth, async user => {
         if (user) {
@@ -174,17 +162,14 @@
             myData = { ...snap.data(), id: user.uid };
             document.getElementById('view-auth').classList.add('hidden');
             document.querySelectorAll('.nav-bar, #btn-logout').forEach(e => e.classList.remove('hidden'));
-            if(myData.role === 'admin' || myData.role === 'maestro') {
-                document.getElementById('btn-add-clase').classList.remove('hidden');
-                if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
-            }
-            const info = document.getElementById('user-info-bar');
-            info.classList.remove('hidden');
-            info.innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES` : myData.role.toUpperCase();
+            if(myData.role !== 'alumno') document.getElementById('btn-add-clase').classList.remove('hidden');
+            if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+            document.getElementById('user-info-bar').classList.remove('hidden');
+            document.getElementById('user-info-bar').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES` : myData.role.toUpperCase();
             switchTab('main');
         } else {
             document.getElementById('view-auth').classList.remove('hidden');
-            document.querySelectorAll('.nav-bar, #btn-logout, #nav-admin, #user-info-bar').forEach(e => e.classList.add('hidden'));
+            document.querySelectorAll('.nav-bar, #btn-logout, #nav-admin').forEach(e => e.classList.add('hidden'));
         }
     });
 
@@ -192,9 +177,10 @@
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
         document.getElementById('view-' + t).classList.remove('hidden');
+        if(t === 'main') renderMain();
+        if(t === 'chats') loadChatList();
         const navId = t === 'main' ? 'home' : (t === 'chats' ? 'chat' : 'admin');
         document.getElementById('nav-' + navId).classList.add('active');
-        if(t === 'main') renderMain();
     };
 
     function renderMain() {
@@ -206,10 +192,9 @@
             const cont = document.getElementById('membresias-box'); cont.innerHTML = "";
             snap.forEach(d => {
                 const m = d.data();
-                cont.innerHTML += `<div class="card" style="min-width:160px; text-align:center; flex-shrink:0;">
-                    ${myData.role==='admin'?`<span class="delete-icon" onclick="deleteDoc(doc(db,'membresias','${d.id}'))">×</span>`:''}
-                    <b style="font-size:13px;">${m.nombre}</b><h3 style="margin:5px 0;">$${m.precio}</h3>
-                    <button class="btn-mp" onclick="window.open('${m.link}')">Pagar</button>
+                cont.innerHTML += `<div class="card" style="min-width:150px; text-align:center; flex-shrink:0;">
+                    <b>${m.nombre}</b><br><h3>$${m.precio}</h3>
+                    <button onclick="window.open('${m.link}')" style="font-size:10px; background:#009ee3;">Pagar</button>
                 </div>`;
             });
         });
@@ -218,55 +203,116 @@
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id);
                 cont.innerHTML += `<div class="card">
-                    ${(myData.role==='admin'||myData.role==='maestro')?`<span class="delete-icon" onclick="deleteDoc(doc(db,'clases','${d.id}'))">×</span>`:''}
-                    <div style="display:flex; justify-content:space-between;">
-                        <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:gray;">${new Date(c.horario).toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</small></div>
-                        <span style="font-weight:700; color:var(--gold); font-size:13px;">${c.isAportacion?'APO':'$'+c.price}</span>
-                    </div>
-                    <div style="margin-top:10px; display:flex; gap:8px;">
-                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}; padding:8px; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
-                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:11px; padding:8px;">LISTA (${c.inscritos?.length||0})</button>`:''}
+                    <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b><span>${c.isAportacion?'APO':'$'+c.price}</span></div>
+                    <small>${new Date(c.horario).toLocaleString()}</small>
+                    <div style="margin-top:10px; display:flex; gap:5px;">
+                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
                     </div>
                 </div>`;
             });
         });
     }
 
-    // --- FUNCIONES ADMIN & ACCIONES ---
+    // --- CHAT LOGIC (Admins incluidos) ---
+    async function loadChatList() {
+        const cont = document.getElementById('chat-list-container'); cont.innerHTML = "Cargando...";
+        if(myData.role === 'alumno') {
+            // El alumno ve a Admins y Maestros
+            const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
+            cont.innerHTML = ""; snap.forEach(d => cont.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>${d.data().name}</b> (${d.data().role})</div>`);
+        } else {
+            // Admin y Maestro ven quién les ha escrito
+            onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastMsgTime", "desc")), snap => {
+                cont.innerHTML = "";
+                snap.forEach(d => {
+                    const c = d.data(); const otherId = c.participants.find(p=>p!==myData.id); const otherName = c.names.find(n=>n!==myData.name);
+                    cont.innerHTML += `<div class="card" onclick="openChat('${otherId}','${otherName}')"><b>${otherName}</b><br><small>${c.lastMsg || ''}</small></div>`;
+                });
+            });
+        }
+    }
+
+    window.openChat = async (id, name) => {
+        activeChatId = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
+        document.getElementById('chat-title').innerText = name;
+        document.getElementById('chat-window').style.display = 'flex';
+        await setDoc(doc(db, "chats", activeChatId), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
+        if(chatUnsub) chatUnsub();
+        chatUnsub = onSnapshot(query(collection(db, "chats", activeChatId, "messages"), orderBy("time", "asc")), snap => {
+            const box = document.getElementById('chat-messages'); box.innerHTML = "";
+            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div class="msg ${m.senderId===myData.id?'me':'them'}">${m.text}</div>`; });
+            box.scrollTop = box.scrollHeight;
+        });
+    };
+
+    window.sendMsg = async () => {
+        const val = document.getElementById('chat-input').value; if(!val) return;
+        document.getElementById('chat-input').value = "";
+        await addDoc(collection(db, "chats", activeChatId, "messages"), { text: val, senderId: myData.id, time: serverTimestamp() });
+        await updateDoc(doc(db, "chats", activeChatId), { lastMsg: val, lastMsgTime: serverTimestamp() });
+    };
+
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(chatUnsub) chatUnsub(); };
+
+    // --- ADMIN ACTIONS (RESTAURADAS) ---
+    window.adminLoadFinances = async () => {
+        const display = document.getElementById('admin-display');
+        display.innerHTML = `<button onclick="genPDF()" style="background:var(--gold); margin-bottom:10px;">Descargar Reporte PDF</button><div id="f-list"></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => { const p = d.data(); document.getElementById('f-list').innerHTML += `<div style="font-size:11px; padding:5px; border-bottom:1px solid #eee;">${p.alumno} - $${p.monto}</div>`; });
+    };
+
+    window.genPDF = async () => {
+        const { jsPDF } = window.jspdf; const docP = new jsPDF();
+        const snap = await getDocs(collection(db, "pagos")); let r = [];
+        snap.forEach(d => { const p = d.data(); r.push([p.alumno, `$${p.monto}`, p.concepto]); });
+        docP.text("Reporte Finanzas Escarola", 14, 15);
+        docP.autoTable({ head: [['Alumno', 'Monto', 'Concepto']], body: r, startY: 20 });
+        docP.save("Finanzas.pdf");
+    };
+
+    window.saveNews = async () => {
+        const txt = document.getElementById('news-txt').value; if(!txt) return;
+        await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
+        closeModal('modal-news'); showAlert("Aviso publicado");
+    };
+
     window.adminLoadUsers = async () => {
-        const display = document.getElementById('admin-display'); display.innerHTML = "Cargando...";
-        const snap = await getDocs(collection(db, "users")); display.innerHTML = "";
+        const display = document.getElementById('admin-display'); display.innerHTML = "";
+        const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
             const u = d.data();
             display.innerHTML += `<div class="card" style="padding:10px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:12px;"><b>${u.name}</b><br>${u.role} | ${u.credits||0} cr.</div>
-                <button onclick="editUser('${d.id}')" style="width:auto; padding:5px 10px; font-size:10px;">EDITAR</button>
+                <div style="font-size:12px;"><b>${u.name}</b><br>${u.role}</div>
+                <button onclick="editUser('${d.id}')" style="width:auto; padding:5px; font-size:10px;">EDITAR</button>
             </div>`;
         });
     };
+
     window.editUser = async id => { selectedUserId = id; const u = (await getDoc(doc(db, "users", id))).data(); document.getElementById('ed-user-name').innerText = u.name; document.getElementById('ed-user-credits').value = u.credits||0; document.getElementById('ed-user-role').value = u.role; openModal('modal-user-edit'); };
-    window.saveUserEdit = async () => { await updateDoc(doc(db, "users", selectedUserId), { credits: Number(document.getElementById('ed-user-credits').value), role: document.getElementById('ed-user-role').value }); closeModal('modal-user-edit'); showAlert("Actualizado"); adminLoadUsers(); };
-    window.saveClase = async () => { await addDoc(collection(db, "clases"), { nombre: document.getElementById('cl-nom').value, price: Number(document.getElementById('cl-pre').value), horario: document.getElementById('cl-fec').value, isAportacion: document.getElementById('cl-is-apo').checked, inscritos: [] }); closeModal('modal-clase'); showAlert("Clase lista"); };
+    window.saveUserEdit = async () => { await updateDoc(doc(db, "users", selectedUserId), { credits: Number(document.getElementById('ed-user-credits').value), role: document.getElementById('ed-user-role').value }); closeModal('modal-user-edit'); adminLoadUsers(); };
+    window.saveMembresia = async () => { await addDoc(collection(db, "membresias"), { nombre: document.getElementById('m-nom').value, precio: document.getElementById('m-pre').value, link: document.getElementById('m-link').value }); closeModal('modal-membresia'); };
+
     window.reservar = async id => { 
         const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
         if(c.isAportacion || myData.credits > 0) {
             if(!c.isAportacion) await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            showAlert("¡Inscrito!");
+            addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: c.nombre, fecha: serverTimestamp() });
+            showAlert("¡Listo!");
         } else showAlert("Sin créditos");
     };
-    window.saveMembresia = async () => { await addDoc(collection(db, "membresias"), { nombre: document.getElementById('m-nom').value, precio: Number(document.getElementById('m-pre').value), link: document.getElementById('m-link').value }); closeModal('modal-membresia'); showAlert("Plan guardado"); };
-    window.saveNews = async () => { await addDoc(collection(db, "news"), { texto: document.getElementById('news-txt').value, fecha: serverTimestamp() }); closeModal('modal-news'); showAlert("Aviso publicado"); };
+
     window.showAlert = m => { const e = document.getElementById('custom-alert'); e.innerText = m; e.style.top = "20px"; setTimeout(()=>e.style.top="-100px", 3000); };
     window.openModal = id => document.getElementById(id).style.display = 'flex';
     window.closeModal = id => document.getElementById(id).style.display = 'none';
-    window.toggleAuth = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin?'Entrar':'Registro'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); };
+    window.toggleAuth = () => { isLogin = !isLogin; document.getElementById('reg-name').classList.toggle('hidden'); };
     window.handleAuth = async () => {
         const em = document.getElementById('auth-email').value, ps = document.getElementById('auth-password').value;
-        if(isLogin) signInWithEmailAndPassword(auth, em, ps).catch(()=>showAlert("Error de acceso"));
+        if(isLogin) signInWithEmailAndPassword(auth, em, ps).catch(()=>showAlert("Error"));
         else {
             const r = await createUserWithEmailAndPassword(auth, em, ps);
-            await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('reg-name').value, role: 'alumno', credits: 0, email: em });
+            await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('reg-name').value, role: 'alumno', credits: 0 });
         }
     };
     window.deleteDoc = deleteDoc; window.doc = doc; window.db = db; window.signOut = signOut; window.auth = auth;
