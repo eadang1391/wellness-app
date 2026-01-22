@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness Pro</title>
-    <meta name="theme-color" content="#6b8e83">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Escarola Wellness | Panel Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -20,162 +17,161 @@
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: var(--dark-sage); }
+        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; }
         
         #app { padding: calc(env(safe-area-inset-top) + 15px) 15px calc(env(safe-area-inset-bottom) + 100px) 15px; }
 
-        /* Header Compacto pero funcional */
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; color: white; }
-        .logo-area { display: flex; align-items: center; gap: 10px; }
-        .logo-img { width: 40px; height: 40px; border-radius: 10px; background: white; object-fit: cover; }
+        .logo-img { width: 45px; height: 45px; border-radius: 12px; background: white; object-fit: cover; }
         
-        /* Cards Estilizadas */
-        .card { background: var(--white); border-radius: 22px; padding: 18px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; border: 1px solid rgba(255,255,255,0.2); }
-        .news-card { background: var(--dark-sage); color: white; border-radius: 20px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--gold); }
+        /* Cards */
+        .card { background: var(--white); border-radius: 22px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        .news-card { background: var(--dark-sage); color: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
         
-        /* Botones */
-        button { width: 100%; padding: 12px; border-radius: 15px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; transition: 0.3s; font-size: 14px; }
-        button:active { transform: scale(0.97); }
+        /* Controles Admin en Cards */
+        .admin-controls { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 10; }
+        .btn-del { background: var(--red); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
+        .btn-edt { background: var(--sage); color: white; border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-weight: bold; }
+
+        /* Botones de Acción */
+        button { width: 100%; padding: 14px; border-radius: 16px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; }
         .btn-main { background: var(--dark-sage); color: white; }
-        .btn-outline { background: white; color: var(--dark-sage); border: 2px solid var(--dark-sage); }
-        .btn-mp { background: var(--mp-blue); color: white; margin-top: 8px; font-size: 12px; }
-        .btn-cash { background: var(--cash-green); color: white; margin-top: 5px; font-size: 12px; }
+        .btn-reserve { background: var(--gold); color: white; margin-top: 15px; }
+        .btn-mp { background: var(--mp-blue); color: white; margin-top: 10px; }
+        .btn-cash { background: var(--cash-green); color: white; margin-top: 8px; }
         
         /* Formulario */
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 11px; font-weight: 700; margin-bottom: 4px; color: var(--dark-sage); }
-        input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; outline: none; font-family: 'Quicksand'; font-size: 14px; background: #fdfdfd; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 5px; color: var(--dark-sage); }
+        input, select, textarea { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid #eee; font-family: 'Quicksand'; font-size: 15px; }
         
         /* Modales */
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display:none; align-items:center; justify-content:center; z-index: 5000; padding: 20px; }
-        .modal-card { background: white; border-radius: 25px; padding: 25px; width: 100%; max-width: 400px; max-height: 85vh; overflow-y: auto; position: relative; }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display:none; align-items:center; justify-content:center; z-index: 5000; padding: 20px; }
+        .modal-card { background: white; border-radius: 28px; padding: 25px; width: 100%; max-width: 420px; max-height: 85vh; overflow-y: auto; }
         
-        /* Navigation */
-        .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; background: var(--dark-sage); height: 70px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 4000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; }
+        /* Nav */
+        .nav-bar { position: fixed; bottom: 15px; left: 15px; right: 15px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 4000; }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; text-decoration: none; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { display: block; font-size: 22px; }
+        .nav-item span { display: block; font-size: 24px; margin-bottom: 2px; }
 
-        /* Utilería */
-        .delete-btn { position: absolute; top: 10px; right: 10px; color: var(--red); font-size: 20px; font-weight: bold; padding: 5px; cursor: pointer; }
-        .edit-btn { position: absolute; top: 10px; right: 40px; color: var(--sage); font-size: 14px; font-weight: bold; padding: 5px; cursor: pointer; }
         .hidden { display: none !important; }
-        
-        /* Chat UI */
-        #chat-view-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
+        #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div id="alert-box" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 25px; border-radius: 20px; box-shadow: var(--shadow); z-index: 9999; transition: 0.6s; font-weight: 700; border-bottom: 4px solid var(--sage);"></div>
+<div id="alert-box" style="position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: white; padding: 15px 30px; border-radius: 20px; box-shadow: var(--shadow); z-index: 9999; transition: 0.5s; font-weight: 700; border-bottom: 4px solid var(--sage);"></div>
 
 <div id="app">
     <header>
-        <div class="logo-area">
+        <div style="display:flex; align-items:center; gap:12px;">
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
-                <h2 style="margin:0; font-size:16px;">Escarola</h2>
-                <div id="top-stats" style="font-size:10px; color:var(--gold); font-weight:700;"></div>
+                <h2 style="margin:0; font-size:18px;">Escarola Wellness</h2>
+                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;"></div>
             </div>
         </div>
-        <button id="logout-btn" class="hidden" onclick="triggerSignOut()" style="width:auto; padding:5px 12px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">Salir</button>
+        <button onclick="triggerSignOut()" id="logout-btn" class="hidden" style="width:auto; padding:6px 15px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">SALIR</button>
     </header>
 
     <div id="view-auth" class="view">
         <div class="card">
-            <h3 style="text-align:center; margin-top:0;">Hola, Bienvenida/o</h3>
-            <div class="form-group" id="reg-name-field" style="display:none;"><label>Nombre Completo</label><input type="text" id="auth-name"></div>
+            <h3 style="text-align:center;">Acceso Comunidad</h3>
+            <div id="reg-fields" class="hidden">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="auth-name"></div>
+            </div>
             <div class="form-group"><label>Correo</label><input type="email" id="auth-email"></div>
             <div class="form-group"><label>Contraseña</label><input type="password" id="auth-pass"></div>
-            <button class="btn-main" onclick="handleAuth()" id="auth-submit-btn">Entrar</button>
-            <p onclick="toggleAuthMode()" id="auth-toggle-text" style="text-align:center; font-size:12px; margin-top:15px; text-decoration:underline; cursor:pointer;">¿No tienes cuenta? Regístrate</p>
+            <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;">¿No tienes cuenta? Regístrate aquí</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
-        <div id="section-news"></div>
+        <div id="container-news"></div>
         
-        <h4 style="color:white; margin:15px 0 10px 5px;">Membresías y Créditos</h4>
-        <div id="section-plans" style="display:flex; gap:12px; overflow-x:auto; padding-bottom:10px;"></div>
+        <h3 style="color:white; margin:20px 0 10px;">Planes y Membresías</h3>
+        <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px;"></div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0 10px 0;">
-            <h4 style="color:white; margin:0;">Horarios de Clases</h4>
-            <button id="admin-add-clase" class="hidden" onclick="openClaseModal()" style="width:auto; background:white; color:var(--dark-sage); font-size:10px; padding:6px 12px;">+ Nueva Clase</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin:20px 0 10px;">
+            <h3 style="color:white; margin:0;">Próximas Clases</h3>
+            <button id="btn-new-clase" class="hidden" onclick="modalClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR CLASE</button>
         </div>
-        <div id="section-clases"></div>
+        <div id="container-clases"></div>
     </div>
 
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Mensajes Directos</h3>
-        <div id="chat-list"></div>
+        <h3 style="color:white; margin-bottom:20px;">Mensajes Directos</h3>
+        <div id="container-chat-list"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:15px;">Consola de Administración</h3>
+        <h3 style="color:white; margin-bottom:20px;">Panel de Control</h3>
         <div class="card">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <button class="btn-main" onclick="uiLoadUsers()">👥 Alumnos</button>
-                <button class="btn-main" onclick="uiLoadFinances()">💰 Finanzas</button>
-                <button class="btn-outline" onclick="openModal('modal-news')">📢 Aviso</button>
-                <button class="btn-outline" onclick="openModal('modal-plan')">💳 Plan</button>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <button class="btn-main" onclick="adminUsers()">👥 Usuarios</button>
+                <button class="btn-main" onclick="adminFinances()">💰 Finanzas</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="openModal('modal-news')">📢 Aviso</button>
+                <button class="btn-main" style="background:var(--sage);" onclick="openModal('modal-plan')">💳 Nuevo Plan</button>
             </div>
-            <div id="admin-results" style="margin-top:20px;"></div>
+            <div id="admin-render-area" style="margin-top:25px; border-top:1px solid #eee; padding-top:20px;"></div>
         </div>
     </div>
 
-    <nav id="main-nav" class="nav-bar hidden">
-        <div class="nav-item active" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
-        <div class="nav-item" onclick="switchTab('chats')"><span>💬</span>Chat</div>
-        <div id="nav-admin-btn" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
+    <nav id="navbar" class="nav-bar hidden">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
+        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><span>💬</span>Chat</div>
+        <div id="nav-admin" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
 
 <div id="modal-clase" class="modal-overlay"><div class="modal-card">
-    <h3 id="clase-modal-title">Programar Clase</h3>
-    <div class="form-group"><label>Actividad</label><input type="text" id="f-cl-name"></div>
-    <div class="form-group"><label>Precio sugerido ($)</label><input type="number" id="f-cl-price"></div>
-    <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="f-cl-date"></div>
-    <label style="font-size:13px;"><input type="checkbox" id="f-cl-apo"> Aportación Voluntaria</label>
-    <button class="btn-main" style="margin-top:20px;" onclick="actionSaveClase()">Guardar Clase</button>
-    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:10px;">Cerrar</button>
+    <h3 id="clase-title">Programar Clase</h3>
+    <div class="form-group"><label>Nombre de la Actividad</label><input type="text" id="f-cl-nom"></div>
+    <div class="form-group"><label>Costo ($)</label><input type="number" id="f-cl-pre"></div>
+    <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="f-cl-fec"></div>
+    <div style="margin-bottom:20px;"><label><input type="checkbox" id="f-cl-apo"> ¿Es aportación voluntaria?</label></div>
+    <button class="btn-main" onclick="saveClase()">GUARDAR CLASE</button>
+    <button onclick="closeModal('modal-clase')" style="background:none; color:gray; margin-top:10px;">Cancelar</button>
 </div></div>
 
 <div id="modal-news" class="modal-overlay"><div class="modal-card">
-    <h3>Nuevo Aviso</h3>
-    <textarea id="f-news-text" rows="4" placeholder="Escribe aquí..."></textarea>
-    <button class="btn-main" onclick="actionSaveNews()" style="margin-top:15px;">Publicar</button>
-    <button onclick="closeModal('modal-news')" style="background:none;">Cancelar</button>
+    <h3>Publicar Aviso Comunitario</h3>
+    <textarea id="f-news-txt" rows="5" placeholder="Escribe el mensaje..."></textarea>
+    <button class="btn-main" onclick="saveNews()" style="margin-top:15px;">PUBLICAR</button>
+    <button onclick="closeModal('modal-news')" style="background:none;">Cerrar</button>
 </div></div>
 
 <div id="modal-plan" class="modal-overlay"><div class="modal-card">
-    <h3>Configurar Plan</h3>
-    <div class="form-group"><label>Nombre</label><input type="text" id="f-pl-name"></div>
-    <div class="form-group"><label>Precio</label><input type="number" id="f-pl-price"></div>
+    <h3>Nuevo Plan de Pago</h3>
+    <div class="form-group"><label>Nombre del Paquete</label><input type="text" id="f-pl-nom"></div>
+    <div class="form-group"><label>Precio</label><input type="number" id="f-pl-pre"></div>
     <div class="form-group"><label>Link Mercado Pago</label><input type="url" id="f-pl-link"></div>
-    <button class="btn-main" onclick="actionSavePlan()">Guardar Plan</button>
+    <button class="btn-main" onclick="savePlan()">CREAR PLAN</button>
     <button onclick="closeModal('modal-plan')" style="background:none;">Cerrar</button>
 </div></div>
 
-<div id="modal-user" class="modal-overlay"><div class="modal-card">
-    <h3 id="f-user-title">Editar Usuario</h3>
-    <div class="form-group"><label>Créditos</label><input type="number" id="f-user-credits"></div>
+<div id="modal-user-edit" class="modal-overlay"><div class="modal-card">
+    <h3 id="ed-user-name">Usuario</h3>
+    <div class="form-group"><label>Créditos Actuales</label><input type="number" id="ed-user-cr"></div>
     <div class="form-group">
-        <label>Rol</label>
-        <select id="f-user-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Administrador</option></select>
+        <label>Asignar Rol</label>
+        <select id="ed-user-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Administrador</option></select>
     </div>
-    <button class="btn-main" onclick="actionUpdateUser()">Guardar Cambios</button>
-    <button onclick="closeModal('modal-user')" style="background:none;">Cancelar</button>
+    <button class="btn-main" onclick="updateUser()">ACTUALIZAR</button>
+    <button onclick="closeModal('modal-user-edit')" style="background:none;">Cerrar</button>
 </div></div>
 
-<div id="chat-view-container">
-    <div style="background:var(--sage); padding:15px; color:white; display:flex; align-items:center; gap:15px;">
-        <span onclick="closeChat()" style="cursor:pointer;">‹ Regresar</span>
-        <b id="chat-active-name">Chat</b>
+<div id="chat-window">
+    <div style="background:var(--sage); color:white; padding:18px; display:flex; gap:15px; align-items:center;">
+        <span onclick="closeChat()" style="cursor:pointer; font-weight:bold;">‹ VOLVER</span>
+        <b id="chat-header-name">Chat</b>
     </div>
-    <div id="chat-messages-box" style="flex:1; overflow-y:auto; padding:15px;"></div>
-    <div style="padding:15px; background:white; display:flex; gap:10px;">
-        <input type="text" id="chat-input-field" placeholder="Escribe un mensaje...">
-        <button onclick="actionSendMsg()" style="width:auto; padding:0 20px;">↑</button>
+    <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
+    <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1px solid #eee;">
+        <input type="text" id="chat-in" placeholder="Mensaje...">
+        <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage);">↑</button>
     </div>
 </div>
 
@@ -184,7 +180,7 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    const firebaseConfig = {
+    const fbConfig = {
         apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
         authDomain: "escarola-wellness.firebaseapp.com",
         projectId: "escarola-wellness",
@@ -193,11 +189,11 @@
         appId: "1:212255082736:web:66d144fa90308578b75a35"
     };
 
-    const fb = initializeApp(firebaseConfig);
-    const auth = getAuth(fb);
-    const db = getFirestore(fb);
+    const app = initializeApp(fbConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    let myData = null, isLoginMode = true, editingClaseId = null, editingUserId = null, activeChatId = null, chatSub = null;
+    let myData = null, isLogin = true, editClaseId = null, editUserId = null, activeChat = null, unsubChat = null;
 
     // --- SESIÓN ---
     onAuthStateChanged(auth, async user => {
@@ -205,252 +201,260 @@
             const snap = await getDoc(doc(db, "users", user.uid));
             myData = { id: user.uid, ...snap.data() };
             document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById('navbar').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
+            if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+            if(myData.role !== 'alumno') document.getElementById('btn-new-clase').classList.remove('hidden');
             
-            if(myData.role === 'admin') document.getElementById('nav-admin-btn').classList.remove('hidden');
-            if(myData.role !== 'alumno') document.getElementById('admin-add-clase').classList.remove('hidden');
-            
-            updateTopBar();
+            updateStats();
             switchTab('main');
         } else {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById('view-auth').classList.remove('hidden');
-            document.getElementById('main-nav').classList.add('hidden');
+            document.getElementById('navbar').classList.add('hidden');
         }
     });
 
-    function updateTopBar() {
-        const bar = document.getElementById('top-stats');
-        bar.innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase();
+    function updateStats() {
+        document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase();
     }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-' + tab).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        if(tab === 'main') renderHome();
-        if(tab === 'chats') renderChatList();
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('nav-' + (tab === 'main' ? 'home' : (tab === 'chats' ? 'chat' : 'admin'))).classList.add('active');
+        if(tab === 'main') loadHome();
+        if(tab === 'chats') loadChatList();
     };
 
-    // --- RENDERIZADO HOME ---
-    function renderHome() {
-        // Avisos
+    // --- CARGA DE DATOS ---
+    function loadHome() {
+        // News
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
-            const box = document.getElementById('section-news'); box.innerHTML = "";
+            const container = document.getElementById('container-news'); container.innerHTML = "";
             snap.forEach(d => {
                 const n = d.data();
-                box.innerHTML += `<div class="news-card">
-                    ${myData.role === 'admin' ? `<span class="delete-btn" onclick="actionDelete('news','${d.id}')">×</span>` : ''}
+                container.innerHTML += `<div class="news-card">
+                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del" onclick="deleteItem('news','${d.id}')">Eliminar</button></div>` : ''}
                     ${n.texto}
                 </div>`;
             });
         });
 
-        // Planes
+        // Membresías
         onSnapshot(collection(db, "membresias"), snap => {
-            const box = document.getElementById('section-plans'); box.innerHTML = "";
+            const container = document.getElementById('container-plans'); container.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                box.innerHTML += `<div class="card" style="min-width:200px; flex-shrink:0; text-align:center;">
-                    ${myData.role === 'admin' ? `<span class="delete-btn" onclick="actionDelete('membresias','${d.id}')">×</span>` : ''}
-                    <b>${p.nombre}</b><h2 style="margin:8px 0;">$${p.precio}</h2>
+                container.innerHTML += `<div class="card" style="min-width:220px; flex-shrink:0; text-align:center;">
+                    ${myData.role === 'admin' ? `<div class="admin-controls"><button class="btn-del" onclick="deleteItem('membresias','${d.id}')">×</button></div>` : ''}
+                    <b style="font-size:16px;">${p.nombre}</b>
+                    <h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
                     <button class="btn-mp" onclick="window.open('${p.link}')">MERCADO PAGO</button>
-                    <button class="btn-cash" onclick="actionRequestCash('${p.nombre}', ${p.precio})">PAGAR EFECTIVO</button>
+                    <button class="btn-cash" onclick="reqCash('${p.nombre}', ${p.precio})">PAGAR EFECTIVO</button>
                 </div>`;
             });
         });
 
         // Clases
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
-            const box = document.getElementById('section-clases'); box.innerHTML = "";
+            const container = document.getElementById('container-clases'); container.innerHTML = "";
             snap.forEach(d => {
                 const c = d.data();
-                const ya = c.inscritos?.includes(myData.id);
-                box.innerHTML += `<div class="card">
-                    ${myData.role === 'admin' ? `<span class="delete-btn" onclick="actionDelete('clases','${d.id}')">×</span><span class="edit-btn" onclick="openClaseModal('${d.id}')">EDITAR</span>` : ''}
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>${c.nombre}</b><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APO' : '$'+c.price}</span>
+                const yaInscrito = c.inscritos?.includes(myData.id);
+                container.innerHTML += `<div class="card">
+                    ${myData.role === 'admin' ? `<div class="admin-controls">
+                        <button class="btn-edt" onclick="modalClase('${d.id}')">Editar</button>
+                        <button class="btn-del" onclick="deleteItem('clases','${d.id}')">×</button>
+                    </div>` : ''}
+                    <div style="margin-right:80px;">
+                        <b style="font-size:16px;">${c.nombre}</b><br>
+                        <small style="color:gray;">📅 ${new Date(c.horario).toLocaleString()}</small>
                     </div>
-                    <small style="color:gray;">📅 ${new Date(c.horario).toLocaleString()}</small>
-                    <div style="margin-top:15px; display:flex; gap:10px;">
-                        ${myData.role === 'alumno' ? `<button onclick="actionInscribir('${d.id}')" style="background:${ya?'#ccc':'var(--gold)'}; color:white;">${ya?'INSCRITO':'RESERVAR'}</button>` : ''}
-                        ${myData.role !== 'alumno' ? `<button onclick="actionVerLista('${d.id}')" class="btn-outline" style="font-size:11px;">LISTA (${c.inscritos?.length || 0})</button>` : ''}
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px;">
+                        <span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span>
+                        <div style="font-size:11px; color:gray;">Cupos: ${c.inscritos?.length || 0}</div>
                     </div>
+                    ${myData.role === 'alumno' ? `<button class="btn-reserve" onclick="inscribirClase('${d.id}')" style="background:${yaInscrito?'#ccc':'var(--gold)'}">${yaInscrito?'YA ESTÁS INSCRITO':'RESERVAR LUGAR'}</button>` : ''}
+                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:15px; font-size:12px;" onclick="verLista('${d.id}')">VER LISTA DE ASISTENCIA</button>` : ''}
                 </div>`;
             });
         });
     }
 
-    // --- ACCIONES ADMIN ---
-    window.uiLoadUsers = async () => {
-        const res = document.getElementById('admin-results'); res.innerHTML = "Cargando...";
-        const snap = await getDocs(collection(db, "users"));
-        res.innerHTML = "<h4>Gestión de Alumnos</h4>";
-        snap.forEach(d => {
-            const u = d.data();
-            res.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${u.name}</b><br><small>${u.role} | ${u.credits || 0} cr.</small></div>
-                <button onclick="openUserModal('${d.id}')" style="width:auto; padding:5px 10px; font-size:10px;">EDITAR</button>
-            </div>`;
-        });
-    };
-
-    window.uiLoadFinances = async () => {
-        const res = document.getElementById('admin-results');
-        res.innerHTML = "<h4>Reporte de Ventas</h4><button onclick='exportPDF()' style='background:var(--gold); margin-bottom:15px;'>DESCARGAR PDF</button><div id='f-list'></div>";
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        snap.forEach(d => {
-            const p = d.data();
-            document.getElementById('f-list').innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee;">
-                <b>${p.alumno}</b> - $${p.monto}<br><small>Concepto: ${p.concepto} | ${p.metodo}</small>
-            </div>`;
-        });
-    };
-
-    window.exportPDF = async () => {
-        const { jsPDF } = window.jspdf; const docP = new jsPDF();
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        let data = [];
-        snap.forEach(d => { const p = d.data(); data.push([p.fecha?.toDate().toLocaleDateString() || '', p.alumno, p.concepto, `$${p.monto}`, p.metodo]); });
-        docP.text("Escarola Wellness - Reporte Financiero", 14, 15);
-        docP.autoTable({ head: [['Fecha', 'Alumno', 'Concepto', 'Monto', 'Metodo']], body: data, startY: 22 });
-        docP.save("Finanzas_Escarola.pdf");
-    };
-
     // --- ACCIONES FIREBASE ---
-    window.actionSaveClase = async () => {
+    window.saveClase = async () => {
         const payload = {
-            nombre: document.getElementById('f-cl-name').value,
-            price: Number(document.getElementById('f-cl-price').value),
-            horario: document.getElementById('f-cl-date').value,
+            nombre: document.getElementById('f-cl-nom').value,
+            price: Number(document.getElementById('f-cl-pre').value),
+            horario: document.getElementById('f-cl-fec').value,
             isAportacion: document.getElementById('f-cl-apo').checked
         };
-        if(editingClaseId) await updateDoc(doc(db, "clases", editingClaseId), payload);
+        if(editClaseId) await updateDoc(doc(db, "clases", editClaseId), payload);
         else await addDoc(collection(db, "clases"), { ...payload, inscritos: [] });
-        closeModal('modal-clase'); showAlert("Clase Guardada");
+        closeModal('modal-clase'); showAlert("Clase guardada exitosamente");
     };
 
-    window.actionInscribir = async (id) => {
-        const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
+    window.inscribirClase = async (id) => {
+        const c = (await getDoc(doc(db, "clases", id))).data();
         if(c.inscritos?.includes(myData.id)) return;
         if(c.isAportacion || myData.credits > 0) {
             if(!c.isAportacion) await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) });
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: "Clase: "+c.nombre, metodo: "Crédito/Apo", fecha: serverTimestamp() });
-            showAlert("¡Inscrito!");
-            myData.credits--; updateTopBar();
-        } else showAlert("No tienes créditos suficientes");
+            await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, fecha: serverTimestamp(), metodo: "Créditos/Apo" });
+            showAlert("Inscripción confirmada");
+            myData.credits--; updateStats();
+        } else showAlert("No tienes créditos disponibles");
     };
 
-    window.actionRequestCash = async (nom, pre) => {
-        await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: pre, concepto: "Membresía: "+nom, metodo: "Efectivo (Pendiente)", fecha: serverTimestamp() });
-        showAlert("Solicitud enviada. Paga en recepción.");
+    window.deleteItem = async (col, id) => {
+        if(confirm("¿Estás seguro de que deseas eliminar este elemento?")) {
+            await deleteDoc(doc(db, col, id));
+            showAlert("Eliminado correctamente");
+        }
     };
 
-    window.actionDelete = async (col, id) => { if(confirm("¿Borrar este elemento?")) await deleteDoc(doc(db, col, id)); };
+    window.reqCash = async (nom, pre) => {
+        await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: pre, concepto: `Membresía: ${nom}`, metodo: "Efectivo (Pendiente)", fecha: serverTimestamp() });
+        showAlert("Solicitud enviada. Realiza tu pago en caja.");
+    };
 
-    // --- CHAT LOGIC ---
-    async function renderChatList() {
-        const box = document.getElementById('chat-list'); box.innerHTML = "Cargando...";
+    // --- ADMIN ---
+    window.adminUsers = async () => {
+        const area = document.getElementById('admin-render-area'); area.innerHTML = "Cargando...";
+        const snap = await getDocs(collection(db, "users")); area.innerHTML = "<h4>Gestión de Usuarios</h4>";
+        snap.forEach(d => {
+            const u = d.data();
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px;">
+                <div><b>${u.name}</b><br><small>${u.role} | ${u.credits || 0} cr.</small></div>
+                <button onclick="openEditUser('${d.id}')" style="width:auto; padding:5px 12px; font-size:11px;">EDITAR</button>
+            </div>`;
+        });
+    };
+
+    window.adminFinances = async () => {
+        const area = document.getElementById('admin-render-area');
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-main" onclick="genPDF()" style="background:var(--gold); margin-bottom:15px;">DESCARGAR REPORTE PDF</button><div id="list-f"></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            document.getElementById('list-f').innerHTML += `<div style="font-size:12px; padding:10px; border-bottom:1px solid #eee;">
+                <b>${p.alumno}</b> - $${p.monto}<br><small>${p.concepto} | ${p.metodo}</small>
+            </div>`;
+        });
+    };
+
+    window.genPDF = async () => {
+        const { jsPDF } = window.jspdf; const pdf = new jsPDF();
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        let rows = []; snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString() || '', p.alumno, p.concepto, `$${p.monto}`, p.metodo]); });
+        pdf.text("Escarola Wellness - Reporte Financiero", 14, 15);
+        pdf.autoTable({ head: [['Fecha', 'Alumno', 'Concepto', 'Monto', 'Método']], body: rows, startY: 22 });
+        pdf.save("Finanzas_Escarola.pdf");
+    };
+
+    // --- CHAT ---
+    async function loadChatList() {
+        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando...";
         if(myData.role === 'alumno') {
             const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-            box.innerHTML = "<small>Contacta a un Maestro o Admin:</small>";
-            snap.forEach(d => box.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>${d.data().name}</b> (${d.data().role})</div>`);
+            container.innerHTML = "<small style='color:white;'>Inicia un chat con el equipo:</small>";
+            snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>${d.data().name}</b><br><small>${d.data().role}</small></div>`);
         } else {
-            onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastTime", "desc")), snap => {
-                box.innerHTML = "";
+            onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id), orderBy("lastT", "desc")), snap => {
+                container.innerHTML = "";
                 snap.forEach(d => {
                     const c = d.data(); const oName = c.names.find(n => n !== myData.name); const oId = c.participants.find(p => p !== myData.id);
-                    box.innerHTML += `<div class="card" onclick="openChat('${oId}','${oName}')"><b>${oName}</b><br><small>${c.lastMsg || 'Sin mensajes'}</small></div>`;
+                    container.innerHTML += `<div class="card" onclick="openChat('${oId}','${oName}')"><b>${oName}</b><br><small>${c.lastM || 'Mensaje nuevo...'}</small></div>`;
                 });
             });
         }
     }
 
     window.openChat = async (id, name) => {
-        activeChatId = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
-        document.getElementById('chat-active-name').innerText = name;
-        document.getElementById('chat-view-container').style.display = 'flex';
-        await setDoc(doc(db, "chats", activeChatId), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
-        if(chatSub) chatSub();
-        chatSub = onSnapshot(query(collection(db, "chats", activeChatId, "messages"), orderBy("time", "asc")), snap => {
-            const mBox = document.getElementById('chat-messages-box'); mBox.innerHTML = "";
-            snap.forEach(d => { const m = d.data(); mBox.innerHTML += `<div style="margin-bottom:10px; text-align:${m.senderId===myData.id?'right':'left'}"><span style="display:inline-block; padding:8px 12px; border-radius:15px; background:${m.senderId===myData.id?'var(--sage)':'#eee'}; color:${m.senderId===myData.id?'white':'black'}; font-size:13px;">${m.text}</span></div>`; });
-            mBox.scrollTop = mBox.scrollHeight;
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
+        document.getElementById('chat-header-name').innerText = name;
+        document.getElementById('chat-window').style.display = 'flex';
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
+        if(unsubChat) unsubChat();
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
+            const box = document.getElementById('chat-msgs'); box.innerHTML = "";
+            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:10px 15px; border-radius:18px; max-width:80%; font-size:14px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; });
+            box.scrollTop = box.scrollHeight;
         });
     };
 
-    window.actionSendMsg = async () => {
-        const inp = document.getElementById('chat-input-field'); if(!inp.value.trim()) return;
-        const msg = inp.value; inp.value = "";
-        await addDoc(collection(db, "chats", activeChatId, "messages"), { text: msg, senderId: myData.id, time: serverTimestamp() });
-        await updateDoc(doc(db, "chats", activeChatId), { lastMsg: msg, lastTime: serverTimestamp() });
+    window.sendMsg = async () => {
+        const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return;
+        const txt = inp.value; inp.value = "";
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: txt, uid: myData.id, time: serverTimestamp() });
+        await updateDoc(doc(db, "chats", activeChat), { lastM: txt, lastT: serverTimestamp() });
     };
 
-    // --- UTILS ---
-    window.openClaseModal = async (id = null) => {
-        editingClaseId = id;
+    // --- HELPERS ---
+    window.modalClase = async (id = null) => {
+        editClaseId = id;
         if(id) {
             const d = (await getDoc(doc(db, "clases", id))).data();
-            document.getElementById('f-cl-name').value = d.nombre;
-            document.getElementById('f-cl-price').value = d.price;
-            document.getElementById('f-cl-date').value = d.horario;
+            document.getElementById('f-cl-nom').value = d.nombre;
+            document.getElementById('f-cl-pre').value = d.price;
+            document.getElementById('f-cl-fec').value = d.horario;
             document.getElementById('f-cl-apo').checked = d.isAportacion;
-            document.getElementById('clase-modal-title').innerText = "Editar Clase";
+            document.getElementById('clase-title').innerText = "Editar Clase";
         } else {
-            document.getElementById('clase-modal-title').innerText = "Nueva Clase";
+            document.getElementById('clase-title').innerText = "Programar Clase";
             document.querySelectorAll('#modal-clase input').forEach(i => i.type === 'checkbox' ? i.checked = false : i.value = "");
         }
         openModal('modal-clase');
     };
 
-    window.openUserModal = async (id) => {
-        editingUserId = id;
+    window.openEditUser = async (id) => {
+        editUserId = id;
         const u = (await getDoc(doc(db, "users", id))).data();
-        document.getElementById('f-user-credits').value = u.credits || 0;
-        document.getElementById('f-user-role').value = u.role;
-        openModal('modal-user');
+        document.getElementById('ed-user-name').innerText = u.name;
+        document.getElementById('ed-user-cr').value = u.credits || 0;
+        document.getElementById('ed-user-role').value = u.role;
+        openModal('modal-user-edit');
     };
 
-    window.actionUpdateUser = async () => {
-        await updateDoc(doc(db, "users", editingUserId), { credits: Number(document.getElementById('f-user-credits').value), role: document.getElementById('f-user-role').value });
-        closeModal('modal-user'); uiLoadUsers(); showAlert("Usuario Actualizado");
+    window.updateUser = async () => {
+        await updateDoc(doc(db, "users", editUserId), { credits: Number(document.getElementById('ed-user-cr').value), role: document.getElementById('ed-user-role').value });
+        closeModal('modal-user-edit'); adminUsers(); showAlert("Perfil actualizado");
     };
 
-    window.actionSaveNews = async () => {
-        await addDoc(collection(db, "news"), { texto: document.getElementById('f-news-text').value, fecha: serverTimestamp() });
-        closeModal('modal-news'); document.getElementById('f-news-text').value = "";
+    window.saveNews = async () => {
+        await addDoc(collection(db, "news"), { texto: document.getElementById('f-news-txt').value, fecha: serverTimestamp() });
+        closeModal('modal-news'); document.getElementById('f-news-txt').value = "";
     };
 
-    window.actionSavePlan = async () => {
-        await addDoc(collection(db, "membresias"), { nombre: document.getElementById('f-pl-name').value, precio: Number(document.getElementById('f-pl-price').value), link: document.getElementById('f-pl-link').value });
+    window.savePlan = async () => {
+        await addDoc(collection(db, "membresias"), { nombre: document.getElementById('f-pl-nom').value, precio: Number(document.getElementById('f-pl-pre').value), link: document.getElementById('f-pl-link').value });
         closeModal('modal-plan');
     };
 
-    window.toggleAuthMode = () => {
-        isLoginMode = !isLoginMode;
-        document.getElementById('reg-name-field').style.display = isLoginMode ? 'none' : 'block';
-        document.getElementById('auth-submit-btn').innerText = isLoginMode ? 'Entrar' : 'Registrarme';
-        document.getElementById('auth-toggle-text').innerText = isLoginMode ? '¿No tienes cuenta? Regístrate' : 'Ya tengo cuenta, entrar';
+    window.toggleAuth = () => {
+        isLogin = !isLogin;
+        document.getElementById('reg-fields').classList.toggle('hidden', isLogin);
+        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'CREAR CUENTA';
     };
 
     window.handleAuth = async () => {
         const email = document.getElementById('auth-email').value;
         const pass = document.getElementById('auth-pass').value;
         try {
-            if(isLoginMode) await signInWithEmailAndPassword(auth, email, pass);
+            if(isLogin) await signInWithEmailAndPassword(auth, email, pass);
             else {
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
-                await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: email });
+                await setDoc(doc(db, "users", res.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email });
             }
-        } catch(e) { showAlert("Error: " + e.message); }
+        } catch(e) { showAlert("Error en acceso"); }
     };
 
     window.triggerSignOut = () => signOut(auth);
     window.openModal = id => document.getElementById(id).style.display = 'flex';
     window.closeModal = id => document.getElementById(id).style.display = 'none';
-    window.closeChat = () => { document.getElementById('chat-view-container').style.display = 'none'; if(chatSub) chatSub(); };
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
     window.showAlert = m => { const b = document.getElementById('alert-box'); b.innerText = m; b.style.top = "20px"; setTimeout(()=>b.style.top="-100px", 3000); };
 </script>
 </body>
