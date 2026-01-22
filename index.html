@@ -2,12 +2,15 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Escarola Wellness</title>
+    
+    <meta name="theme-color" content="#6b8e83">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-touch-fullscreen" content="yes">
     <link rel="apple-touch-icon" href="logo.png">
-    <link rel="icon" type="image/png" href="logo.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
@@ -18,23 +21,58 @@
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        body { margin: 0; font-family: 'Quicksand', sans-serif; background-color: var(--sage); color: var(--dark-sage); overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
-        #app { padding: 25px 20px 120px 20px; min-height: 100vh; box-sizing: border-box; }
+
+        /* Ajuste para que el color cubra toda la pantalla del móvil */
+        html, body { 
+            margin: 0; 
+            padding: 0;
+            background-color: var(--sage); /* Color base en toda la superficie */
+            height: 100%;
+            overflow-x: hidden;
+            font-family: 'Quicksand', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #app { 
+            /* safe-area-inset evita que el notch o la barra de abajo tapen texto */
+            padding: calc(env(safe-area-inset-top) + 20px) 20px calc(env(safe-area-inset-bottom) + 120px) 20px;
+            min-height: 100vh; 
+            box-sizing: border-box; 
+        }
+
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         .logo-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; background: white; }
+        
         .card { background: var(--white); border-radius: 30px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); width: 100%; box-sizing: border-box; position: relative; border: 1px solid rgba(0,0,0,0.03); }
-        .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); position: relative; }
+        .news-card { background: var(--dark-sage); color: white; border-radius: 25px; padding: 15px 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
+        
         input, select, textarea { width: 100%; padding: 12px 18px; margin: 8px 0; border-radius: 20px; border: 2px solid #f0f0f0; box-sizing: border-box; font-family: 'Quicksand'; font-weight: 600; outline: none; }
         button { width: 100%; padding: 14px; border-radius: 25px; border: none; font-weight: 700; cursor: pointer; transition: 0.3s; background: var(--dark-sage); color: white; font-family: 'Quicksand'; }
-        button:active { transform: scale(0.98); }
-        .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 70px; display: flex; justify-content: space-around; align-items: center; border-radius: 35px; z-index: 1000; }
+        button:active { transform: scale(0.96); }
+
+        /* Barra de navegación ajustada a zona segura de iPhone */
+        .nav-bar { 
+            position: fixed; 
+            bottom: calc(env(safe-area-inset-bottom) + 20px); 
+            left: 20px; 
+            right: 20px; 
+            background: var(--dark-sage); 
+            height: 70px; 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            border-radius: 35px; 
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: white; }
         .nav-item span { font-size: 20px; display: block; }
 
-        /* MODALES Y ALERTAS */
+        /* Estilo para los avisos nativos */
         #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 300px; background: var(--white); padding: 15px; border-radius: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); z-index: 6000; transition: 0.6s; text-align: center; font-weight: 700; border: 2px solid var(--sage); }
-        #custom-alert.show { top: 30px; }
+        #custom-alert.show { top: calc(env(safe-area-inset-top) + 20px); }
+        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 3000; }
         .modal-card { background: var(--white); width: 85%; max-width: 400px; border-radius: 35px; padding: 25px; box-sizing: border-box; text-align: center; }
 
@@ -42,6 +80,7 @@
         .delete-btn { background: var(--red); color: white; width: 24px; height: 24px; border-radius: 50%; border:none; position: absolute; top: 10px; right: 10px; font-size: 10px; display: flex; align-items: center; justify-content: center; z-index: 10; cursor: pointer; }
         .btn-mp { background: var(--mp-blue) !important; margin-bottom: 5px; }
         .btn-cash { background: var(--cash-green) !important; }
+        
         .filter-btn-group { display: flex; gap: 5px; margin-bottom: 15px; }
         .filter-btn { flex: 1; padding: 10px; font-size: 11px; border-radius: 15px; border: none; background: #eee; color: #666; font-weight: 700; }
         .filter-btn.active { background: var(--gold); color: white; }
@@ -64,8 +103,8 @@
 
 <div id="modal-list" class="modal-overlay">
     <div class="modal-card">
-        <h3>Lista de Clase</h3>
-        <div id="list-content" style="text-align:left; margin:15px 0; max-height: 200px; overflow-y: auto;"></div>
+        <h3>Inscritos</h3>
+        <div id="list-content" style="text-align:left; margin:15px 0; max-height: 250px; overflow-y: auto;"></div>
         <button onclick="document.getElementById('modal-list').style.display='none'">Cerrar</button>
     </div>
 </div>
@@ -98,14 +137,14 @@
         <div id="section-news"></div>
         <div id="list-membresias" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:10px;"></div>
         <div style="display:flex; justify-content:space-between; align-items:center; color:white; margin:20px 10px 10px 10px;">
-            <h4 style="margin:0;">Horarios</h4>
-            <button id="btn-crear-clase-trigger" class="hidden" onclick="openCreateClass()" style="width:auto; padding:6px 12px; background:white; color:var(--dark-sage); font-size:10px;">+ Clase</button>
+            <h4 style="margin:0;">Próximas Clases</h4>
+            <button id="btn-crear-clase-trigger" class="hidden" onclick="openCreateClass()" style="width:auto; padding:6px 12px; background:white; color:var(--dark-sage); font-size:10px;">+ Crear</button>
         </div>
         <div id="list-clases"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-left:10px;">Administración</h3>
+        <h3 style="color:white; margin-left:10px;">Panel Admin</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:20px;">
                 <button onclick="loadUsersAdmin()">👥 Alumnos</button>
@@ -127,31 +166,30 @@
     <h3 id="modal-clase-title">Clase</h3>
     <input type="hidden" id="c-id"><input type="text" id="c-name" placeholder="Actividad">
     <input type="number" id="c-price" placeholder="Precio $"><input type="datetime-local" id="c-time">
-    <label style="font-size:12px;"><input type="checkbox" id="c-apo"> Aportación</label>
+    <label style="font-size:12px;"><input type="checkbox" id="c-apo"> Es clase de Aportación</label>
     <button onclick="saveClass()" id="btn-save-class" style="margin-top:10px;">Guardar</button>
-    <button id="btn-delete-class" onclick="promptDeleteClass()" style="background:var(--red); margin-top:10px;" class="hidden">Eliminar</button>
-    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
+    <button id="btn-delete-class" onclick="promptDeleteClass()" style="background:var(--red); margin-top:10px;" class="hidden">ELIMINAR</button>
+    <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cancelar</button>
 </div></div>
 
 <div id="modal-edit-user" class="modal-overlay"><div class="modal-card">
-    <h3>Perfil Alumno</h3>
-    <input type="hidden" id="eu-id"><input type="text" id="eu-name" placeholder="Nombre">
-    <input type="number" id="eu-credits" placeholder="Créditos"><select id="eu-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
+    <h3>Gestionar Alumno</h3>
+    <input type="hidden" id="eu-id"><input type="text" id="eu-name"><input type="number" id="eu-credits" placeholder="Créditos">
+    <select id="eu-role"><option value="alumno">Alumno</option><option value="maestro">Maestro</option><option value="admin">Admin</option></select>
     <div style="background:var(--cream); padding:15px; border-radius:20px; margin:10px 0;">
-        <p style="font-size:10px; margin:0 0 10px 0;">NUEVO COBRO</p>
-        <input type="number" id="pay-amt" placeholder="Monto $"><input type="number" id="pay-creds" placeholder="Créditos +">
-        <button onclick="registerSale()" style="background:var(--sage); padding:8px;">Registrar</button>
+        <input type="number" id="pay-amt" placeholder="Monto $"><input type="number" id="pay-creds" placeholder="Créditos a sumar">
+        <button onclick="registerSale()" style="background:var(--sage); padding:8px;">Registrar Venta</button>
     </div>
-    <button onclick="saveUser()">Actualizar</button>
+    <button onclick="saveUser()">Guardar Cambios</button>
     <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
 </div></div>
 
 <div id="modal-edit-payment" class="modal-overlay"><div class="modal-card">
-    <h3>Editar Transacción</h3>
-    <input type="hidden" id="ep-id"><input type="text" id="ep-alumno" placeholder="Alumno"><input type="number" id="ep-monto" placeholder="Monto">
+    <h3>Editar Pago</h3>
+    <input type="hidden" id="ep-id"><input type="text" id="ep-alumno"><input type="number" id="ep-monto">
     <select id="ep-metodo"><option value="Efectivo">Efectivo</option><option value="Mercado Pago">Mercado Pago</option><option value="Crédito">Crédito</option></select>
-    <button onclick="updatePayment()">Guardar</button>
-    <button onclick="promptDeletePayment()" style="background:var(--red); margin-top:10px;">Borrar Registro</button>
+    <button onclick="updatePayment()">Actualizar</button>
+    <button onclick="promptDeletePayment()" style="background:var(--red); margin-top:10px;">Eliminar</button>
     <button onclick="this.parentElement.parentElement.style.display='none'" style="background:none; color:gray;">Cerrar</button>
 </div></div>
 
@@ -175,7 +213,7 @@
     let myData = null;
     let isLogin = true;
 
-    // --- UTILS ---
+    // --- LOGICA GENERAL ---
     window.showAlert = (msg) => { const el = document.getElementById('custom-alert'); el.innerText = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); };
     window.showConfirm = (title, msg, onConfirm) => {
         document.getElementById('confirm-title').innerText = title;
@@ -223,24 +261,23 @@
         }
     };
 
-    // --- FINANZAS (ORDENADO) ---
+    // --- FINANZAS ---
     window.loadPaymentsAdmin = async (filter = 'month') => {
         const content = document.getElementById('admin-content');
         content.innerHTML = `
-            <h4>Gestión de Finanzas</h4>
+            <h4>Finanzas Escarola</h4>
             <div class="filter-btn-group">
                 <button class="filter-btn ${filter==='week'?'active':''}" onclick="loadPaymentsAdmin('week')">Semana</button>
-                <button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Este Mes</button>
+                <button class="filter-btn ${filter==='month'?'active':''}" onclick="loadPaymentsAdmin('month')">Mes</button>
                 <button class="filter-btn ${filter==='all'?'active':''}" onclick="loadPaymentsAdmin('all')">Todo</button>
             </div>
             <div style="background:var(--dark-sage); color:white; padding:20px; border-radius:25px; text-align:center; margin-bottom:15px;">
-                <small style="opacity:0.8;">TOTAL RECAUDADO</small>
+                <small style="opacity:0.8;">RECAUDACIÓN TOTAL</small>
                 <h1 id="total-amt" style="margin:5px 0;">$0</h1>
-                <button onclick="downloadPDFReport()" style="background:var(--gold); color:white; padding:8px 15px; font-size:10px; margin-top:10px; width:auto;">📄 DESCARGAR REPORTE PDF</button>
+                <button onclick="downloadPDFReport()" style="background:var(--gold); color:white; padding:8px 15px; font-size:10px; margin-top:10px; width:auto;">DESCARGAR PDF</button>
             </div>
             <div id="p-list"></div>
         `;
-        
         let start = new Date();
         if(filter === 'week') start.setDate(start.getDate() - 7);
         else if(filter === 'month') start = new Date(start.getFullYear(), start.getMonth(), 1);
@@ -251,20 +288,14 @@
         let total = 0;
         const list = document.getElementById('p-list');
         list.innerHTML = "";
-
         snap.forEach(d => {
             const p = d.data();
             total += Number(p.monto || 0);
-            list.innerHTML += `
-                <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <b style="font-size:13px;">${p.alumno}</b><br>
-                        <small style="color:gray;">${p.fecha?.toDate().toLocaleDateString()} - ${p.metodo}</small><br>
-                        <button onclick="openEditPayment('${d.id}')" style="width:auto; padding:2px 8px; font-size:9px; background:#f0f0f0; color:#666; margin-top:5px;">Editar</button>
-                    </div>
-                    <div style="font-weight:700; color:var(--dark-sage);">$${p.monto}</div>
-                </div>
-            `;
+            list.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.alumno}</b><br><small>${p.fecha?.toDate().toLocaleDateString()} - ${p.metodo}</small><br>
+                <button onclick="openEditPayment('${d.id}')" style="width:auto; padding:2px 8px; font-size:9px; background:#f0f0f0; color:#666; margin-top:5px;">Editar</button></div>
+                <div style="font-weight:700;">$${p.monto}</div>
+            </div>`;
         });
         document.getElementById('total-amt').innerText = `$${total}`;
     };
@@ -273,15 +304,15 @@
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         let rows = []; snap.forEach(d => { const p = d.data(); rows.push([p.fecha?.toDate().toLocaleDateString(), p.alumno, `$${p.monto}`, p.metodo]); });
         const { jsPDF } = window.jspdf; const docPDF = new jsPDF();
-        docPDF.text("Reporte de Finanzas - Escarola Wellness", 14, 15);
-        docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20, theme: 'striped' });
-        docPDF.save("Finanzas_Escarola.pdf");
+        docPDF.text("Reporte Finanzas Escarola", 14, 15);
+        docPDF.autoTable({ head: [['Fecha', 'Alumno', 'Monto', 'Metodo']], body: rows, startY: 20 });
+        docPDF.save("Escarola_Wellness_Finanzas.pdf");
     };
 
-    // --- CLASES Y PAGOS ---
+    // --- CLASES Y ALUMNOS ---
     window.pagarEfectivoMembresia = (nombre, precio) => {
-        showConfirm("Pago en Efectivo", `¿Confirmas que pagarás $${precio} por "${nombre}" directamente en el estudio?`, () => {
-            showAlert("¡Avisado! El administrador validará tu pago.");
+        showConfirm("Pago en Efectivo", `¿Avisarás que pagarás $${precio} por "${nombre}" al llegar al estudio?`, () => {
+            showAlert("¡Aviso enviado!");
         });
     };
 
@@ -289,15 +320,15 @@
         const snap = await getDoc(doc(db, "clases", id)); const c = snap.data();
         if(c.isAportacion) {
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
-            return showAlert("Inscrito en clase de aportación");
+            return showAlert("Inscrito correctamente");
         }
         if(myData.credits > 0) {
             await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
             await updateDoc(doc(db, "users", auth.currentUser.uid), { credits: increment(-1) });
             await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Crédito', fecha: serverTimestamp() });
-            showAlert("Clase reservada con crédito");
+            showAlert("Reservado con tu crédito");
         } else {
-            showConfirm("Sin créditos", `No tienes clases. ¿Deseas reservar y pagar $${c.price} en efectivo al llegar?`, async () => {
+            showConfirm("Sin créditos", `¿Deseas reservar y pagar $${c.price} en efectivo al llegar?`, async () => {
                 await updateDoc(doc(db, "clases", id), { inscritos: arrayUnion(auth.currentUser.uid) });
                 await addDoc(collection(db, "pagos"), { alumno: myData.name, monto: c.price, metodo: 'Efectivo (Pendiente)', fecha: serverTimestamp() });
                 showAlert("Inscrito. Paga en recepción.");
@@ -311,13 +342,13 @@
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(auth.currentUser?.uid);
                 div.innerHTML += `<div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                    <div style="display:flex; justify-content:space-between;">
                         <div><b>${c.nombre}</b><br><small style="color:gray;">📅 ${new Date(c.horario).toLocaleString()}</small></div>
-                        <div style="text-align:right;"><span style="background:var(--cream); padding:4px 8px; border-radius:10px; font-size:10px; font-weight:700;">${c.isAportacion?'Aportación':'$'+c.price}</span></div>
+                        <div><span style="background:var(--cream); padding:5px 10px; border-radius:12px; font-size:11px; font-weight:700;">${c.isAportacion?'Aportación':'$'+c.price}</span></div>
                     </div>
                     <div style="margin-top:15px; display:flex; gap:8px;">
-                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" ${ya?'disabled':''} style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR / PAGAR'}</button>`:''}
-                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="font-size:10px; width:auto;">LISTA</button><button onclick="openEditClass('${d.id}')" style="font-size:10px; width:auto; background:var(--sage);">GESTIONAR</button>`:''}
+                        ${myData.role==='alumno'?`<button onclick="reservar('${d.id}')" ${ya?'disabled':''} style="background:${ya?'#ccc':'var(--gold)'}; font-size:11px;">${ya?'INSCRITO':'RESERVAR'}</button>`:''}
+                        ${myData.role!=='alumno'?`<button onclick="verLista('${d.id}')" style="width:auto; font-size:10px;">LISTA</button><button onclick="openEditClass('${d.id}')" style="width:auto; background:var(--sage); font-size:10px;">EDITAR</button>`:''}
                     </div>
                 </div>`;
             });
@@ -331,42 +362,39 @@
                 const m = d.data();
                 list.innerHTML += `<div class="card" style="min-width:180px; text-align:center; padding:15px;">
                     <b>${m.nombre}</b><h3 style="margin:10px 0;">$${m.precio}</h3>
-                    <button onclick="window.open('${m.link}')" class="btn-mp" style="font-size:10px; padding:8px;">MERCADO PAGO</button>
-                    <button onclick="pagarEfectivoMembresia('${m.nombre}', '${m.precio}')" class="btn-cash" style="font-size:10px; padding:8px;">PAGAR EFECTIVO</button>
+                    <button onclick="window.open('${m.link}')" class="btn-mp" style="font-size:10px;">MERCADO PAGO</button>
+                    <button onclick="pagarEfectivoMembresia('${m.nombre}', '${m.precio}')" class="btn-cash" style="font-size:10px;">EN EFECTIVO</button>
                 </div>`;
             });
         });
     }
 
-    // --- ADMIN PERFILES ---
     window.loadUsersAdmin = async () => {
         const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Alumnos</h4><div id="u-list"></div>`;
         const snap = await getDocs(collection(db, "users"));
-        snap.forEach(d => { const u = d.data(); document.getElementById('u-list').innerHTML += `<div style="padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${u.name}</b><br><small>${u.credits} creds</small></div><button onclick="openEditUser('${d.id}')" style="width:auto; padding:6px 15px; font-size:10px;">GESTIONAR</button></div>`; });
+        snap.forEach(d => { const u = d.data(); document.getElementById('u-list').innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;"><div><b>${u.name}</b><br><small>${u.credits} creds</small></div><button onclick="openEditUser('${d.id}')" style="width:auto; padding:6px 15px; font-size:10px;">GESTOR</button></div>`; });
     };
 
     window.openEditUser = async (id) => { const u = (await getDoc(doc(db,"users",id))).data(); document.getElementById('eu-id').value=id; document.getElementById('eu-name').value=u.name; document.getElementById('eu-credits').value=u.credits; document.getElementById('eu-role').value=u.role; document.getElementById('modal-edit-user').style.display='flex'; };
-    window.registerSale = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { credits: increment(Number(document.getElementById('pay-creds').value)) }); await addDoc(collection(db,"pagos"), { alumno: document.getElementById('eu-name').value, monto: Number(document.getElementById('pay-amt').value), metodo: "Efectivo", fecha: serverTimestamp() }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Venta registrada"); };
+    window.registerSale = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { credits: increment(Number(document.getElementById('pay-creds').value)) }); await addDoc(collection(db,"pagos"), { alumno: document.getElementById('eu-name').value, monto: Number(document.getElementById('pay-amt').value), metodo: "Efectivo", fecha: serverTimestamp() }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Registrado"); };
     window.saveUser = async () => { await updateDoc(doc(db,"users",document.getElementById('eu-id').value), { name: document.getElementById('eu-name').value, credits: Number(document.getElementById('eu-credits').value), role: document.getElementById('eu-role').value }); document.getElementById('modal-edit-user').style.display='none'; showAlert("Guardado"); };
-
-    // --- ADMIN OTROS ---
     window.showNewsManager = () => { const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Avisos</h4><textarea id="n-txt"></textarea><button onclick="postNews()">Publicar</button><hr><div id="adm-news-list"></div>`; onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => { const list = document.getElementById('adm-news-list'); list.innerHTML = ""; snap.forEach(d => { list.innerHTML += `<div class="card" style="padding:15px;">${d.data().texto}<button class="delete-btn" onclick="promptDeleteDoc('news','${d.id}')">✕</button></div>`; }); }); };
     window.postNews = async () => { const t = document.getElementById('n-txt').value; if(!t) return; await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); document.getElementById('n-txt').value = ""; showAlert("Publicado"); };
-    window.showMembresiaManager = () => { const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom" placeholder="Nombre"><input type="number" id="m-pre" placeholder="Precio"><input type="text" id="m-link" placeholder="Link"><button onclick="saveMem()">Añadir</button><hr><div id="adm-m-list"></div>`; onSnapshot(collection(db, "membresias"), snap => { const list = document.getElementById('adm-m-list'); list.innerHTML = ""; snap.forEach(d => { list.innerHTML += `<div class="card" style="padding:15px;">${d.data().nombre}<button class="delete-btn" onclick="promptDeleteDoc('membresias','${d.id}')">✕</button></div>`; }); }); };
-    window.saveMem = async () => { const n = document.getElementById('m-nom').value; const p = document.getElementById('m-pre').value; const l = document.getElementById('m-link').value; await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l }); showAlert("Plan añadido"); };
-    window.promptDeleteDoc = (col, id) => showConfirm("Eliminar", "¿Borrar este elemento?", () => deleteDoc(doc(db, col, id)));
+    window.showMembresiaManager = () => { const content = document.getElementById('admin-content'); content.innerHTML = `<h4>Planes</h4><input type="text" id="m-nom" placeholder="Plan"><input type="number" id="m-pre" placeholder="Precio"><input type="text" id="m-link" placeholder="Link MP"><button onclick="saveMem()">Añadir</button><hr><div id="adm-m-list"></div>`; onSnapshot(collection(db, "membresias"), snap => { const list = document.getElementById('adm-m-list'); list.innerHTML = ""; snap.forEach(d => { list.innerHTML += `<div class="card" style="padding:15px;">${d.data().nombre}<button class="delete-btn" onclick="promptDeleteDoc('membresias','${d.id}')">✕</button></div>`; }); }); };
+    window.saveMem = async () => { const n = document.getElementById('m-nom').value; const p = document.getElementById('m-pre').value; const l = document.getElementById('m-link').value; await addDoc(collection(db, "membresias"), { nombre: n, precio: p, link: l }); showAlert("Añadido"); };
+    window.promptDeleteDoc = (col, id) => showConfirm("Eliminar", "¿Estás seguro?", () => deleteDoc(doc(db, col, id)));
     window.openCreateClass = () => { document.getElementById('modal-clase-title').innerText = "Nueva Clase"; document.getElementById('c-id').value = ""; document.getElementById('modal-clase').style.display = 'flex'; };
     window.openEditClass = async (id) => { const snap = await getDoc(doc(db, "clases", id)); const c = snap.data(); document.getElementById('c-id').value = id; document.getElementById('c-name').value = c.nombre; document.getElementById('c-price').value = c.price; document.getElementById('c-time').value = c.horario; document.getElementById('c-apo').checked = c.isAportacion; document.getElementById('btn-delete-class').classList.remove('hidden'); document.getElementById('modal-clase').style.display = 'flex'; };
     window.saveClass = async () => { const id = document.getElementById('c-id').value; const data = { nombre: document.getElementById('c-name').value, price: Number(document.getElementById('c-price').value), horario: document.getElementById('c-time').value, isAportacion: document.getElementById('c-apo').checked }; if(!id) { data.inscritos = []; await addDoc(collection(db, "clases"), data); } else { await updateDoc(doc(db, "clases", id), data); } document.getElementById('modal-clase').style.display = 'none'; showAlert("Guardado"); };
-    window.promptDeleteClass = () => showConfirm("¿Borrar Clase?", "Se devolverán créditos.", async () => { const id = document.getElementById('c-id').value; await deleteDoc(doc(db, "clases", id)); document.getElementById('modal-clase').style.display = 'none'; showAlert("Borrada"); });
-    window.verLista = async (id) => { const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || []; let h = ""; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); h += `• ${u.data().name}<br>`; } document.getElementById('list-content').innerHTML = h || "Nadie inscrito aún"; document.getElementById('modal-list').style.display = 'flex'; };
+    window.promptDeleteClass = () => showConfirm("¿Borrar Clase?", "Se perderán los datos de asistencia.", async () => { const id = document.getElementById('c-id').value; await deleteDoc(doc(db, "clases", id)); document.getElementById('modal-clase').style.display = 'none'; showAlert("Borrada"); });
+    window.verLista = async (id) => { const s = await getDoc(doc(db, "clases", id)); const ids = s.data().inscritos || []; let h = ""; for(let uid of ids) { const u = await getDoc(doc(db, "users", uid)); h += `• ${u.data().name}<br>`; } document.getElementById('list-content').innerHTML = h || "Sin inscritos"; document.getElementById('modal-list').style.display = 'flex'; };
     window.openEditPayment = async (id) => { const p = (await getDoc(doc(db,"pagos",id))).data(); document.getElementById('ep-id').value=id; document.getElementById('ep-alumno').value=p.alumno; document.getElementById('ep-monto').value=p.monto; document.getElementById('ep-metodo').value=p.metodo; document.getElementById('modal-edit-payment').style.display='flex'; };
     window.updatePayment = async () => { await updateDoc(doc(db,"pagos",document.getElementById('ep-id').value), { alumno: document.getElementById('ep-alumno').value, monto: Number(document.getElementById('ep-monto').value), metodo: document.getElementById('ep-metodo').value }); document.getElementById('modal-edit-payment').style.display='none'; loadPaymentsAdmin('month'); };
     window.promptDeletePayment = () => showConfirm("Borrar Registro", "¿Seguro?", async () => { await deleteDoc(doc(db,"pagos",document.getElementById('ep-id').value)); document.getElementById('modal-edit-payment').style.display='none'; loadPaymentsAdmin('month'); });
 
     function loadNews() { onSnapshot(query(collection(db,"news"), orderBy("fecha","desc")), snap => { document.getElementById('section-news').innerHTML = ""; snap.forEach(d => { document.getElementById('section-news').innerHTML += `<div class="news-card"><p style="margin:0;">${d.data().texto}</p></div>`; }); }); }
-    document.getElementById('auth-toggle').onclick = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin ? 'Bienvenida/o' : 'Crea tu cuenta'; document.getElementById('btn-auth-main').innerText = isLogin ? 'Entrar' : 'Registrarme'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); document.getElementById('role-select').classList.toggle('hidden', isLogin); };
-    document.getElementById('btn-auth-main').onclick = async () => { const email = document.getElementById('auth-email').value; const pass = document.getElementById('auth-password').value; if(isLogin) { signInWithEmailAndPassword(auth, email, pass).catch(() => showAlert("Error")); } else { const res = await createUserWithEmailAndPassword(auth, email, pass); await setDoc(doc(db,"users",res.user.uid), { name: document.getElementById('reg-name').value, email, role: document.getElementById('role-select').value, credits: 0 }); } };
+    document.getElementById('auth-toggle').onclick = () => { isLogin = !isLogin; document.getElementById('auth-title').innerText = isLogin ? 'Bienvenida/o' : 'Registro'; document.getElementById('btn-auth-main').innerText = isLogin ? 'Entrar' : 'Crear Cuenta'; document.getElementById('reg-name').classList.toggle('hidden', isLogin); document.getElementById('role-select').classList.toggle('hidden', isLogin); };
+    document.getElementById('btn-auth-main').onclick = async () => { const email = document.getElementById('auth-email').value; const pass = document.getElementById('auth-password').value; if(isLogin) { signInWithEmailAndPassword(auth, email, pass).catch(() => showAlert("Error de acceso")); } else { const res = await createUserWithEmailAndPassword(auth, email, pass); await setDoc(doc(db,"users",res.user.uid), { name: document.getElementById('reg-name').value, email, role: document.getElementById('role-select').value, credits: 0 }); } };
 </script>
 </body>
 </html>
