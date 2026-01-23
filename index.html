@@ -294,6 +294,53 @@
         });
     }
 
+    window.loadChatList = async () => { 
+        const container = document.getElementById('container-chat-list'); 
+        container.innerHTML = "Cargando contactos..."; 
+        try {
+            const snap = await getDocs(collection(db, "users")); 
+            container.innerHTML = ""; 
+            snap.forEach(d => {
+                const u = d.data();
+                if(d.id !== myData.id) {
+                    const isStaff = (u.role === 'maestro' || u.role === 'admin');
+                    const canSee = (myData.role !== 'alumno') || isStaff;
+                    if(canSee) {
+                        container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
+                            <b>${u.name}</b><small style="color:var(--sage); font-weight:700;">${u.role.toUpperCase()}</small>
+                        </div>`;
+                    }
+                }
+            });
+            if(container.innerHTML === "") container.innerHTML = "<p style='text-align:center; color:white;'>No hay contactos disponibles.</p>";
+        } catch (err) { container.innerHTML = "Error al cargar contactos."; }
+    };
+
+    window.openChat = async (id, name) => { 
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
+        document.getElementById('chat-header-name').innerText = name; 
+        document.getElementById('chat-window').style.display = 'flex'; 
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        if(unsubChat) unsubChat(); 
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
+            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
+            snap.forEach(d => { 
+                const m = d.data(); 
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; 
+            }); 
+            box.scrollTop = box.scrollHeight; 
+        }); 
+    };
+
+    window.sendMsg = async () => { 
+        const inp = document.getElementById('chat-in'); 
+        if(!inp.value.trim()) return; 
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        inp.value = ""; 
+    };
+
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
+
     window.inscribirClase = async (id) => {
         const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
@@ -367,50 +414,6 @@
         }
     };
 
-    window.loadChatList = async () => { 
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando contactos..."; 
-        const snap = await getDocs(collection(db, "users")); 
-        container.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            if(d.id !== myData.id) {
-                const canSee = (myData.role !== 'alumno') || (u.role === 'maestro' || u.role === 'admin');
-                if(canSee) {
-                    container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
-                        <div><b>${u.name}</b><br><small style="color:var(--sage); font-weight:700;">${u.role.toUpperCase()}</small></div>
-                        <span>💬</span>
-                    </div>`;
-                }
-            }
-        }); 
-        if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
-    };
-
-    window.openChat = async (id, name) => { 
-        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
-        document.getElementById('chat-header-name').innerText = name; 
-        document.getElementById('chat-window').style.display = 'flex'; 
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
-        if(unsubChat) unsubChat(); 
-        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
-            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
-            snap.forEach(d => { 
-                const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
-            }); 
-            box.scrollTop = box.scrollHeight; 
-        }); 
-    };
-
-    window.sendMsg = async () => { 
-        const inp = document.getElementById('chat-in'); 
-        if(!inp.value.trim() || !activeChat) return; 
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
-        inp.value = ""; 
-    };
-
-    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
-
     window.uiCrearClase = async () => {
         const nom = await popup.show("Nueva Clase", "Nombre:", true); if(!nom) return;
         const pre = await popup.show("Costo", "Precio $:", true, "0");
@@ -419,6 +422,7 @@
         const apo = await popup.show("Especial", "¿Es por aportación?", false);
         await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, limit: Number(lim), isAportacion: !!apo, inscritos: [] });
     };
+
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id));
         const ins = s.data().inscritos || [];
@@ -426,6 +430,7 @@
         for(let uid of ins) { const u = await getDoc(doc(db, "users", uid)); lista += `• ${u.data()?.name || 'Usuario'}\n`; }
         popup.alert("Lista de Asistencia", lista);
     };
+
     window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
     window.uiCrearPlan = async () => { 
         const nom = await popup.show("Plan", "Nombre:", true); if(!nom) return;
@@ -433,6 +438,7 @@
         const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
         await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
     };
+
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try { 
@@ -444,10 +450,12 @@
             } 
         } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
+
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Plan: ${n}`, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
+    
     window.descargarReporte = async (esSemanal = false) => {
         let q; const hoy = new Date();
         if(esSemanal) {
