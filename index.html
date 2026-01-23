@@ -198,15 +198,10 @@
             document.getElementById('view-auth').classList.add('hidden');
             document.getElementById('navbar').classList.remove('hidden');
             document.getElementById('logout-btn').classList.remove('hidden');
-            
-            // ADMIN NAV PROTECTED
             if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
             else document.getElementById('nav-admin').classList.add('hidden');
-            
-            // MAESTROS Y ADMIN PUEDEN CREAR CLASES
             if(myData.role !== 'alumno') document.getElementById('btn-new-clase').classList.remove('hidden');
             else document.getElementById('btn-new-clase').classList.add('hidden');
-
             updateStats(); switchTab('main');
         } else {
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -299,10 +294,41 @@
         });
     }
 
+    window.descargarReporte = async (esSemanal = false) => {
+        let q; const hoy = new Date();
+        if(esSemanal) {
+            const haceUnaSemana = new Date(hoy.getTime() - (7 * 24 * 60 * 60 * 1000));
+            q = query(collection(db, "pagos"), where("fecha", ">=", haceUnaSemana), orderBy("fecha", "desc"));
+        } else { q = query(collection(db, "pagos"), orderBy("fecha", "desc")); }
+        const snap = await getDocs(q);
+        if(snap.empty) return popup.alert("Aviso", "No hay datos.");
+        let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
+        snap.forEach(d => { const p = d.data(); csv += `"${p.fecha?.toDate().toLocaleDateString() || '---'}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`; });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = `Reporte_${esSemanal?'Semanal':'Total'}.csv`; link.click();
+    };
+
+    window.uiAdminFinanzas = async () => {
+        const area = document.getElementById('admin-render-area');
+        area.innerHTML = `<h4>Finanzas</h4><div style="display:flex; gap:10px; margin-bottom:20px;"><button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">REPORTE SEMANAL</button><button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">TODO</button></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}</div>
+                <div style="display:flex; gap:5px;">
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
+                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
+                </div>
+            </div>`;
+        });
+    };
+
     window.uiAdminUsers = async () => {
         if(myData.role !== 'admin') return;
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
-        area.innerHTML = "<h4>Gestión de Alumnos y Roles</h4>";
+        area.innerHTML = "<h4>Gestión de Usuarios</h4>";
         snap.forEach(d => { 
             const u = d.data(); 
             area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;">
@@ -321,6 +347,10 @@
                 uiAdminUsers();
             }
         }
+    };
+
+    window.confirmarPago = async (pid, uid, cr) => {
+        if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); uiAdminFinanzas(); }
     };
 
     window.inscribirClase = async (id) => {
@@ -353,6 +383,15 @@
         popup.alert("Lista de Asistencia", lista);
     };
 
+    window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
+    
+    window.uiCrearPlan = async () => { 
+        const nom = await popup.show("Plan", "Nombre:", true); if(!nom) return;
+        const pre = await popup.show("Precio", "$:", true); 
+        const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
+        await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+    };
+
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try { 
@@ -367,12 +406,11 @@
 
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
-    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); loadHome(); } };
-    window.uiAdminFinanzas = async () => { /* Mismo código previo para reportes y confirmación de pagos */ };
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
     
     window.loadChatList = async () => { 
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "<p style='color:white; font-size:12px; opacity:0.7; margin-bottom:15px;'>Selecciona a cualquier usuario para chatear:</p>"; 
+        const container = document.getElementById('container-chat-list'); container.innerHTML = ""; 
         const snap = await getDocs(collection(db, "users")); 
         snap.forEach(d => {
             if(d.id !== myData.id) { 
