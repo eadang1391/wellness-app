@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Control de Aforo</title>
+    <title>Escarola Wellness | Gestión Directa</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -12,28 +12,30 @@
             --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; }
+        html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; overflow-x: hidden; }
         
         #app { padding: calc(env(safe-area-inset-top) + 15px) 15px calc(env(safe-area-inset-bottom) + 100px) 15px; max-width: 500px; margin: 0 auto; }
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         .logo-img { width: 48px; height: 48px; border-radius: 14px; background: white; object-fit: cover; }
         
-        .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; }
+        .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
         .news-card { background: var(--dark-sage); color: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
+        
         button { width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.2s; }
-        button:active { transform: scale(0.97); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
+        button:active:not(:disabled) { transform: scale(0.97); }
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-gold { background: var(--gold); color: white; }
         .btn-outline { background: transparent; border: 2px solid #eee; color: #888; }
         .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; }
 
-        /* Custom Popups System */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        /* Custom Popups Estéticos */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .popup-card h3 { margin: 0 0 10px 0; color: var(--dark-sage); }
-        .popup-card p { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .popup-card input { width: 100%; padding: 12px; border-radius: 14px; border: 2px solid #eee; margin-bottom: 15px; text-align: center; font-family: 'Quicksand'; font-size: 16px; }
+        .popup-card p { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.4; }
+        .popup-card input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 15px; text-align: center; font-family: 'Quicksand'; font-size: 16px; background: #f9f9f9; }
         .popup-btns { display: flex; gap: 10px; }
 
         input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 12px; font-family: 'Quicksand'; }
@@ -41,13 +43,13 @@
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { display: block; font-size: 24px; }
+        .nav-item span { display: block; font-size: 24px; margin-bottom: 2px; }
         
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
 
-        /* Badge de cupos */
-        .quota-badge { position: absolute; bottom: 20px; right: 20px; font-size: 11px; font-weight: 700; color: var(--sage); background: var(--cream); padding: 4px 10px; border-radius: 10px; }
+        .quota-info { position: absolute; bottom: 20px; right: 20px; font-size: 11px; font-weight: 700; color: var(--dark-sage); background: #f0f4f3; padding: 5px 12px; border-radius: 12px; }
+        .full-label { color: var(--red); background: #ffeef2; }
     </style>
 </head>
 <body>
@@ -55,7 +57,7 @@
 <div id="popup-engine" class="popup-overlay">
     <div class="popup-card">
         <h3 id="pop-title">Título</h3>
-        <p id="pop-text">Mensaje de descripción.</p>
+        <p id="pop-text">Mensaje.</p>
         <div id="pop-input-area"></div>
         <div class="popup-btns" id="pop-btns"></div>
     </div>
@@ -67,7 +69,7 @@
             <img src="logo.png" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3048/3048398.png'">
             <div>
                 <h4 style="margin:0; font-size:16px;">Escarola Wellness</h4>
-                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;">CONECTANDO...</div>
+                <div id="status-display" style="font-size:10px; color:var(--gold); font-weight:700;">CONECTADO</div>
             </div>
         </div>
         <button onclick="triggerSignOut()" id="logout-btn" class="hidden" style="width:auto; padding:6px 12px; font-size:10px; background:rgba(255,255,255,0.2); color:white;">SALIR</button>
@@ -75,33 +77,34 @@
 
     <div id="view-auth" class="view">
         <div class="card">
-            <h3 style="text-align:center; margin-top:0;">Acceso</h3>
+            <h3 style="text-align:center; margin-top:0;">Bienvenido</h3>
             <input type="text" id="auth-name" placeholder="Nombre completo" class="reg-only hidden">
-            <input type="email" id="auth-email" placeholder="Correo electrónico">
+            <input type="email" id="auth-email" placeholder="Correo">
             <input type="password" id="auth-pass" placeholder="Contraseña">
             <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
-            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">¿Eres nuevo? Regístrate</p>
+            <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">Registrarse</p>
         </div>
     </div>
 
     <div id="view-main" class="view hidden">
         <div id="container-news"></div>
-        <h3 style="color:white; margin:25px 0 10px;">Membresías</h3>
-        <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:15px; scrollbar-width: none;"></div>
+        <h3 style="color:white; margin:20px 0 10px;">Membresías</h3>
+        <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:10px; scrollbar-width: none;"></div>
+        
         <div style="display:flex; justify-content:space-between; align-items:center; margin:25px 0 15px;">
-            <h3 style="color:white; margin:0;">Clases Disponibles</h3>
+            <h3 style="color:white; margin:0;">Horarios</h3>
             <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
         </div>
         <div id="container-clases"></div>
     </div>
 
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
+        <h3 style="color:white; margin-bottom:20px;">Chats</h3>
         <div id="container-chat-list"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Administración</h3>
+        <h3 style="color:white; margin-bottom:20px;">Panel Admin</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="uiAdminUsers()">👥 Usuarios</button>
@@ -122,7 +125,7 @@
 
 <div id="chat-window">
     <div style="background:var(--sage); color:white; padding:18px; display:flex; gap:15px; align-items:center;">
-        <span onclick="closeChat()" style="cursor:pointer; font-weight:bold;">‹ VOLVER</span>
+        <span onclick="closeChat()" style="cursor:pointer; font-weight:bold;">‹ ATRÁS</span>
         <b id="chat-header-name">Chat</b>
     </div>
     <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
@@ -152,7 +155,6 @@
 
     let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
-    // --- POPUP ENGINE ---
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
             return new Promise((resolve) => {
@@ -160,15 +162,9 @@
                 document.getElementById('pop-text').innerText = text;
                 const inputArea = document.getElementById('pop-input-area');
                 inputArea.innerHTML = hasInput ? `<input type="text" id="pop-input" placeholder="${placeholder}">` : "";
-                document.getElementById('pop-btns').innerHTML = `
-                    <button class="btn-outline" id="pop-cancel">Cancelar</button>
-                    <button class="btn-main" id="pop-ok">Aceptar</button>
-                `;
+                document.getElementById('pop-btns').innerHTML = `<button class="btn-outline" id="pop-cancel">Cancelar</button><button class="btn-main" id="pop-ok">Aceptar</button>`;
                 document.getElementById('popup-engine').style.display = 'flex';
-                document.getElementById('pop-ok').onclick = () => {
-                    const val = hasInput ? document.getElementById('pop-input').value : true;
-                    popup.hide(); resolve(val);
-                };
+                document.getElementById('pop-ok').onclick = () => { const val = hasInput ? document.getElementById('pop-input').value : true; popup.hide(); resolve(val); };
                 document.getElementById('pop-cancel').onclick = () => { popup.hide(); resolve(null); };
             });
         },
@@ -177,7 +173,7 @@
                 document.getElementById('pop-title').innerText = title;
                 document.getElementById('pop-text').innerText = text;
                 document.getElementById('pop-input-area').innerHTML = "";
-                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Ok</button>`;
+                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Entendido</button>`;
                 document.getElementById('popup-engine').style.display = 'flex';
                 document.getElementById('pop-ok').onclick = () => { popup.hide(); resolve(true); };
             });
@@ -202,7 +198,7 @@
         }
     });
 
-    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES` : myData.role.toUpperCase(); }
+    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase(); }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -240,93 +236,93 @@
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
             const container = document.getElementById('container-clases'); container.innerHTML = "";
             snap.forEach(d => {
-                const c = d.data(); 
-                const inscritosCount = c.inscritos?.length || 0;
-                const capacidad = c.limit || 0;
-                const yaInscrito = c.inscritos?.includes(myData.id);
-                const llena = inscritosCount >= capacidad && capacidad > 0;
-
+                const c = d.data(); const nIns = c.inscritos?.length || 0; const limit = c.limit || 0;
+                const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
                     ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
                     <div style="margin-right:40px;"><b>${c.nombre}</b><br><small>📅 ${c.horario}</small></div>
                     <div style="margin-top:12px;"><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span></div>
-                    
-                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" 
-                        style="background:${yaInscrito ? '#e0e0e0' : (llena ? '#ffccd5' : 'var(--gold)')}; 
-                        color:${yaInscrito ? '#999' : (llena ? '#d62828' : 'white')}; margin-top:15px;" 
-                        ${llena && !yaInscrito ? 'disabled' : ''}>
-                        ${yaInscrito ? 'INSCRITO' : (llena ? 'CLASE LLENA' : 'RESERVAR')}
-                    </button>
-
-                    <div class="quota-badge">${inscritosCount} / ${capacidad === 0 ? '∞' : capacidad} LUGARES</div>
-                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">VER LISTA</button>` : ''}
+                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#e0e0e0' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:15px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
+                    <div class="quota-info ${full ? 'full-label' : ''}">${full ? '⚠️ LLENO' : `${nIns} / ${limit === 0 ? '∞' : limit} LUGARES`}</div>
+                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">LISTA DE ASISTENCIA</button>` : ''}
                 </div>`;
             });
         });
     }
 
-    // --- ACCIONES ADMIN ---
-    window.uiCrearClase = async () => {
-        const nom = await popup.show("Nueva Clase", "Nombre:", true, "Yoga, Box...");
-        if(!nom) return;
-        const pre = await popup.show("Costo", "Precio:", true, "0");
-        const fec = await popup.show("Horario", "Día y Hora:", true, "Lunes 18:00");
-        const lim = await popup.show("Límite", "Cupos máximos (0 para ilimitado):", true, "15");
-        const apo = await popup.show("Tipo", "¿Es aportación?", false);
-        await addDoc(collection(db, "clases"), { 
-            nombre: nom, price: Number(pre), horario: fec, 
-            limit: Number(lim), isAportacion: !!apo, inscritos: [] 
+    // --- REPORTEADORA ---
+    window.descargarReporte = async (esSemanal = false) => {
+        let q;
+        const hoy = new Date();
+        
+        if(esSemanal) {
+            const haceUnaSemana = new Date(hoy.getTime() - (7 * 24 * 60 * 60 * 1000));
+            q = query(collection(db, "pagos"), where("fecha", ">=", haceUnaSemana), orderBy("fecha", "desc"));
+        } else {
+            q = query(collection(db, "pagos"), orderBy("fecha", "desc"));
+        }
+        
+        const snap = await getDocs(q);
+        if(snap.empty) return popup.alert("Sin datos", "No se encontraron registros para este periodo.");
+
+        let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
+        snap.forEach(d => {
+            const p = d.data();
+            const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : '---';
+            csv += `"${f}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Reporte_${esSemanal?'Semanal':'Total'}_${hoy.toISOString().split('T')[0]}.csv`;
+        link.click();
+        popup.alert("Reporte Listo", `Se exportaron ${snap.size} registros.`);
+    };
+
+    window.uiAdminFinanzas = async () => {
+        const area = document.getElementById('admin-render-area');
+        area.innerHTML = `<h4>Finanzas</h4>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">📥 REPORTE SEMANAL</button>
+                <button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">📊 REPORTE TOTAL</button>
+            </div>
+            <div id="list-f"></div>`;
+        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        snap.forEach(d => {
+            const p = d.data();
+            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
+                <div style="display:flex; gap:5px;">
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
+                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
+                </div>
+            </div>`;
         });
     };
 
+    // --- LOGICA DE NEGOCIO ---
     window.inscribirClase = async (id) => {
         const docRef = doc(db, "clases", id);
         const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
-        
-        // Validar límite
-        if(c.limit > 0 && c.inscritos.length >= c.limit) {
-            return popup.alert("Lo sentimos", "Esta clase ya alcanzó su límite de asistentes.");
-        }
-
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lleno", "Esta clase ya no tiene cupos.");
         const gratis = (myData.role !== 'alumno' || c.isAportacion);
         if(gratis || myData.credits > 0) {
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("Listo", "Inscripción confirmada.");
-        } else {
-            popup.alert("Sin créditos", "Necesitas comprar un plan.");
-        }
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
+            popup.alert("¡Éxito!", "Reserva confirmada.");
+        } else { popup.alert("Sin Créditos", "Compra un plan para continuar."); }
     };
 
-    window.descargarReporte = async () => {
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
-        snap.forEach(d => {
-            const p = d.data();
-            const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : 'N/A';
-            csv += `"${f}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = "Reporte_Escarola.csv";
-        link.click();
-    };
-
-    // Funciones de apoyo
-    window.uiCrearAviso = async () => {
-        const txt = await popup.show("Aviso", "Mensaje:", true);
-        if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() });
-    };
-
-    window.uiCrearPlan = async () => {
-        const nom = await popup.show("Plan", "Nombre:", true);
-        const pre = await popup.show("Precio", "$:", true);
-        const cr = await popup.show("Créditos", "Cantidad:", true);
-        const link = await popup.show("Link", "MP:", true);
-        if(nom) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+    window.uiCrearClase = async () => {
+        const nom = await popup.show("Nueva Clase", "Nombre:", true); if(!nom) return;
+        const pre = await popup.show("Costo", "Precio:", true, "0");
+        const fec = await popup.show("Horario", "Día y Hora:", true);
+        const lim = await popup.show("Límite", "Cupos (0 = ilimitado):", true, "15");
+        const apo = await popup.show("Especial", "¿Es aportación?", false);
+        await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, limit: Number(lim), isAportacion: !!apo, inscritos: [] });
     };
 
     window.uiAdminUsers = async () => {
@@ -335,9 +331,9 @@
         area.innerHTML = "<h4>Alumnos</h4>";
         snap.forEach(d => {
             const u = d.data();
-            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px;">
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px;">
                 <div><b>${u.name}</b><br><small>${u.credits} cr. | ${u.role}</small></div>
-                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button>
+                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">GESTIONAR</button>
             </div>`;
         });
     };
@@ -348,86 +344,23 @@
         uiAdminUsers();
     };
 
-    window.uiAdminFinanzas = async () => {
-        const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" onclick="descargarReporte()">📥 REPORTE EXCEL</button><div id="list-f"></div>`;
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
-        snap.forEach(d => {
-            const p = d.data();
-            area.innerHTML += `<div style="font-size:12px; padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
-                <div style="display:flex; gap:5px;">
-                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-mini" style="background:var(--cash-green);">PAGÓ</button>` : ''}
-                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red);">×</button>
-                </div>
-            </div>`;
-        });
-    };
-
     window.confirmarPago = async (pid, uid, cr) => {
-        if(await popup.show("Confirmar", "¿Pago recibido?", false)) {
+        if(await popup.show("Confirmar", "¿Recibiste el efectivo?", false)) {
             await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
             if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
             uiAdminFinanzas();
         }
     };
 
-    window.deleteItem = async (col, id) => {
-        if(await popup.show("¿Borrar?", "No se puede deshacer.", false)) {
-            await deleteDoc(doc(db, col, id));
-            if(col==='pagos') uiAdminFinanzas();
-        }
-    };
-
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id));
         const ins = s.data().inscritos || [];
-        let lista = ins.length ? "" : "Nadie inscrito.";
-        for(let uid of ins) {
-            const u = await getDoc(doc(db, "users", uid));
-            lista += `• ${u.data()?.name}\n`;
-        }
-        popup.alert("Asistentes", lista);
+        let lista = ins.length ? "" : "Sin alumnos.";
+        for(let uid of ins) { const u = await getDoc(doc(db, "users", uid)); lista += `• ${u.data()?.name}\n`; }
+        popup.alert("Asistencia", lista);
     };
 
-    window.reqCash = async (n, p, c) => {
-        if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) {
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
-            popup.alert("Pedido", "Paga en recepción.");
-        }
-    };
-
-    // Chat simplificado para la versión
-    window.loadChatList = async () => {
-        const container = document.getElementById('container-chat-list');
-        container.innerHTML = "Cargando...";
-        const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-        container.innerHTML = "";
-        snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`);
-    };
-
-    window.openChat = async (id, name) => {
-        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
-        document.getElementById('chat-header-name').innerText = name;
-        document.getElementById('chat-window').style.display = 'flex';
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
-        if(unsubChat) unsubChat();
-        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
-            const box = document.getElementById('chat-msgs'); box.innerHTML = "";
-            snap.forEach(d => {
-                const m = d.data();
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:14px;">${m.text}</div>`;
-            });
-            box.scrollTop = box.scrollHeight;
-        });
-    };
-
-    window.sendMsg = async () => {
-        const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return;
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() });
-        inp.value = "";
-    };
-
+    // --- AUXILIARES ---
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try {
@@ -436,16 +369,44 @@
                 const r = await createUserWithEmailAndPassword(auth, e, p);
                 await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e });
             }
-        } catch(err) { popup.alert("Error", "Revisa tus datos."); }
+        } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
-
-    window.toggleAuth = () => {
-        isLogin = !isLogin;
-        document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin));
-        document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME';
-    };
-
+    window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "No reversible.", false)) await deleteDoc(doc(db, col, id)); };
+    window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
+    window.uiCrearPlan = async () => { 
+        const nom = await popup.show("Plan", "Nombre:", true); const pre = await popup.show("Precio", "$:", true); 
+        const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
+        if(nom) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
+    };
+    window.reqCash = async (n, p, c) => {
+        if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) {
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
+            popup.alert("Pedido", "Paga en recepción para activar.");
+        }
+    };
+
+    // Chats
+    window.loadChatList = async () => {
+        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando...";
+        const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
+        container.innerHTML = "";
+        snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`);
+    };
+    window.openChat = async (id, name) => {
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
+        document.getElementById('chat-header-name').innerText = name;
+        document.getElementById('chat-window').style.display = 'flex';
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
+        if(unsubChat) unsubChat();
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
+            const box = document.getElementById('chat-msgs'); box.innerHTML = "";
+            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:14px;">${m.text}</div>`; });
+            box.scrollTop = box.scrollHeight;
+        });
+    };
+    window.sendMsg = async () => { const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return; await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); inp.value = ""; };
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
 </script>
 </body>
