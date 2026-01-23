@@ -194,24 +194,28 @@
 
     onAuthStateChanged(auth, async user => {
         if (user) {
-            const snap = await getDoc(doc(db, "users", user.uid));
-            myData = { id: user.uid, ...snap.data() };
-            document.getElementById('view-auth').classList.add('hidden');
-            document.getElementById('navbar').classList.remove('hidden');
-            document.getElementById('logout-btn').classList.remove('hidden');
-            if(myData.role === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
-            else document.getElementById('nav-admin').classList.add('hidden');
-            if(myData.role !== 'alumno') document.getElementById('btn-new-clase').classList.remove('hidden');
-            else document.getElementById('btn-new-clase').classList.add('hidden');
-            updateStats(); switchTab('main');
+            onSnapshot(doc(db, "users", user.uid), snap => {
+                myData = { id: user.uid, ...snap.data() };
+                document.getElementById('view-auth').classList.add('hidden');
+                document.getElementById('navbar').classList.remove('hidden');
+                document.getElementById('logout-btn').classList.remove('hidden');
+                document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
+                document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
+                updateStats();
+                if(document.getElementById('view-chats').classList.contains('hidden') === false) loadChatList();
+            });
         } else {
+            myData = null;
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById('view-auth').classList.remove('hidden');
             document.getElementById('navbar').classList.add('hidden');
         }
     });
 
-    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); }
+    function updateStats() { 
+        if(!myData) return;
+        document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); 
+    }
 
     window.switchTab = (tab) => {
         if(tab === 'admin' && myData.role !== 'admin') return;
@@ -275,7 +279,7 @@
             await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
             if(myData.role === 'alumno' && !c.isAportacion) {
                 await updateDoc(doc(db, "users", myData.id), { credits: increment(1) });
-                myData.credits++; updateStats();
+                updateStats();
             }
             popup.alert("Listo", "Reserva cancelada correctamente.");
         }
@@ -306,25 +310,34 @@
         });
     }
 
-    // --- CORRECCIÓN CHAT: FUNCIONALIDAD EN TIEMPO REAL ---
+    // --- REPARACIÓN FINAL DEL CHAT ---
     window.loadChatList = () => { 
         if(unsubChatList) unsubChatList();
         const container = document.getElementById('container-chat-list');
+        if(!myData) return;
+        
         unsubChatList = onSnapshot(collection(db, "users"), snap => {
             container.innerHTML = "";
             snap.forEach(d => {
                 const u = d.data();
                 if(d.id !== myData.id) {
-                    const canSee = (myData.role !== 'alumno') || (u.role === 'maestro' || u.role === 'admin');
+                    const uRole = (u.role || "").toLowerCase().trim();
+                    const myRole = (myData.role || "").toLowerCase().trim();
+                    
+                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
+                    const canSee = (myRole !== 'alumno') || isStaff;
+
                     if(canSee) {
-                        container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
-                            <div><b>${u.name}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${u.role}</small></div>
-                            <span style="font-size:20px;">✉️</span>
-                        </div>`;
+                        const div = document.createElement('div');
+                        div.className = "card";
+                        div.style = "padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;";
+                        div.onclick = () => openChat(d.id, u.name);
+                        div.innerHTML = `<div><b>${u.name}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${uRole}</small></div><span style="font-size:20px;">✉️</span>`;
+                        container.appendChild(div);
                     }
                 }
             });
-            if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+            if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center; padding:20px;'>No hay contactos disponibles.</p>";
         });
     };
 
@@ -346,7 +359,7 @@
 
     window.sendMsg = async () => { 
         const inp = document.getElementById('chat-in'); 
-        if(!inp.value.trim()) return; 
+        if(!inp.value.trim() || !activeChat) return; 
         await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
         inp.value = ""; 
     };
@@ -356,15 +369,14 @@
         if(unsubChat) unsubChat();
     };
 
-    // --- FIN CORRECCIÓN CHAT ---
-
+    // --- FUNCIONES ADMIN ---
     window.uiAdminUsers = async () => {
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Gestión de Usuarios</h4>";
         snap.forEach(d => { 
             const u = d.data(); 
             area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;">
-                <div><b>${u.name}</b><br><small>${u.credits} cr - <span style="color:var(--gold)">${u.role.toUpperCase()}</span></small></div>
+                <div><b>${u.name}</b><br><small>${u.credits} cr - <span style="color:var(--gold)">${(u.role || '').toUpperCase()}</span></small></div>
                 <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits}, '${u.role}')" class="btn-mini btn-main">EDITAR</button>
             </div>`; 
         });
@@ -403,7 +415,7 @@
         if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
         const gratis = (myData.role !== 'alumno' || c.isAportacion);
         if(gratis || myData.credits > 0) {
-            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
+            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
             popup.alert("¡Éxito!", "Tu reserva está lista.");
@@ -459,6 +471,7 @@
     window.triggerSignOut = () => signOut(auth);
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Plan: ${n}`, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
+    
     window.descargarReporte = async (esSemanal = false) => {
         let q; const hoy = new Date();
         if(esSemanal) {
