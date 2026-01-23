@@ -338,7 +338,6 @@
         });
     };
 
-    // FUNCIÓN SOLICITADA: Edición de Rol activa en panel admin
     window.uiEditUser = async (id, nombre, actualCr, actualRole) => {
         const nCr = await popup.show(`Editar ${nombre}`, "Créditos:", true, actualCr);
         if(nCr !== null) {
