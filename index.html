@@ -41,12 +41,10 @@
         .popup-btns { display: flex; gap: 10px; margin-top: 20px; }
 
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; position: relative; }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
         .nav-item span { display: block; font-size: 22px; margin-bottom: 2px; }
         
-        .dot { position: absolute; top: 12px; right: 25%; width: 10px; height: 10px; background: var(--red); border-radius: 50%; border: 2px solid var(--dark-sage); display: none; }
-
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
         .quota-info { font-size: 10px; font-weight: 700; color: var(--sage); background: #f0f4f3; padding: 3px 8px; border-radius: 8px; }
@@ -131,10 +129,7 @@
     <nav id="navbar" class="nav-bar hidden">
         <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
         <div class="nav-item" id="nav-agenda" onclick="switchTab('agenda')"><span>📅</span>Agenda</div>
-        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')">
-            <div id="chat-dot" class="dot"></div>
-            <span>💬</span>Chat
-        </div>
+        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><span>💬</span>Chat</div>
         <div id="nav-admin" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
@@ -169,7 +164,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let myData = null, isLogin = true, activeChat = null, unsubChat = null, unsubGlobalChat = null;
+    let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
@@ -208,23 +203,13 @@
             else document.getElementById('nav-admin').classList.add('hidden');
             if(myData.role !== 'alumno') document.getElementById('btn-new-clase').classList.remove('hidden');
             else document.getElementById('btn-new-clase').classList.add('hidden');
-            updateStats(); switchTab('main'); listenNotifications();
+            updateStats(); switchTab('main');
         } else {
-            if(unsubGlobalChat) unsubGlobalChat();
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById('view-auth').classList.remove('hidden');
             document.getElementById('navbar').classList.add('hidden');
         }
     });
-
-    function listenNotifications() {
-        // Un punto rojo simple si hay chats donde participas que se han actualizado
-        unsubGlobalChat = onSnapshot(query(collection(db, "chats"), where("participants", "array-contains", myData.id)), snap => {
-            let hasNew = false;
-            snap.forEach(d => { if(d.data().lastSender !== myData.id) hasNew = true; });
-            document.getElementById('chat-dot').style.display = hasNew ? 'block' : 'none';
-        });
-    }
 
     function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); }
 
@@ -233,11 +218,10 @@
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-' + tab).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        const activeNavId = tab === 'main' ? 'nav-home' : 'nav-' + tab;
-        document.getElementById(activeNavId).classList.add('active');
+        document.getElementById('nav-' + (tab === 'main' ? 'home' : tab)).classList.add('active');
         if(tab==='main') loadHome();
         if(tab==='agenda') loadAgenda();
-        if(tab==='chats') { loadChatList(); document.getElementById('chat-dot').style.display = 'none'; }
+        if(tab==='chats') loadChatList();
     };
 
     function loadHome() {
@@ -278,7 +262,7 @@
                     <small style="display:block; margin-top:8px;">📅 ${c.horario}</small>
                     <span class="price-tag">${c.isAportacion ? 'Aportación' : '$' + (c.price || 0)}</span>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
-                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
+                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR MI LUGAR</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:8px; font-size:11px;" onclick="verLista('${d.id}')">VER ASISTENCIA</button>` : ''}
                 </div>`;
             });
@@ -310,71 +294,6 @@
         });
     }
 
-    window.loadChatList = async () => { 
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando contactos..."; 
-        const snap = await getDocs(collection(db, "users")); 
-        container.innerHTML = "";
-        snap.forEach(d => {
-            const u = d.data();
-            if(d.id !== myData.id) {
-                // Filtro: Alumnos solo ven Maestros/Admin. Maestros/Admin ven a todos.
-                const canSee = (myData.role !== 'alumno') || (u.role === 'maestro' || u.role === 'admin');
-                if(canSee) {
-                    container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
-                        <div><b>${u.name}</b><br><small style="color:var(--gold); font-weight:700;">${u.role.toUpperCase()}</small></div>
-                        <span>›</span>
-                    </div>`;
-                }
-            }
-        }); 
-        if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
-    };
-
-    window.openChat = async (targetId, name) => { 
-        activeChat = myData.id < targetId ? `${myData.id}_${targetId}` : `${targetId}_${myData.id}`; 
-        document.getElementById('chat-header-name').innerText = name; 
-        document.getElementById('chat-window').style.display = 'flex'; 
-        
-        // Crear documento de chat si no existe
-        await setDoc(doc(db, "chats", activeChat), { 
-            participants: [myData.id, targetId], 
-            names: [myData.name, name],
-            lastUpdate: serverTimestamp() 
-        }, { merge: true }); 
-
-        if(unsubChat) unsubChat(); 
-        const q = query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc"));
-        unsubChat = onSnapshot(q, snap => { 
-            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
-            snap.forEach(d => { 
-                const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
-            }); 
-            box.scrollTop = box.scrollHeight; 
-        }); 
-    };
-
-    window.sendMsg = async () => { 
-        const inp = document.getElementById('chat-in'); 
-        const text = inp.value.trim();
-        if(!text || !activeChat) return; 
-        
-        await addDoc(collection(db, "chats", activeChat, "messages"), { 
-            text: text, 
-            uid: myData.id, 
-            time: serverTimestamp() 
-        }); 
-        
-        await updateDoc(doc(db, "chats", activeChat), { 
-            lastUpdate: serverTimestamp(),
-            lastSender: myData.id
-        });
-
-        inp.value = ""; 
-    };
-
-    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
-
     window.inscribirClase = async (id) => {
         const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
@@ -401,6 +320,7 @@
     };
 
     window.uiAdminUsers = async () => {
+        if(myData.role !== 'admin') return;
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Gestión de Usuarios</h4>";
         snap.forEach(d => { 
@@ -413,10 +333,13 @@
     };
 
     window.uiEditUser = async (id, nombre, actualCr, actualRole) => {
-        const nCr = await popup.show(`Editar ${nombre}`, "Créditos:", true, actualCr);
+        const nCr = await popup.show(`Editar ${nombre}`, "Nuevos Créditos:", true, actualCr);
         if(nCr !== null) {
-            const nRol = await popup.show(`Editar Rol`, "alumno, maestro, admin", true, actualRole);
-            if(nRol) { await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRol.toLowerCase().trim() }); uiAdminUsers(); }
+            const nRol = await popup.show(`Editar Rol de ${nombre}`, "Escribe: alumno, maestro o admin", true, actualRole);
+            if(nRol) {
+                await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRol.toLowerCase().trim() }); 
+                uiAdminUsers(); 
+            }
         }
     };
 
@@ -444,31 +367,72 @@
         }
     };
 
+    window.loadChatList = async () => { 
+        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando contactos..."; 
+        const snap = await getDocs(collection(db, "users")); 
+        container.innerHTML = "";
+        snap.forEach(d => {
+            const u = d.data();
+            if(d.id !== myData.id) {
+                const canSee = (myData.role !== 'alumno') || (u.role === 'maestro' || u.role === 'admin');
+                if(canSee) {
+                    container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
+                        <div><b>${u.name}</b><br><small style="color:var(--sage); font-weight:700;">${u.role.toUpperCase()}</small></div>
+                        <span>💬</span>
+                    </div>`;
+                }
+            }
+        }); 
+        if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+    };
+
+    window.openChat = async (id, name) => { 
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
+        document.getElementById('chat-header-name').innerText = name; 
+        document.getElementById('chat-window').style.display = 'flex'; 
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        if(unsubChat) unsubChat(); 
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
+            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
+            snap.forEach(d => { 
+                const m = d.data(); 
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
+            }); 
+            box.scrollTop = box.scrollHeight; 
+        }); 
+    };
+
+    window.sendMsg = async () => { 
+        const inp = document.getElementById('chat-in'); 
+        if(!inp.value.trim() || !activeChat) return; 
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        inp.value = ""; 
+    };
+
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
+
     window.uiCrearClase = async () => {
         const nom = await popup.show("Nueva Clase", "Nombre:", true); if(!nom) return;
         const pre = await popup.show("Costo", "Precio $:", true, "0");
         const fec = await popup.show("Horario", "Día y Hora:", true);
         const lim = await popup.show("Límite", "Cupos:", true, "15");
-        const apo = await popup.show("Especial", "¿Es aportación?", false);
+        const apo = await popup.show("Especial", "¿Es por aportación?", false);
         await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, limit: Number(lim), isAportacion: !!apo, inscritos: [] });
     };
-
     window.verLista = async (id) => {
         const s = await getDoc(doc(db, "clases", id));
         const ins = s.data().inscritos || [];
-        let lista = ins.length ? "" : "Nadie inscrito.";
+        let lista = ins.length ? "" : "Nadie inscrito aún.";
         for(let uid of ins) { const u = await getDoc(doc(db, "users", uid)); lista += `• ${u.data()?.name || 'Usuario'}\n`; }
-        popup.alert("Asistencia", lista);
+        popup.alert("Lista de Asistencia", lista);
     };
-
     window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
     window.uiCrearPlan = async () => { 
         const nom = await popup.show("Plan", "Nombre:", true); if(!nom) return;
         const pre = await popup.show("Precio", "$:", true); 
-        const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link MP", "URL:", true);
+        const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
         await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
     };
-
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try { 
@@ -478,9 +442,8 @@
                 const r = await createUserWithEmailAndPassword(auth, e, p); 
                 await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: rolIn, credits: 0, email: e }); 
             } 
-        } catch(err) { popup.alert("Error", "Verifica tus datos."); }
+        } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
-
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
@@ -492,10 +455,11 @@
             q = query(collection(db, "pagos"), where("fecha", ">=", haceUnaSemana), orderBy("fecha", "desc"));
         } else { q = query(collection(db, "pagos"), orderBy("fecha", "desc")); }
         const snap = await getDocs(q);
-        if(snap.empty) return popup.alert("Aviso", "Sin datos.");
+        if(snap.empty) return popup.alert("Aviso", "No hay datos.");
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
         snap.forEach(d => { const p = d.data(); csv += `"${p.fecha?.toDate().toLocaleDateString() || '---'}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`; });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
         link.download = `Reporte_${esSemanal?'Semanal':'Total'}.csv`; link.click();
     };
 </script>
