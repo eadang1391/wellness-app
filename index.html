@@ -109,7 +109,8 @@
     </div>
 
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
+        <h3 style="color:white; margin-bottom:10px;">Mensajes</h3>
+        <p style="color:rgba(255,255,255,0.7); font-size:12px; margin-bottom:20px;">Toca un contacto para chatear.</p>
         <div id="container-chat-list"></div>
     </div>
 
@@ -194,6 +195,7 @@
 
     onAuthStateChanged(auth, async user => {
         if (user) {
+            // Refresco instantáneo de datos al iniciar sesión
             onSnapshot(doc(db, "users", user.uid), snap => {
                 myData = { id: user.uid, ...snap.data() };
                 document.getElementById('view-auth').classList.add('hidden');
@@ -202,8 +204,6 @@
                 document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
                 document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                 updateStats();
-                // Si ya estamos en la pestaña de chat, recargar lista
-                if(!document.getElementById('view-chats').classList.contains('hidden')) loadChatList();
             });
         } else {
             myData = null;
@@ -274,45 +274,48 @@
         });
     }
 
-    // --- CHAT REPARADO (MUESTRA TODOS LOS USUARIOS REGISTRADOS) ---
+    // --- REFUERZO DE CARGA DE CHAT PARA USUARIOS EXISTENTES ---
     window.loadChatList = async () => {
         const container = document.getElementById('container-chat-list');
-        container.innerHTML = "<p style='color:white; text-align:center;'>Buscando contactos...</p>";
+        container.innerHTML = "<div style='text-align:center; padding:20px;'><div class='loader'>Cargando...</div></div>";
         
         if(unsubChatList) unsubChatList();
 
-        // Leemos la colección completa de usuarios para asegurar que aparezcan antiguos y nuevos
+        // Escucha en tiempo real a TODOS los usuarios (nuevos y registrados previamente)
         unsubChatList = onSnapshot(collection(db, "users"), (snap) => {
             container.innerHTML = "";
             let html = "";
-            
+            let count = 0;
+
             snap.forEach(d => {
                 const u = d.data();
-                const uid = d.id;
-
-                // Evitamos hablar con nosotros mismos
-                if(uid !== myData.id) {
-                    const uRole = (u.role || "alumno").toLowerCase().trim();
-                    const myRole = (myData.role || "alumno").toLowerCase().trim();
+                if(d.id !== myData.id) {
+                    const myRole = (myData.role || 'alumno').toLowerCase();
+                    const targetRole = (u.role || 'alumno').toLowerCase();
                     
-                    // Lógica de visibilidad: Alumnos ven maestros/admin. Staff ve a todos.
-                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
-                    const canSee = (myRole !== 'alumno') || isStaff;
+                    // Regla de visibilidad: Alumnos ven maestros/admins. Staff ve a todos.
+                    const isStaff = (targetRole === 'maestro' || targetRole === 'admin');
+                    const canChat = (myRole !== 'alumno') || isStaff;
 
-                    if(canSee) {
+                    if(canChat) {
+                        count++;
                         html += `
-                        <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${uid}','${u.name || 'Usuario'}')">
+                        <div class="card" onclick="openChat('${d.id}','${u.name || 'Usuario'}')" style="padding:15px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-left: 4px solid var(--sage);">
                             <div>
-                                <b style="font-size:15px;">${u.name || 'Usuario sin nombre'}</b>
-                                <br><small style="color:var(--sage); text-transform:uppercase; font-size:10px; font-weight:700;">${uRole}</small>
+                                <b style="font-size:15px; display:block;">${u.name || 'Sin Nombre'}</b>
+                                <small style="color:var(--gold); font-weight:700; text-transform:uppercase; font-size:10px;">${targetRole}</small>
                             </div>
-                            <span style="font-size:20px;">✉️</span>
+                            <div style="background:var(--cream); width:35px; height:35px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">✉️</div>
                         </div>`;
                     }
                 }
             });
 
-            container.innerHTML = html || "<p style='color:white; text-align:center; padding:20px;'>No hay contactos disponibles aún.</p>";
+            if(count === 0) {
+                container.innerHTML = "<p style='color:white; text-align:center; background:rgba(0,0,0,0.1); padding:20px; border-radius:15px;'>No hay otros usuarios registrados para chatear.</p>";
+            } else {
+                container.innerHTML = html;
+            }
         });
     };
 
@@ -321,11 +324,10 @@
         document.getElementById('chat-header-name').innerText = name; 
         document.getElementById('chat-window').style.display = 'flex'; 
         
-        // Creamos o actualizamos el documento del chat sin borrar mensajes previos
+        // Registrar chat para que sea persistente
         await setDoc(doc(db, "chats", activeChat), { 
             participants: [myData.id, id], 
-            names: [myData.name, name],
-            lastUpdate: serverTimestamp()
+            names: [myData.name || 'Usuario', name]
         }, { merge: true }); 
 
         if(unsubChat) unsubChat(); 
@@ -355,7 +357,7 @@
         if(unsubChat) unsubChat();
     };
 
-    // --- FUNCIONES MANTENIDAS (Cancelación, Admin, Pagos) ---
+    // --- FUNCIONES DE NEGOCIO MANTENIDAS ---
     window.cancelarReserva = async (id) => {
         if(await popup.show("¿Cancelar?", "Se te devolverá el crédito si aplica.", false)) {
             const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
