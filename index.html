@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Agenda</title>
+    <title>Escarola Wellness | Gestión</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -47,6 +47,7 @@
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
         .quota-info { font-size: 10px; font-weight: 700; color: var(--sage); background: #f0f4f3; padding: 3px 8px; border-radius: 8px; }
+        .price-tag { font-size: 14px; font-weight: 700; color: var(--gold); margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
@@ -89,7 +90,7 @@
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:10px; scrollbar-width: none;"></div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin:25px 0 15px;">
-            <h3 style="color:white; margin:0;">Clases Destacadas</h3>
+            <h3 style="color:white; margin:0;">Clases</h3>
             <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
         </div>
         <div id="container-clases"></div>
@@ -244,8 +245,14 @@
                 const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
                     ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
-                    <b>${c.nombre}</b><br><small>📅 ${c.horario}</small><br>
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${c.nombre}</b>
+                        <div class="quota-info">${nIns} / ${limit || '∞'}</div>
+                    </div>
+                    <small>📅 ${c.horario}</small>
+                    <span class="price-tag">${c.isAportacion ? 'Aportación' : '$' + (c.price || 0)}</span>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
+                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:8px; font-size:11px;" onclick="verLista('${d.id}')">VER ASISTENCIA</button>` : ''}
                 </div>`;
             });
         });
@@ -263,7 +270,7 @@
                     clasesDia.forEach(c => {
                         const ya = c.inscritos?.includes(myData.id);
                         html += `<div class="agenda-item" onclick="inscribirClase('${c.id}')">
-                            <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:#888;">${c.horario.split(' ').pop()}</small></div>
+                            <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:var(--gold); font-weight:700;">${c.isAportacion ? 'Aport.' : '$'+c.price}</small></div>
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <div class="quota-info">${c.inscritos?.length || 0}/${c.limit || '∞'}</div>
                                 ${ya ? '<span>✅</span>' : '<span>➕</span>'}
@@ -310,23 +317,31 @@
     window.inscribirClase = async (id) => {
         const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
-        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lleno", "Sin cupos.");
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
         const gratis = (myData.role !== 'alumno' || c.isAportacion);
         if(gratis || myData.credits > 0) {
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("¡Listo!", "Reserva confirmada.");
-        } else popup.alert("Sin Créditos", "Compra un plan.");
+            popup.alert("¡Éxito!", "Tu reserva está lista.");
+        } else popup.alert("Sin Créditos", "Necesitas un plan activo.");
     };
 
     window.uiCrearClase = async () => {
         const nom = await popup.show("Nueva Clase", "Nombre:", true); if(!nom) return;
-        const pre = await popup.show("Costo", "Precio:", true, "0");
+        const pre = await popup.show("Costo", "Precio $:", true, "0");
         const fec = await popup.show("Horario", "Día y Hora (Ej: Lunes 18:00):", true);
-        const lim = await popup.show("Límite", "Cupos:", true, "15");
-        const apo = await popup.show("Especial", "¿Es aportación?", false);
+        const lim = await popup.show("Límite", "Cupos (Número):", true, "15");
+        const apo = await popup.show("Especial", "¿Es por aportación?", false);
         await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, limit: Number(lim), isAportacion: !!apo, inscritos: [] });
+    };
+
+    window.verLista = async (id) => {
+        const s = await getDoc(doc(db, "clases", id));
+        const ins = s.data().inscritos || [];
+        let lista = ins.length ? "" : "Nadie inscrito aún.";
+        for(let uid of ins) { const u = await getDoc(doc(db, "users", uid)); lista += `• ${u.data()?.name || 'Usuario'}\n`; }
+        popup.alert("Lista de Asistencia", lista);
     };
 
     window.uiAdminUsers = async () => {
@@ -351,14 +366,14 @@
 
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
-    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "No reversible.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); if(col==='clases' || col==='news' || col==='membresias') loadHome(); } };
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); } };
     window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
     window.uiCrearPlan = async () => { 
         const nom = await popup.show("Plan", "Nombre:", true); const pre = await popup.show("Precio", "$:", true); 
         const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
         if(nom) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
     };
-    window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Enviado", "Paga en recepción."); } };
+    window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
     
     window.loadChatList = async () => { const container = document.getElementById('container-chat-list'); container.innerHTML = ""; const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno"))); snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`); };
     window.openChat = async (id, name) => { activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; document.getElementById('chat-header-name').innerText = name; document.getElementById('chat-window').style.display = 'flex'; await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); if(unsubChat) unsubChat(); unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { const box = document.getElementById('chat-msgs'); box.innerHTML = ""; snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; }); box.scrollTop = box.scrollHeight; }); };
