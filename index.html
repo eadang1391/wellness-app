@@ -202,7 +202,6 @@
                 document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
                 document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                 updateStats();
-                if(!document.getElementById('view-chats').classList.contains('hidden')) loadChatList();
             });
         } else {
             myData = null;
@@ -273,6 +272,68 @@
         });
     }
 
+    // --- REPARACIÓN DEFINITIVA DEL CHAT ---
+    window.loadChatList = async () => {
+        const container = document.getElementById('container-chat-list');
+        container.innerHTML = "<p style='color:white; text-align:center;'>Cargando usuarios...</p>";
+        
+        if(unsubChatList) unsubChatList();
+
+        unsubChatList = onSnapshot(collection(db, "users"), (snap) => {
+            container.innerHTML = "";
+            let count = 0;
+            snap.forEach(d => {
+                const u = d.data();
+                if(d.id !== myData.id) {
+                    const uRole = (u.role || "alumno").toLowerCase();
+                    const myRole = (myData.role || "alumno").toLowerCase();
+                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
+                    const canSee = (myRole !== 'alumno') || isStaff;
+
+                    if(canSee) {
+                        count++;
+                        const div = document.createElement('div');
+                        div.className = 'card';
+                        div.style = 'padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;';
+                        div.onclick = () => openChat(d.id, u.name);
+                        div.innerHTML = `<div><b>${u.name || 'Usuario'}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${uRole}</small></div><span style="font-size:20px;">✉️</span>`;
+                        container.appendChild(div);
+                    }
+                }
+            });
+            if(count === 0) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+        });
+    };
+
+    window.openChat = async (id, name) => { 
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
+        document.getElementById('chat-header-name').innerText = name; 
+        document.getElementById('chat-window').style.display = 'flex'; 
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        if(unsubChat) unsubChat(); 
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
+            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
+            snap.forEach(d => { 
+                const m = d.data(); 
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
+            }); 
+            box.scrollTop = box.scrollHeight; 
+        }); 
+    };
+
+    window.sendMsg = async () => { 
+        const inp = document.getElementById('chat-in'); 
+        if(!inp.value.trim() || !activeChat) return; 
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        inp.value = ""; 
+    };
+
+    window.closeChat = () => { 
+        document.getElementById('chat-window').style.display = 'none'; 
+        if(unsubChat) unsubChat();
+    };
+
+    // --- RESTO DE FUNCIONES (Mantenidas intactas) ---
     window.cancelarReserva = async (id) => {
         if(await popup.show("¿Cancelar?", "Se te devolverá el crédito si aplica.", false)) {
             const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
@@ -310,64 +371,6 @@
         });
     }
 
-    // --- CHAT: VERSIÓN ROBUSTA PARA USUARIOS REGISTRADOS ---
-    window.loadChatList = async () => { 
-        if(unsubChatList) unsubChatList();
-        const container = document.getElementById('container-chat-list');
-        if(!myData) return;
-        
-        unsubChatList = onSnapshot(collection(db, "users"), snap => {
-            container.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                if(d.id !== myData.id) {
-                    const uRole = (u.role || "alumno").toLowerCase().trim();
-                    const myRole = (myData.role || "alumno").toLowerCase().trim();
-                    
-                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
-                    const canSee = (myRole !== 'alumno') || isStaff;
-
-                    if(canSee) {
-                        container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
-                            <div><b>${u.name || 'Usuario'}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${uRole}</small></div>
-                            <span style="font-size:20px;">✉️</span>
-                        </div>`;
-                    }
-                }
-            });
-            if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center; padding:20px;'>No hay contactos disponibles.</p>";
-        });
-    };
-
-    window.openChat = async (id, name) => { 
-        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
-        document.getElementById('chat-header-name').innerText = name; 
-        document.getElementById('chat-window').style.display = 'flex'; 
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
-        if(unsubChat) unsubChat(); 
-        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
-            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
-            snap.forEach(d => { 
-                const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
-            }); 
-            box.scrollTop = box.scrollHeight; 
-        }); 
-    };
-
-    window.sendMsg = async () => { 
-        const inp = document.getElementById('chat-in'); 
-        if(!inp.value.trim() || !activeChat) return; 
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
-        inp.value = ""; 
-    };
-
-    window.closeChat = () => { 
-        document.getElementById('chat-window').style.display = 'none'; 
-        if(unsubChat) unsubChat();
-    };
-
-    // --- FUNCIONES ADMIN ---
     window.uiAdminUsers = async () => {
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Gestión de Usuarios</h4>";
