@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Escarola Wellness | Gestión Directa</title>
+    <title>Escarola Wellness | Agenda</title>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -29,35 +29,34 @@
         .btn-outline { background: transparent; border: 2px solid #eee; color: #888; }
         .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; }
 
-        /* Custom Popups Estéticos */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
-        .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .popup-card h3 { margin: 0 0 10px 0; color: var(--dark-sage); }
-        .popup-card p { font-size: 14px; color: #666; margin-bottom: 20px; line-height: 1.4; }
-        .popup-card input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 15px; text-align: center; font-family: 'Quicksand'; font-size: 16px; background: #f9f9f9; }
-        .popup-btns { display: flex; gap: 10px; }
+        /* Agenda / Calendario Styles */
+        .agenda-day { margin-bottom: 25px; }
+        .agenda-day-title { color: white; font-weight: 700; font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .agenda-day-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
+        .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); }
 
-        input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 12px; font-family: 'Quicksand'; }
+        /* Popups */
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
+        .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .popup-btns { display: flex; gap: 10px; margin-top: 20px; }
 
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
         .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
         .nav-item.active { color: white; }
-        .nav-item span { display: block; font-size: 24px; margin-bottom: 2px; }
+        .nav-item span { display: block; font-size: 22px; margin-bottom: 2px; }
         
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
-
-        .quota-info { position: absolute; bottom: 20px; right: 20px; font-size: 11px; font-weight: 700; color: var(--dark-sage); background: #f0f4f3; padding: 5px 12px; border-radius: 12px; }
-        .full-label { color: var(--red); background: #ffeef2; }
+        .quota-info { font-size: 10px; font-weight: 700; color: var(--sage); background: #f0f4f3; padding: 3px 8px; border-radius: 8px; }
     </style>
 </head>
 <body>
 
 <div id="popup-engine" class="popup-overlay">
     <div class="popup-card">
-        <h3 id="pop-title">Título</h3>
-        <p id="pop-text">Mensaje.</p>
+        <h3 id="pop-title"></h3>
+        <p id="pop-text"></p>
         <div id="pop-input-area"></div>
         <div class="popup-btns" id="pop-btns"></div>
     </div>
@@ -78,9 +77,9 @@
     <div id="view-auth" class="view">
         <div class="card">
             <h3 style="text-align:center; margin-top:0;">Bienvenido</h3>
-            <input type="text" id="auth-name" placeholder="Nombre completo" class="reg-only hidden">
-            <input type="email" id="auth-email" placeholder="Correo">
-            <input type="password" id="auth-pass" placeholder="Contraseña">
+            <input type="text" id="auth-name" placeholder="Nombre completo" style="width:100%; padding:14px; border-radius:15px; border:2px solid #eee; margin-bottom:12px;" class="reg-only hidden">
+            <input type="email" id="auth-email" placeholder="Correo" style="width:100%; padding:14px; border-radius:15px; border:2px solid #eee; margin-bottom:12px;">
+            <input type="password" id="auth-pass" placeholder="Contraseña" style="width:100%; padding:14px; border-radius:15px; border:2px solid #eee; margin-bottom:12px;">
             <button class="btn-main" onclick="handleAuth()" id="btn-auth-action">ENTRAR</button>
             <p onclick="toggleAuth()" style="text-align:center; font-size:12px; margin-top:20px; text-decoration:underline; cursor:pointer;" id="auth-toggle-msg">Registrarse</p>
         </div>
@@ -92,19 +91,24 @@
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:10px; scrollbar-width: none;"></div>
         
         <div style="display:flex; justify-content:space-between; align-items:center; margin:25px 0 15px;">
-            <h3 style="color:white; margin:0;">Horarios</h3>
+            <h3 style="color:white; margin:0;">Clases Destacadas</h3>
             <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
         </div>
         <div id="container-clases"></div>
     </div>
 
+    <div id="view-agenda" class="view hidden">
+        <h3 style="color:white; margin-bottom:20px;">Agenda Semanal</h3>
+        <div id="container-agenda"></div>
+    </div>
+
     <div id="view-chats" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Chats</h3>
+        <h3 style="color:white; margin-bottom:20px;">Mensajes</h3>
         <div id="container-chat-list"></div>
     </div>
 
     <div id="view-admin" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Panel Admin</h3>
+        <h3 style="color:white; margin-bottom:20px;">Administración</h3>
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="uiAdminUsers()">👥 Usuarios</button>
@@ -118,6 +122,7 @@
 
     <nav id="navbar" class="nav-bar hidden">
         <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
+        <div class="nav-item" id="nav-agenda" onclick="switchTab('agenda')"><span>📅</span>Agenda</div>
         <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><span>💬</span>Chat</div>
         <div id="nav-admin" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
@@ -130,8 +135,8 @@
     </div>
     <div id="chat-msgs" style="flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:10px;"></div>
     <div style="padding:15px; background:white; display:flex; gap:10px; border-top:1px solid #eee;">
-        <input type="text" id="chat-in" placeholder="Escribe..." style="margin-bottom:0">
-        <button onclick="sendMsg()" style="width:auto; padding:0 25px; background:var(--sage); color:white">↑</button>
+        <input type="text" id="chat-in" placeholder="Escribe..." style="flex:1; padding:12px; border-radius:12px; border:1px solid #eee;">
+        <button onclick="sendMsg()" style="width:auto; padding:0 20px; background:var(--sage); color:white; border-radius:12px;">↑</button>
     </div>
 </div>
 
@@ -155,13 +160,14 @@
 
     let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
+    // --- POPUP ENGINE ---
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
             return new Promise((resolve) => {
                 document.getElementById('pop-title').innerText = title;
                 document.getElementById('pop-text').innerText = text;
                 const inputArea = document.getElementById('pop-input-area');
-                inputArea.innerHTML = hasInput ? `<input type="text" id="pop-input" placeholder="${placeholder}">` : "";
+                inputArea.innerHTML = hasInput ? `<input type="text" id="pop-input" placeholder="${placeholder}" style="width:100%; padding:12px; border-radius:12px; border:1px solid #eee; text-align:center;">` : "";
                 document.getElementById('pop-btns').innerHTML = `<button class="btn-outline" id="pop-cancel">Cancelar</button><button class="btn-main" id="pop-ok">Aceptar</button>`;
                 document.getElementById('popup-engine').style.display = 'flex';
                 document.getElementById('pop-ok').onclick = () => { const val = hasInput ? document.getElementById('pop-input').value : true; popup.hide(); resolve(val); };
@@ -173,7 +179,7 @@
                 document.getElementById('pop-title').innerText = title;
                 document.getElementById('pop-text').innerText = text;
                 document.getElementById('pop-input-area').innerHTML = "";
-                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Entendido</button>`;
+                document.getElementById('pop-btns').innerHTML = `<button class="btn-main" id="pop-ok">Ok</button>`;
                 document.getElementById('popup-engine').style.display = 'flex';
                 document.getElementById('pop-ok').onclick = () => { popup.hide(); resolve(true); };
             });
@@ -198,15 +204,16 @@
         }
     });
 
-    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CLASES DISPONIBLES` : myData.role.toUpperCase(); }
+    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-' + tab).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        if(tab==='main') { document.getElementById('nav-home').classList.add('active'); loadHome(); }
-        if(tab==='chats') { document.getElementById('nav-chat').classList.add('active'); loadChatList(); }
-        if(tab==='admin') { document.getElementById('nav-admin').classList.add('active'); }
+        document.getElementById('nav-' + (tab === 'main' ? 'home' : tab)).classList.add('active');
+        if(tab==='main') loadHome();
+        if(tab==='agenda') loadAgenda();
+        if(tab==='chats') loadChatList();
     };
 
     function loadHome() {
@@ -214,7 +221,7 @@
             const container = document.getElementById('container-news'); container.innerHTML = "";
             snap.forEach(d => {
                 container.innerHTML += `<div class="news-card">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); float:right;" onclick="deleteItem('news','${d.id}')">Eliminar</button>` : ''}
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); float:right;" onclick="deleteItem('news','${d.id}')">×</button>` : ''}
                     ${d.data().texto}
                 </div>`;
             });
@@ -224,11 +231,10 @@
             const container = document.getElementById('container-plans'); container.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                container.innerHTML += `<div class="card" style="min-width:240px; text-align:center;">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:10px; right:10px; background:var(--red);" onclick="deleteItem('membresias','${d.id}')">×</button>` : ''}
+                container.innerHTML += `<div class="card" style="min-width:220px; text-align:center;">
                     <b>${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
-                    <button class="btn-main" style="background:var(--mp-blue); margin-bottom:8px;" onclick="window.open('${p.link}')">MERCADO PAGO</button>
-                    <button class="btn-outline" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos || 1})">EFECTIVO</button>
+                    <button class="btn-main" style="background:var(--mp-blue); font-size:11px; margin-bottom:5px;" onclick="window.open('${p.link}')">PAGAR</button>
+                    <button class="btn-outline" style="font-size:11px;" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos})">EFECTIVO</button>
                 </div>`;
             });
         });
@@ -239,88 +245,108 @@
                 const c = d.data(); const nIns = c.inscritos?.length || 0; const limit = c.limit || 0;
                 const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
-                    <div style="margin-right:40px;"><b>${c.nombre}</b><br><small>📅 ${c.horario}</small></div>
-                    <div style="margin-top:12px;"><span style="font-weight:700; color:var(--gold);">${c.isAportacion ? 'APORTACIÓN' : '$'+c.price}</span></div>
-                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#e0e0e0' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:15px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
-                    <div class="quota-info ${full ? 'full-label' : ''}">${full ? '⚠️ LLENO' : `${nIns} / ${limit === 0 ? '∞' : limit} LUGARES`}</div>
-                    ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:10px; font-size:12px;" onclick="verLista('${d.id}')">LISTA DE ASISTENCIA</button>` : ''}
+                    <b>${c.nombre}</b><br><small>📅 ${c.horario}</small><br>
+                    <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
                 </div>`;
             });
         });
     }
 
+    // --- LÓGICA DE AGENDA SEMANAL ---
+    function loadAgenda() {
+        onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
+            const container = document.getElementById('container-agenda'); container.innerHTML = "";
+            const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+            
+            dias.forEach(dia => {
+                const clasesDia = [];
+                snap.forEach(doc => {
+                    if(doc.data().horario.toLowerCase().includes(dia.toLowerCase())) clasesDia.push({id: doc.id, ...doc.data()});
+                });
+
+                if(clasesDia.length > 0) {
+                    let html = `<div class="agenda-day"><div class="agenda-day-title">${dia}</div>`;
+                    clasesDia.forEach(c => {
+                        const ya = c.inscritos?.includes(myData.id);
+                        html += `<div class="agenda-item" onclick="inscribirClase('${c.id}')">
+                            <div>
+                                <b style="font-size:14px;">${c.nombre}</b><br>
+                                <small style="color:#888;">${c.horario.split(' ').pop()}</small>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="quota-info">${c.inscritos?.length || 0}/${c.limit || '∞'}</div>
+                                ${ya ? '<span>✅</span>' : '<span>➕</span>'}
+                            </div>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                    container.innerHTML += html;
+                }
+            });
+            if(container.innerHTML === "") container.innerHTML = "<p style='color:white; text-align:center;'>No hay clases programadas esta semana.</p>";
+        });
+    }
+
     // --- REPORTEADORA ---
     window.descargarReporte = async (esSemanal = false) => {
-        let q;
-        const hoy = new Date();
-        
+        let q; const hoy = new Date();
         if(esSemanal) {
             const haceUnaSemana = new Date(hoy.getTime() - (7 * 24 * 60 * 60 * 1000));
             q = query(collection(db, "pagos"), where("fecha", ">=", haceUnaSemana), orderBy("fecha", "desc"));
         } else {
             q = query(collection(db, "pagos"), orderBy("fecha", "desc"));
         }
-        
         const snap = await getDocs(q);
-        if(snap.empty) return popup.alert("Sin datos", "No se encontraron registros para este periodo.");
-
+        if(snap.empty) return popup.alert("Aviso", "No hay datos para exportar.");
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
         snap.forEach(d => {
-            const p = d.data();
-            const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : '---';
+            const p = d.data(); const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : '---';
             csv += `"${f}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`;
         });
-
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `Reporte_${esSemanal?'Semanal':'Total'}_${hoy.toISOString().split('T')[0]}.csv`;
+        link.download = `Reporte_${esSemanal?'Semanal':'Total'}.csv`;
         link.click();
-        popup.alert("Reporte Listo", `Se exportaron ${snap.size} registros.`);
     };
 
     window.uiAdminFinanzas = async () => {
         const area = document.getElementById('admin-render-area');
         area.innerHTML = `<h4>Finanzas</h4>
             <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">📥 REPORTE SEMANAL</button>
-                <button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">📊 REPORTE TOTAL</button>
-            </div>
-            <div id="list-f"></div>`;
+                <button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">REPORTE SEMANAL</button>
+                <button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">TODO</button>
+            </div>`;
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
-            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}<br><small>${p.concepto}</small></div>
-                <div style="display:flex; gap:5px;">
-                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
-                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
-                </div>
+            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}</div>
+                ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
             </div>`;
         });
     };
 
-    // --- LOGICA DE NEGOCIO ---
+    // --- ACCIONES CORE ---
     window.inscribirClase = async (id) => {
         const docRef = doc(db, "clases", id);
         const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
-        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lleno", "Esta clase ya no tiene cupos.");
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
         const gratis = (myData.role !== 'alumno' || c.isAportacion);
         if(gratis || myData.credits > 0) {
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("¡Éxito!", "Reserva confirmada.");
-        } else { popup.alert("Sin Créditos", "Compra un plan para continuar."); }
+            popup.alert("¡Listo!", "Reserva confirmada.");
+        } else { popup.alert("Sin Créditos", "Compra un plan primero."); }
     };
 
     window.uiCrearClase = async () => {
         const nom = await popup.show("Nueva Clase", "Nombre:", true); if(!nom) return;
         const pre = await popup.show("Costo", "Precio:", true, "0");
-        const fec = await popup.show("Horario", "Día y Hora:", true);
-        const lim = await popup.show("Límite", "Cupos (0 = ilimitado):", true, "15");
+        const fec = await popup.show("Horario", "Día y Hora (Ej: Lunes 18:00):", true);
+        const lim = await popup.show("Límite", "Cupos:", true, "15");
         const apo = await popup.show("Especial", "¿Es aportación?", false);
         await addDoc(collection(db, "clases"), { nombre: nom, price: Number(pre), horario: fec, limit: Number(lim), isAportacion: !!apo, inscritos: [] });
     };
@@ -331,9 +357,9 @@
         area.innerHTML = "<h4>Alumnos</h4>";
         snap.forEach(d => {
             const u = d.data();
-            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px;">
-                <div><b>${u.name}</b><br><small>${u.credits} cr. | ${u.role}</small></div>
-                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">GESTIONAR</button>
+            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;">
+                <div><b>${u.name}</b><br><small>${u.credits} créditos</small></div>
+                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button>
             </div>`;
         });
     };
@@ -345,22 +371,13 @@
     };
 
     window.confirmarPago = async (pid, uid, cr) => {
-        if(await popup.show("Confirmar", "¿Recibiste el efectivo?", false)) {
+        if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) {
             await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
             if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
             uiAdminFinanzas();
         }
     };
 
-    window.verLista = async (id) => {
-        const s = await getDoc(doc(db, "clases", id));
-        const ins = s.data().inscritos || [];
-        let lista = ins.length ? "" : "Sin alumnos.";
-        for(let uid of ins) { const u = await getDoc(doc(db, "users", uid)); lista += `• ${u.data()?.name}\n`; }
-        popup.alert("Asistencia", lista);
-    };
-
-    // --- AUXILIARES ---
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try {
@@ -371,6 +388,7 @@
             }
         } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
+
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "No reversible.", false)) await deleteDoc(doc(db, col, id)); };
@@ -383,15 +401,14 @@
     window.reqCash = async (n, p, c) => {
         if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) {
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
-            popup.alert("Pedido", "Paga en recepción para activar.");
+            popup.alert("Solicitud Enviada", "Paga en recepción para activar.");
         }
     };
 
-    // Chats
+    // Chat
     window.loadChatList = async () => {
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "Cargando...";
+        const container = document.getElementById('container-chat-list'); container.innerHTML = "";
         const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-        container.innerHTML = "";
         snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`);
     };
     window.openChat = async (id, name) => {
@@ -402,7 +419,7 @@
         if(unsubChat) unsubChat();
         unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
             const box = document.getElementById('chat-msgs'); box.innerHTML = "";
-            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:14px;">${m.text}</div>`; });
+            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; });
             box.scrollTop = box.scrollHeight;
         });
     };
