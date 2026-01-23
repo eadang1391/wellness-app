@@ -348,8 +348,8 @@
 
     window.uiAdminUsers = async () => {
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
-        area.innerHTML = "<h4>Alumnos</h4>";
-        snap.forEach(d => { const u = d.data(); area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;"><div><b>${u.name}</b><br><small>${u.credits} créditos</small></div><button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button></div>`; });
+        area.innerHTML = "<h4>Gestión de Usuarios</h4>";
+        snap.forEach(d => { const u = d.data(); area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;"><div><b>${u.name}</b><br><small>${u.credits} créditos - ${u.role}</small></div><button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button></div>`; });
     };
 
     window.uiEditUser = async (id, nombre, actual) => {
@@ -377,7 +377,21 @@
     };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
     
-    window.loadChatList = async () => { const container = document.getElementById('container-chat-list'); container.innerHTML = ""; const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno"))); snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`); };
+    // CAMBIO SOLICITADO: Chat abierto para todos los usuarios
+    window.loadChatList = async () => { 
+        const container = document.getElementById('container-chat-list'); 
+        container.innerHTML = "<p style='color:white; font-size:12px; opacity:0.7; margin-bottom:15px;'>Selecciona a cualquier usuario para chatear:</p>"; 
+        const snap = await getDocs(collection(db, "users")); 
+        snap.forEach(d => {
+            if(d.id !== myData.id) { // No chatear con uno mismo
+                container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;" onclick="openChat('${d.id}','${d.data().name}')">
+                    <b>${d.data().name}</b>
+                    <small style="color:var(--sage); font-weight:700;">${d.data().role.toUpperCase()}</small>
+                </div>`;
+            }
+        }); 
+    };
+
     window.openChat = async (id, name) => { activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; document.getElementById('chat-header-name').innerText = name; document.getElementById('chat-window').style.display = 'flex'; await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); if(unsubChat) unsubChat(); unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { const box = document.getElementById('chat-msgs'); box.innerHTML = ""; snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; }); box.scrollTop = box.scrollHeight; }); };
     window.sendMsg = async () => { const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return; await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); inp.value = ""; };
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
