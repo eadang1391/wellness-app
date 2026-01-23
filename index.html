@@ -29,13 +29,11 @@
         .btn-outline { background: transparent; border: 2px solid #eee; color: #888; }
         .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; }
 
-        /* Agenda / Calendario Styles */
         .agenda-day { margin-bottom: 25px; }
         .agenda-day-title { color: white; font-weight: 700; font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .agenda-day-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
         .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); }
 
-        /* Popups */
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; text-align: center; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
@@ -160,7 +158,6 @@
 
     let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
-    // --- POPUP ENGINE ---
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
             return new Promise((resolve) => {
@@ -232,6 +229,7 @@
             snap.forEach(d => {
                 const p = d.data();
                 container.innerHTML += `<div class="card" style="min-width:220px; text-align:center;">
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:10px; right:10px; background:var(--red);" onclick="deleteItem('membresias','${d.id}')">×</button>` : ''}
                     <b>${p.nombre}</b><h2 style="margin:10px 0; color:var(--sage);">$${p.precio}</h2>
                     <button class="btn-main" style="background:var(--mp-blue); font-size:11px; margin-bottom:5px;" onclick="window.open('${p.link}')">PAGAR</button>
                     <button class="btn-outline" style="font-size:11px;" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos})">EFECTIVO</button>
@@ -245,6 +243,7 @@
                 const c = d.data(); const nIns = c.inscritos?.length || 0; const limit = c.limit || 0;
                 const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
+                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
                     <b>${c.nombre}</b><br><small>📅 ${c.horario}</small><br>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
                 </div>`;
@@ -252,94 +251,73 @@
         });
     }
 
-    // --- LÓGICA DE AGENDA SEMANAL ---
     function loadAgenda() {
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
             const container = document.getElementById('container-agenda'); container.innerHTML = "";
             const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-            
             dias.forEach(dia => {
                 const clasesDia = [];
-                snap.forEach(doc => {
-                    if(doc.data().horario.toLowerCase().includes(dia.toLowerCase())) clasesDia.push({id: doc.id, ...doc.data()});
-                });
-
+                snap.forEach(doc => { if(doc.data().horario.toLowerCase().includes(dia.toLowerCase())) clasesDia.push({id: doc.id, ...doc.data()}); });
                 if(clasesDia.length > 0) {
                     let html = `<div class="agenda-day"><div class="agenda-day-title">${dia}</div>`;
                     clasesDia.forEach(c => {
                         const ya = c.inscritos?.includes(myData.id);
                         html += `<div class="agenda-item" onclick="inscribirClase('${c.id}')">
-                            <div>
-                                <b style="font-size:14px;">${c.nombre}</b><br>
-                                <small style="color:#888;">${c.horario.split(' ').pop()}</small>
-                            </div>
+                            <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:#888;">${c.horario.split(' ').pop()}</small></div>
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <div class="quota-info">${c.inscritos?.length || 0}/${c.limit || '∞'}</div>
                                 ${ya ? '<span>✅</span>' : '<span>➕</span>'}
                             </div>
                         </div>`;
                     });
-                    html += `</div>`;
-                    container.innerHTML += html;
+                    container.innerHTML += html + `</div>`;
                 }
             });
-            if(container.innerHTML === "") container.innerHTML = "<p style='color:white; text-align:center;'>No hay clases programadas esta semana.</p>";
         });
     }
 
-    // --- REPORTEADORA ---
     window.descargarReporte = async (esSemanal = false) => {
         let q; const hoy = new Date();
         if(esSemanal) {
             const haceUnaSemana = new Date(hoy.getTime() - (7 * 24 * 60 * 60 * 1000));
             q = query(collection(db, "pagos"), where("fecha", ">=", haceUnaSemana), orderBy("fecha", "desc"));
-        } else {
-            q = query(collection(db, "pagos"), orderBy("fecha", "desc"));
-        }
+        } else { q = query(collection(db, "pagos"), orderBy("fecha", "desc")); }
         const snap = await getDocs(q);
-        if(snap.empty) return popup.alert("Aviso", "No hay datos para exportar.");
+        if(snap.empty) return popup.alert("Aviso", "No hay datos.");
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
-        snap.forEach(d => {
-            const p = d.data(); const f = p.fecha ? p.fecha.toDate().toLocaleDateString() : '---';
-            csv += `"${f}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        snap.forEach(d => { const p = d.data(); csv += `"${p.fecha?.toDate().toLocaleDateString() || '---'}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`; });
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Reporte_${esSemanal?'Semanal':'Total'}.csv`;
-        link.click();
+        link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        link.download = `Reporte_${esSemanal?'Semanal':'Total'}.csv`; link.click();
     };
 
     window.uiAdminFinanzas = async () => {
         const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4>
-            <div style="display:flex; gap:10px; margin-bottom:20px;">
-                <button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">REPORTE SEMANAL</button>
-                <button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">TODO</button>
-            </div>`;
+        area.innerHTML = `<h4>Finanzas</h4><div style="display:flex; gap:10px; margin-bottom:20px;"><button class="btn-gold" style="font-size:10px;" onclick="descargarReporte(true)">REPORTE SEMANAL</button><button class="btn-main" style="font-size:10px; background:var(--sage);" onclick="descargarReporte(false)">TODO</button></div>`;
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
-            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+            area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
                 <div><b>${p.alumno}</b><br>$${p.monto} - ${p.status}</div>
-                ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
+                <div style="display:flex; gap:5px;">
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
+                    <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
+                </div>
             </div>`;
         });
     };
 
-    // --- ACCIONES CORE ---
     window.inscribirClase = async (id) => {
-        const docRef = doc(db, "clases", id);
-        const c = (await getDoc(docRef)).data();
+        const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
         if(c.inscritos?.includes(myData.id)) return;
-        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lleno", "Sin cupos.");
         const gratis = (myData.role !== 'alumno' || c.isAportacion);
         if(gratis || myData.credits > 0) {
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Clase: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
             popup.alert("¡Listo!", "Reserva confirmada.");
-        } else { popup.alert("Sin Créditos", "Compra un plan primero."); }
+        } else popup.alert("Sin Créditos", "Compra un plan.");
     };
 
     window.uiCrearClase = async () => {
@@ -352,77 +330,38 @@
     };
 
     window.uiAdminUsers = async () => {
-        const area = document.getElementById('admin-render-area');
-        const snap = await getDocs(collection(db, "users"));
+        const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Alumnos</h4>";
-        snap.forEach(d => {
-            const u = d.data();
-            area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;">
-                <div><b>${u.name}</b><br><small>${u.credits} créditos</small></div>
-                <button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button>
-            </div>`;
-        });
+        snap.forEach(d => { const u = d.data(); area.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; padding:15px; margin-bottom:10px;"><div><b>${u.name}</b><br><small>${u.credits} créditos</small></div><button onclick="uiEditUser('${d.id}', '${u.name}', ${u.credits})" class="btn-mini btn-main">EDITAR</button></div>`; });
     };
 
     window.uiEditUser = async (id, nombre, actual) => {
         const nCr = await popup.show(`Editar ${nombre}`, "Créditos:", true, actual);
-        if(nCr !== null) await updateDoc(doc(db, "users", id), { credits: Number(nCr) });
-        uiAdminUsers();
+        if(nCr !== null) await updateDoc(doc(db, "users", id), { credits: Number(nCr) }); uiAdminUsers();
     };
 
     window.confirmarPago = async (pid, uid, cr) => {
-        if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) {
-            await updateDoc(doc(db, "pagos", pid), { status: "Pagado" });
-            if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) });
-            uiAdminFinanzas();
-        }
+        if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); uiAdminFinanzas(); }
     };
 
     window.handleAuth = async () => {
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
-        try {
-            if(isLogin) await signInWithEmailAndPassword(auth, e, p);
-            else {
-                const r = await createUserWithEmailAndPassword(auth, e, p);
-                await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e });
-            }
-        } catch(err) { popup.alert("Error", "Datos incorrectos."); }
+        try { if(isLogin) await signInWithEmailAndPassword(auth, e, p); else { const r = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", r.user.uid), { name: document.getElementById('auth-name').value, role: 'alumno', credits: 0, email: e }); } } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
 
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
-    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "No reversible.", false)) await deleteDoc(doc(db, col, id)); };
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "No reversible.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); if(col==='clases' || col==='news' || col==='membresias') loadHome(); } };
     window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
     window.uiCrearPlan = async () => { 
         const nom = await popup.show("Plan", "Nombre:", true); const pre = await popup.show("Precio", "$:", true); 
         const cr = await popup.show("Créditos", "Cant:", true); const link = await popup.show("Link", "MP:", true);
         if(nom) await addDoc(collection(db, "membresias"), { nombre: nom, precio: Number(pre), link: link, creditos: Number(cr) });
     };
-    window.reqCash = async (n, p, c) => {
-        if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) {
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() });
-            popup.alert("Solicitud Enviada", "Paga en recepción para activar.");
-        }
-    };
-
-    // Chat
-    window.loadChatList = async () => {
-        const container = document.getElementById('container-chat-list'); container.innerHTML = "";
-        const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno")));
-        snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`);
-    };
-    window.openChat = async (id, name) => {
-        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`;
-        document.getElementById('chat-header-name').innerText = name;
-        document.getElementById('chat-window').style.display = 'flex';
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true });
-        if(unsubChat) unsubChat();
-        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => {
-            const box = document.getElementById('chat-msgs'); box.innerHTML = "";
-            snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; });
-            box.scrollTop = box.scrollHeight;
-        });
-    };
+    window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Enviado", "Paga en recepción."); } };
+    
+    window.loadChatList = async () => { const container = document.getElementById('container-chat-list'); container.innerHTML = ""; const snap = await getDocs(query(collection(db, "users"), where("role", "!=", "alumno"))); snap.forEach(d => container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${d.data().name}')"><b>Chat con ${d.data().name}</b></div>`); };
+    window.openChat = async (id, name) => { activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; document.getElementById('chat-header-name').innerText = name; document.getElementById('chat-window').style.display = 'flex'; await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); if(unsubChat) unsubChat(); unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { const box = document.getElementById('chat-msgs'); box.innerHTML = ""; snap.forEach(d => { const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; }); box.scrollTop = box.scrollHeight; }); };
     window.sendMsg = async () => { const inp = document.getElementById('chat-in'); if(!inp.value.trim()) return; await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); inp.value = ""; };
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
 </script>
