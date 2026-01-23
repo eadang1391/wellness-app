@@ -202,6 +202,8 @@
                 document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
                 document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                 updateStats();
+                // Si ya estamos en la pestaña de chat, recargar lista
+                if(!document.getElementById('view-chats').classList.contains('hidden')) loadChatList();
             });
         } else {
             myData = null;
@@ -272,36 +274,45 @@
         });
     }
 
-    // --- REPARACIÓN DEFINITIVA DEL CHAT ---
+    // --- CHAT REPARADO (MUESTRA TODOS LOS USUARIOS REGISTRADOS) ---
     window.loadChatList = async () => {
         const container = document.getElementById('container-chat-list');
-        container.innerHTML = "<p style='color:white; text-align:center;'>Cargando usuarios...</p>";
+        container.innerHTML = "<p style='color:white; text-align:center;'>Buscando contactos...</p>";
         
         if(unsubChatList) unsubChatList();
 
+        // Leemos la colección completa de usuarios para asegurar que aparezcan antiguos y nuevos
         unsubChatList = onSnapshot(collection(db, "users"), (snap) => {
             container.innerHTML = "";
-            let count = 0;
+            let html = "";
+            
             snap.forEach(d => {
                 const u = d.data();
-                if(d.id !== myData.id) {
-                    const uRole = (u.role || "alumno").toLowerCase();
-                    const myRole = (myData.role || "alumno").toLowerCase();
+                const uid = d.id;
+
+                // Evitamos hablar con nosotros mismos
+                if(uid !== myData.id) {
+                    const uRole = (u.role || "alumno").toLowerCase().trim();
+                    const myRole = (myData.role || "alumno").toLowerCase().trim();
+                    
+                    // Lógica de visibilidad: Alumnos ven maestros/admin. Staff ve a todos.
                     const isStaff = (uRole === 'maestro' || uRole === 'admin');
                     const canSee = (myRole !== 'alumno') || isStaff;
 
                     if(canSee) {
-                        count++;
-                        const div = document.createElement('div');
-                        div.className = 'card';
-                        div.style = 'padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;';
-                        div.onclick = () => openChat(d.id, u.name);
-                        div.innerHTML = `<div><b>${u.name || 'Usuario'}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${uRole}</small></div><span style="font-size:20px;">✉️</span>`;
-                        container.appendChild(div);
+                        html += `
+                        <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${uid}','${u.name || 'Usuario'}')">
+                            <div>
+                                <b style="font-size:15px;">${u.name || 'Usuario sin nombre'}</b>
+                                <br><small style="color:var(--sage); text-transform:uppercase; font-size:10px; font-weight:700;">${uRole}</small>
+                            </div>
+                            <span style="font-size:20px;">✉️</span>
+                        </div>`;
                     }
                 }
             });
-            if(count === 0) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+
+            container.innerHTML = html || "<p style='color:white; text-align:center; padding:20px;'>No hay contactos disponibles aún.</p>";
         });
     };
 
@@ -309,7 +320,14 @@
         activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
         document.getElementById('chat-header-name').innerText = name; 
         document.getElementById('chat-window').style.display = 'flex'; 
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        
+        // Creamos o actualizamos el documento del chat sin borrar mensajes previos
+        await setDoc(doc(db, "chats", activeChat), { 
+            participants: [myData.id, id], 
+            names: [myData.name, name],
+            lastUpdate: serverTimestamp()
+        }, { merge: true }); 
+
         if(unsubChat) unsubChat(); 
         unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
             const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
@@ -324,7 +342,11 @@
     window.sendMsg = async () => { 
         const inp = document.getElementById('chat-in'); 
         if(!inp.value.trim() || !activeChat) return; 
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        await addDoc(collection(db, "chats", activeChat, "messages"), { 
+            text: inp.value, 
+            uid: myData.id, 
+            time: serverTimestamp() 
+        }); 
         inp.value = ""; 
     };
 
@@ -333,7 +355,7 @@
         if(unsubChat) unsubChat();
     };
 
-    // --- RESTO DE FUNCIONES (Mantenidas intactas) ---
+    // --- FUNCIONES MANTENIDAS (Cancelación, Admin, Pagos) ---
     window.cancelarReserva = async (id) => {
         if(await popup.show("¿Cancelar?", "Se te devolverá el crédito si aplica.", false)) {
             const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
