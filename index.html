@@ -244,12 +244,14 @@
                 const c = d.data(); const nIns = c.inscritos?.length || 0; const limit = c.limit || 0;
                 const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
-                    ${myData.role === 'admin' ? `<button class="btn-mini" style="position:absolute; top:15px; right:15px; background:var(--red);" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>${c.nombre}</b>
-                        <div class="quota-info">${nIns} / ${limit || '∞'}</div>
+                    <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                        <div>
+                            <b style="font-size:16px;">${c.nombre}</b>
+                            <div class="quota-info" style="margin-top:5px; display:inline-block;">${nIns} / ${limit || '∞'}</div>
+                        </div>
+                        ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); color:white; width:30px; height:30px; border-radius:10px;" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
                     </div>
-                    <small>📅 ${c.horario}</small>
+                    <small style="display:block; margin-top:8px;">📅 ${c.horario}</small>
                     <span class="price-tag">${c.isAportacion ? 'Aportación' : '$' + (c.price || 0)}</span>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
                     ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:8px; font-size:11px;" onclick="verLista('${d.id}')">VER ASISTENCIA</button>` : ''}
@@ -366,7 +368,7 @@
 
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
-    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); } };
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); if(col==='clases' || col==='news' || col==='membresias') loadHome(); } };
     window.uiCrearAviso = async () => { const txt = await popup.show("Aviso", "Mensaje:", true); if(txt) await addDoc(collection(db, "news"), { texto: txt, fecha: serverTimestamp() }); };
     window.uiCrearPlan = async () => { 
         const nom = await popup.show("Plan", "Nombre:", true); const pre = await popup.show("Precio", "$:", true); 
