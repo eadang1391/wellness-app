@@ -164,7 +164,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let myData = null, isLogin = true, activeChat = null, unsubChat = null;
+    let myData = null, isLogin = true, activeChat = null, unsubChat = null, unsubChatList = null;
 
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
@@ -262,12 +262,24 @@
                     <small style="display:block; margin-top:8px;">📅 ${c.horario}</small>
                     <span class="price-tag">${c.isAportacion ? 'Aportación' : '$' + (c.price || 0)}</span>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
-                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR MI LUGAR</button>` : ''}
+                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:8px; font-size:11px;" onclick="verLista('${d.id}')">VER ASISTENCIA</button>` : ''}
                 </div>`;
             });
         });
     }
+
+    window.cancelarReserva = async (id) => {
+        if(await popup.show("¿Cancelar?", "Se te devolverá el crédito si aplica.", false)) {
+            const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
+            await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
+            if(myData.role === 'alumno' && !c.isAportacion) {
+                await updateDoc(doc(db, "users", myData.id), { credits: increment(1) });
+                myData.credits++; updateStats();
+            }
+            popup.alert("Listo", "Reserva cancelada correctamente.");
+        }
+    };
 
     function loadAgenda() {
         onSnapshot(query(collection(db, "clases"), orderBy("horario", "asc")), snap => {
@@ -294,26 +306,26 @@
         });
     }
 
-    window.loadChatList = async () => { 
-        const container = document.getElementById('container-chat-list'); 
-        container.innerHTML = "Cargando contactos..."; 
-        try {
-            const snap = await getDocs(collection(db, "users")); 
-            container.innerHTML = ""; 
+    // --- CORRECCIÓN CHAT: FUNCIONALIDAD EN TIEMPO REAL ---
+    window.loadChatList = () => { 
+        if(unsubChatList) unsubChatList();
+        const container = document.getElementById('container-chat-list');
+        unsubChatList = onSnapshot(collection(db, "users"), snap => {
+            container.innerHTML = "";
             snap.forEach(d => {
                 const u = d.data();
                 if(d.id !== myData.id) {
-                    const isStaff = (u.role === 'maestro' || u.role === 'admin');
-                    const canSee = (myData.role !== 'alumno') || isStaff;
+                    const canSee = (myData.role !== 'alumno') || (u.role === 'maestro' || u.role === 'admin');
                     if(canSee) {
                         container.innerHTML += `<div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;" onclick="openChat('${d.id}','${u.name}')">
-                            <b>${u.name}</b><small style="color:var(--sage); font-weight:700;">${u.role.toUpperCase()}</small>
+                            <div><b>${u.name}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${u.role}</small></div>
+                            <span style="font-size:20px;">✉️</span>
                         </div>`;
                     }
                 }
             });
-            if(container.innerHTML === "") container.innerHTML = "<p style='text-align:center; color:white;'>No hay contactos disponibles.</p>";
-        } catch (err) { container.innerHTML = "Error al cargar contactos."; }
+            if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+        });
     };
 
     window.openChat = async (id, name) => { 
@@ -326,7 +338,7 @@
             const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
             snap.forEach(d => { 
                 const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; 
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
             }); 
             box.scrollTop = box.scrollHeight; 
         }); 
@@ -339,35 +351,14 @@
         inp.value = ""; 
     };
 
-    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; };
-
-    window.inscribirClase = async (id) => {
-        const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
-        if(c.inscritos?.includes(myData.id)) return;
-        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
-        const gratis = (myData.role !== 'alumno' || c.isAportacion);
-        if(gratis || myData.credits > 0) {
-            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
-            await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("¡Éxito!", "Tu reserva está lista.");
-        } else popup.alert("Sin Créditos", "Necesitas un plan activo.");
+    window.closeChat = () => { 
+        document.getElementById('chat-window').style.display = 'none'; 
+        if(unsubChat) unsubChat();
     };
 
-    window.cancelarReserva = async (id) => {
-        if(await popup.show("¿Cancelar?", "Se te devolverá 1 crédito si corresponde.", false)) {
-            const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
-            await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
-            if(myData.role === 'alumno' && !c.isAportacion) {
-                await updateDoc(doc(db, "users", myData.id), { credits: increment(1) });
-                myData.credits++; updateStats();
-            }
-            popup.alert("Listo", "Reserva cancelada.");
-        }
-    };
+    // --- FIN CORRECCIÓN CHAT ---
 
     window.uiAdminUsers = async () => {
-        if(myData.role !== 'admin') return;
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Gestión de Usuarios</h4>";
         snap.forEach(d => { 
@@ -382,7 +373,7 @@
     window.uiEditUser = async (id, nombre, actualCr, actualRole) => {
         const nCr = await popup.show(`Editar ${nombre}`, "Nuevos Créditos:", true, actualCr);
         if(nCr !== null) {
-            const nRol = await popup.show(`Editar Rol de ${nombre}`, "Escribe: alumno, maestro o admin", true, actualRole);
+            const nRol = await popup.show(`Editar Rol de ${nombre}`, "alumno, maestro o admin:", true, actualRole);
             if(nRol) {
                 await updateDoc(doc(db, "users", id), { credits: Number(nCr), role: nRol.toLowerCase().trim() }); 
                 uiAdminUsers(); 
@@ -404,6 +395,19 @@
                 </div>
             </div>`;
         });
+    };
+
+    window.inscribirClase = async (id) => {
+        const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
+        if(c.inscritos?.includes(myData.id)) return;
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
+        const gratis = (myData.role !== 'alumno' || c.isAportacion);
+        if(gratis || myData.credits > 0) {
+            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
+            await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
+            popup.alert("¡Éxito!", "Tu reserva está lista.");
+        } else popup.alert("Sin Créditos", "Necesitas un plan activo.");
     };
 
     window.confirmarPago = async (pid, uid, cr) => {
@@ -455,7 +459,6 @@
     window.triggerSignOut = () => signOut(auth);
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Plan: ${n}`, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
-    
     window.descargarReporte = async (esSemanal = false) => {
         let q; const hoy = new Date();
         if(esSemanal) {
