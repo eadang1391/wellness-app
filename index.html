@@ -254,10 +254,7 @@
                 const ya = c.inscritos?.includes(myData.id); const full = limit > 0 && nIns >= limit;
                 container.innerHTML += `<div class="card">
                     <div style="display:flex; justify-content:space-between; align-items: flex-start;">
-                        <div>
-                            <b style="font-size:16px;">${c.nombre}</b>
-                            <div class="quota-info" style="margin-top:5px; display:inline-block;">${nIns} / ${limit || '∞'}</div>
-                        </div>
+                        <div><b style="font-size:16px;">${c.nombre}</b><div class="quota-info" style="margin-top:5px; display:inline-block;">${nIns} / ${limit || '∞'}</div></div>
                         ${myData.role === 'admin' ? `<button class="btn-mini" style="background:var(--red); color:white; width:30px; height:30px; border-radius:10px;" onclick="deleteItem('clases','${d.id}')">×</button>` : ''}
                     </div>
                     <small style="display:block; margin-top:8px;">📅 ${c.horario}</small>
@@ -282,10 +279,7 @@
                         const ya = c.inscritos?.includes(myData.id);
                         html += `<div class="agenda-item" onclick="inscribirClase('${c.id}')">
                             <div><b style="font-size:14px;">${c.nombre}</b><br><small style="color:var(--gold); font-weight:700;">${c.isAportacion ? 'Aport.' : '$'+c.price}</small></div>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div class="quota-info">${c.inscritos?.length || 0}/${c.limit || '∞'}</div>
-                                ${ya ? '<span>✅</span>' : '<span>➕</span>'}
-                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;"><div class="quota-info">${c.inscritos?.length || 0}/${c.limit || '∞'}</div>${ya ? '<span>✅</span>' : '<span>➕</span>'}</div>
                         </div>`;
                     });
                     container.innerHTML += html + `</div>`;
@@ -406,7 +400,7 @@
 
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); document.getElementById('btn-auth-action').innerText = isLogin ? 'ENTRAR' : 'REGISTRARME'; };
     window.triggerSignOut = () => signOut(auth);
-    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Esta acción es definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
+    window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Acción definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
     window.reqCash = async (n, p, c) => { if(await popup.show("Efectivo", `¿Comprar ${n}?`, false)) { await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: n, status: 'Pendiente', creditosAOtorgar: c, fecha: serverTimestamp() }); popup.alert("Solicitud", "Paga en recepción para activar."); } };
     
     window.loadChatList = async () => { 
