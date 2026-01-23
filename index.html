@@ -164,7 +164,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let myData = null, isLogin = true, activeChat = null, unsubChat = null, unsubChatList = null;
+    let myData = null, isLogin = true, activeChat = null, unsubChat = null;
 
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
@@ -194,28 +194,22 @@
 
     onAuthStateChanged(auth, async user => {
         if (user) {
-            onSnapshot(doc(db, "users", user.uid), snap => {
-                myData = { id: user.uid, ...snap.data() };
-                document.getElementById('view-auth').classList.add('hidden');
-                document.getElementById('navbar').classList.remove('hidden');
-                document.getElementById('logout-btn').classList.remove('hidden');
-                document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
-                document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
-                updateStats();
-                if(document.getElementById('view-chats').classList.contains('hidden') === false) loadChatList();
-            });
+            const snap = await getDoc(doc(db, "users", user.uid));
+            myData = { id: user.uid, ...snap.data() };
+            document.getElementById('view-auth').classList.add('hidden');
+            document.getElementById('navbar').classList.remove('hidden');
+            document.getElementById('logout-btn').classList.remove('hidden');
+            document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
+            document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
+            updateStats(); switchTab('main');
         } else {
-            myData = null;
             document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
             document.getElementById('view-auth').classList.remove('hidden');
             document.getElementById('navbar').classList.add('hidden');
         }
     });
 
-    function updateStats() { 
-        if(!myData) return;
-        document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); 
-    }
+    function updateStats() { document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : myData.role.toUpperCase(); }
 
     window.switchTab = (tab) => {
         if(tab === 'admin' && myData.role !== 'admin') return;
@@ -228,6 +222,75 @@
         if(tab==='chats') loadChatList();
     };
 
+    // --- REPARACIÓN SISTEMA DE CHAT ---
+    window.loadChatList = async () => {
+        const container = document.getElementById('container-chat-list');
+        container.innerHTML = "<p style='text-align:center; color:white;'>Cargando contactos...</p>";
+        
+        try {
+            const snap = await getDocs(collection(db, "users"));
+            container.innerHTML = "";
+            let count = 0;
+
+            snap.forEach(d => {
+                const u = d.data();
+                if(d.id !== myData.id) {
+                    const uRole = (u.role || "").toLowerCase();
+                    const myRole = (myData.role || "").toLowerCase();
+                    
+                    // Alumnos solo ven Maestros/Admin. Staff ve a todos.
+                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
+                    const canSee = (myRole !== 'alumno') || isStaff;
+
+                    if(canSee) {
+                        count++;
+                        const card = document.createElement('div');
+                        card.className = "card";
+                        card.style = "padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;";
+                        card.onclick = () => openChat(d.id, u.name);
+                        card.innerHTML = `
+                            <div>
+                                <b style="display:block;">${u.name || 'Usuario'}</b>
+                                <small style="color:var(--sage); text-transform:uppercase; font-size:10px; font-weight:700;">${uRole}</small>
+                            </div>
+                            <span style="font-size:18px;">💬</span>
+                        `;
+                        container.appendChild(card);
+                    }
+                }
+            });
+            if(count === 0) container.innerHTML = "<p style='color:white; text-align:center;'>No hay contactos disponibles.</p>";
+        } catch(e) {
+            container.innerHTML = "<p style='color:white;'>Error al cargar el chat.</p>";
+        }
+    };
+
+    window.openChat = async (id, name) => { 
+        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
+        document.getElementById('chat-header-name').innerText = name; 
+        document.getElementById('chat-window').style.display = 'flex'; 
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        if(unsubChat) unsubChat(); 
+        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
+            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
+            snap.forEach(d => { 
+                const m = d.data(); 
+                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
+            }); 
+            box.scrollTop = box.scrollHeight; 
+        }); 
+    };
+
+    window.sendMsg = async () => { 
+        const inp = document.getElementById('chat-in'); 
+        if(!inp.value.trim()) return; 
+        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        inp.value = ""; 
+    };
+
+    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
+
+    // --- FUNCIONALIDADES EXISTENTES (NO EDITAR/ELIMINAR) ---
     function loadHome() {
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
             const container = document.getElementById('container-news'); container.innerHTML = "";
@@ -266,7 +329,7 @@
                     <small style="display:block; margin-top:8px;">📅 ${c.horario}</small>
                     <span class="price-tag">${c.isAportacion ? 'Aportación' : '$' + (c.price || 0)}</span>
                     <button class="btn-gold" onclick="inscribirClase('${d.id}')" style="background:${ya ? '#eee' : (full ? '#ffdce0' : 'var(--gold)')}; color:${ya ? '#999' : (full ? '#e63946' : 'white')}; margin-top:10px;" ${full && !ya ? 'disabled' : ''}>${ya ? 'INSCRITO' : (full ? 'SIN CUPOS' : 'RESERVAR')}</button>
-                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
+                    ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR MI LUGAR</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-main" style="margin-top:8px; font-size:11px;" onclick="verLista('${d.id}')">VER ASISTENCIA</button>` : ''}
                 </div>`;
             });
@@ -279,9 +342,9 @@
             await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
             if(myData.role === 'alumno' && !c.isAportacion) {
                 await updateDoc(doc(db, "users", myData.id), { credits: increment(1) });
-                updateStats();
+                myData.credits++; updateStats();
             }
-            popup.alert("Listo", "Reserva cancelada correctamente.");
+            popup.alert("Listo", "Reserva cancelada.");
         }
     };
 
@@ -310,66 +373,19 @@
         });
     }
 
-    // --- REPARACIÓN FINAL DEL CHAT ---
-    window.loadChatList = () => { 
-        if(unsubChatList) unsubChatList();
-        const container = document.getElementById('container-chat-list');
-        if(!myData) return;
-        
-        unsubChatList = onSnapshot(collection(db, "users"), snap => {
-            container.innerHTML = "";
-            snap.forEach(d => {
-                const u = d.data();
-                if(d.id !== myData.id) {
-                    const uRole = (u.role || "").toLowerCase().trim();
-                    const myRole = (myData.role || "").toLowerCase().trim();
-                    
-                    const isStaff = (uRole === 'maestro' || uRole === 'admin');
-                    const canSee = (myRole !== 'alumno') || isStaff;
-
-                    if(canSee) {
-                        const div = document.createElement('div');
-                        div.className = "card";
-                        div.style = "padding:15px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; cursor:pointer;";
-                        div.onclick = () => openChat(d.id, u.name);
-                        div.innerHTML = `<div><b>${u.name}</b><br><small style="color:var(--sage); text-transform:uppercase; font-size:10px;">${uRole}</small></div><span style="font-size:20px;">✉️</span>`;
-                        container.appendChild(div);
-                    }
-                }
-            });
-            if(!container.innerHTML) container.innerHTML = "<p style='color:white; text-align:center; padding:20px;'>No hay contactos disponibles.</p>";
-        });
+    window.inscribirClase = async (id) => {
+        const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
+        if(c.inscritos?.includes(myData.id)) return;
+        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
+        const gratis = (myData.role !== 'alumno' || c.isAportacion);
+        if(gratis || myData.credits > 0) {
+            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); myData.credits--; updateStats(); }
+            await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
+            popup.alert("¡Éxito!", "Tu reserva está lista.");
+        } else popup.alert("Sin Créditos", "Necesitas un plan activo.");
     };
 
-    window.openChat = async (id, name) => { 
-        activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
-        document.getElementById('chat-header-name').innerText = name; 
-        document.getElementById('chat-window').style.display = 'flex'; 
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
-        if(unsubChat) unsubChat(); 
-        unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
-            const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
-            snap.forEach(d => { 
-                const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${m.text}</div>`; 
-            }); 
-            box.scrollTop = box.scrollHeight; 
-        }); 
-    };
-
-    window.sendMsg = async () => { 
-        const inp = document.getElementById('chat-in'); 
-        if(!inp.value.trim() || !activeChat) return; 
-        await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
-        inp.value = ""; 
-    };
-
-    window.closeChat = () => { 
-        document.getElementById('chat-window').style.display = 'none'; 
-        if(unsubChat) unsubChat();
-    };
-
-    // --- FUNCIONES ADMIN ---
     window.uiAdminUsers = async () => {
         const area = document.getElementById('admin-render-area'); const snap = await getDocs(collection(db, "users"));
         area.innerHTML = "<h4>Gestión de Usuarios</h4>";
@@ -407,19 +423,6 @@
                 </div>
             </div>`;
         });
-    };
-
-    window.inscribirClase = async (id) => {
-        const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
-        if(c.inscritos?.includes(myData.id)) return;
-        if(c.limit > 0 && c.inscritos.length >= c.limit) return popup.alert("Lo sentimos", "Clase llena.");
-        const gratis = (myData.role !== 'alumno' || c.isAportacion);
-        if(gratis || myData.credits > 0) {
-            if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); updateStats(); }
-            await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion ? 0 : c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("¡Éxito!", "Tu reserva está lista.");
-        } else popup.alert("Sin Créditos", "Necesitas un plan activo.");
     };
 
     window.confirmarPago = async (pid, uid, cr) => {
