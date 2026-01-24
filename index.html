@@ -204,7 +204,11 @@
                     document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                     document.getElementById('btn-agenda-add').classList.toggle('hidden', myData.role === 'alumno');
                     updateStats();
+                    // CARGA INMEDIATA DE DATOS
+                    loadHome();
+                    loadAgenda();
                     loadChatList();
+                    document.getElementById('view-main').classList.remove('hidden');
                 }
             });
         } else {
@@ -224,10 +228,7 @@
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-' + tab).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('nav-' + (tab === 'main' ? 'home' : tab)).classList.add('active');
-        if(tab==='main') loadHome();
-        if(tab==='agenda') loadAgenda();
-        if(tab==='chats') loadChatList();
+        document.getElementById('nav-' + (tab === 'main' ? 'home' : (tab === 'chats' ? 'chat' : tab))).classList.add('active');
     };
 
     // --- CHAT LÓGICA ---
@@ -273,7 +274,7 @@
 
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
 
-    // --- FUNCIONES DE NEGOCIO RESTAURADAS ---
+    // --- FUNCIONES DE NEGOCIO ---
     function loadHome() {
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
             const container = document.getElementById('container-news'); container.innerHTML = "";
@@ -296,10 +297,7 @@
             snap.forEach(d => {
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id); const full = c.limit > 0 && c.inscritos?.length >= c.limit;
                 container.innerHTML += `<div class="card">
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>${c.nombre}</b>
-                        ${myData.role==='admin'?'<button class="btn-mini" style="background:var(--red);" onclick="deleteItem(\'clases\',\''+d.id+'\')">×</button>':''}
-                    </div>
+                    <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b>${myData.role==='admin'?'<button class="btn-mini" style="background:var(--red);" onclick="deleteItem(\'clases\',\''+d.id+'\')">×</button>':''}</div>
                     <small style="display:block; margin:5px 0;">📅 ${c.horario}</small>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'}</div>
@@ -346,12 +344,18 @@
             const container = document.getElementById('container-agenda'); container.innerHTML = "";
             const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
             dias.forEach(dia => {
-                const clasesDia = []; snap.forEach(doc => { if(doc.data().horario.includes(dia)) clasesDia.push(doc.data()); });
-                if(clasesDia.length > 0) {
-                    let html = `<div class="agenda-day"><div class="agenda-day-title">${dia}</div>`;
-                    clasesDia.forEach(c => { html += `<div class="agenda-item"><b>${c.nombre}</b><br><small>${c.horario}</small></div>`; });
-                    container.innerHTML += html + `</div>`;
-                }
+                let htmlDia = "";
+                snap.forEach(docSnap => {
+                    const c = docSnap.data();
+                    if(c.horario.includes(dia)) {
+                        const ya = c.inscritos?.includes(myData.id);
+                        htmlDia += `<div class="agenda-item" onclick="inscribirClase('${docSnap.id}')">
+                            <div><b>${c.nombre}</b><br><small>${c.horario}</small></div>
+                            <span style="font-size:18px;">${ya?'✅':'➕'}</span>
+                        </div>`;
+                    }
+                });
+                if(htmlDia) container.innerHTML += `<div class="agenda-day"><div class="agenda-day-title">${dia}</div>${htmlDia}</div>`;
             });
         });
     };
@@ -363,19 +367,22 @@
     };
 
     window.uiEditUser = async (id, n, c, r) => {
-        const nC = await popup.show(`Créditos de ${n}`, "Nuevo valor:", true, c);
-        if(nC !== null) { await updateDoc(doc(db, "users", id), { credits: Number(nC) }); uiAdminUsers(); }
+        const nN = await popup.show(`Editar a ${n}`, "Nuevo Nombre:", true, n); if(nN === null) return;
+        const nC = await popup.show(`Editar a ${n}`, "Créditos:", true, c); if(nC === null) return;
+        const nR = await popup.show(`Editar a ${n}`, "Rol (alumno/maestro/admin):", true, r); if(nR === null) return;
+        await updateDoc(doc(db, "users", id), { name: nN, credits: Number(nC), role: nR }); 
+        uiAdminUsers();
     };
 
     window.uiAdminFinanzas = async () => {
         const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" style="font-size:10px; margin-bottom:15px;" onclick="descargarReporte()">DESCARGAR EXCEL (CSV)</button>`;
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" style="font-size:10px; margin-bottom:15px;" onclick="descargarReporte()">DESCARGAR EXCEL</button>`;
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
             area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background:white; border-radius:10px; margin-bottom:5px;">
                 <div><b>${p.alumno}</b><br>${p.concepto} ($${p.monto})</div>
-                <div style="display:flex; gap:5px;">
+                <div style="gap:5px; display:flex;">
                     ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
                     <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
                 </div>
@@ -384,25 +391,22 @@
     };
 
     window.confirmarPago = async (pid, uid, cr) => { if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); uiAdminFinanzas(); } };
-    
     window.descargarReporte = async () => {
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
         snap.forEach(d => { const p = d.data(); csv += `"${p.fecha?.toDate().toLocaleDateString() || ''}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`; });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-        link.download = "Reporte_Escarola.csv"; link.click();
+        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = "Reporte.csv"; link.click();
     };
 
     window.uiCrearClase = async () => {
         const n = await popup.show("Nueva Clase", "Nombre:", true); if(!n) return;
         const h = await popup.show("Horario", "Día y Hora:", true);
-        const p = await popup.show("Precio", "Costo en $:", true, "0");
-        const l = await popup.show("Cupo", "Límite de alumnos:", true, "20");
+        const p = await popup.show("Precio", "Costo $:", true, "0");
+        const l = await popup.show("Cupo", "Límite:", true, "20");
         await addDoc(collection(db, "clases"), { nombre: n, horario: h, price: Number(p), inscritos: [], limit: Number(l), isAportacion: false });
     };
 
     window.uiCrearAviso = async () => { const t = await popup.show("Aviso", "Mensaje:", true); if(t) await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); };
-    
     window.uiCrearPlan = async () => {
         const n = await popup.show("Plan", "Nombre:", true); if(!n) return;
         const p = await popup.show("Precio", "$:", true); const c = await popup.show("Créditos", "Cant:", true);
@@ -421,7 +425,7 @@
                 const u = await createUserWithEmailAndPassword(auth, e, p); 
                 await setDoc(doc(db, "users", u.user.uid), { name: n, role: r, credits: 0, email: e }); 
             } 
-        } catch(err) { popup.alert("Error", "Verifica tus datos."); }
+        } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); };
     window.triggerSignOut = () => signOut(auth);
