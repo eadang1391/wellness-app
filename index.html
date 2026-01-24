@@ -18,35 +18,51 @@
         header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: white; }
         .logo-img { width: 48px; height: 48px; border-radius: 14px; background: white; object-fit: cover; }
         
-        .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
-        .news-card { background: var(--dark-sage); color: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
+        /* ANIMACIÓN SUTIL EN BOTONES */
+        button { 
+            width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; 
+            font-family: 'Quicksand'; font-size: 14px; transition: transform 0.1s ease, background 0.2s; 
+        }
+        button:active { transform: scale(0.96); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
         
-        button { width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; font-family: 'Quicksand'; font-size: 14px; transition: 0.2s; }
-        button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); }
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-gold { background: var(--gold); color: white; }
         .btn-outline { background: transparent; border: 2px solid #eee; color: #888; }
         .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; }
         .btn-cancel { background: var(--red); color: white; margin-top: 8px; font-size: 11px; }
 
+        .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+        .news-card { background: var(--dark-sage); color: white; border-radius: 22px; padding: 20px; margin-bottom: 15px; border-left: 6px solid var(--gold); }
+        
         .agenda-day { margin-bottom: 25px; }
         .agenda-day-title { color: white; font-weight: 700; font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .agenda-day-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
-        .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); cursor: pointer; }
+        .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); cursor: pointer; transition: 0.2s; }
+        .agenda-item:active { transform: scale(0.98); }
+
+        /* PUNTOS DE NOTIFICACIÓN */
+        .notification-dot { 
+            position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; 
+            background: var(--red); border-radius: 50%; border: 2px solid white; display: none;
+        }
+        .nav-dot {
+            position: absolute; top: 15px; right: 25%; width: 8px; height: 8px;
+            background: var(--red); border-radius: 50%; display: none;
+        }
 
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; text-align: center; }
         .popup-btns { display: flex; gap: 10px; margin-top: 20px; }
 
         .nav-bar { position: fixed; bottom: 20px; left: 20px; right: 20px; background: var(--dark-sage); height: 75px; border-radius: 25px; display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; }
+        .nav-item { color: rgba(255,255,255,0.4); text-align: center; font-size: 10px; flex: 1; cursor: pointer; position: relative; }
         .nav-item.active { color: white; }
         .nav-item span { display: block; font-size: 22px; margin-bottom: 2px; }
         
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
         .hidden { display: none !important; }
         .quota-info { font-size: 10px; font-weight: 700; color: var(--sage); background: #f0f4f3; padding: 3px 8px; border-radius: 8px; }
-        
         select.auth-input, input.auth-input { width: 100%; padding: 14px; border-radius: 15px; border: 2px solid #eee; margin-bottom: 12px; font-family: 'Quicksand'; }
     </style>
 </head>
@@ -92,7 +108,6 @@
         <div id="container-news"></div>
         <h3 style="color:white; margin:20px 0 10px;">Membresías</h3>
         <div id="container-plans" style="display:flex; gap:15px; overflow-x:auto; padding-bottom:10px;"></div>
-        
         <div style="display:flex; justify-content:space-between; align-items:center; margin:25px 0 15px;">
             <h3 style="color:white; margin:0;">Clases</h3>
             <button id="btn-new-clase" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ CREAR</button>
@@ -129,7 +144,10 @@
     <nav id="navbar" class="nav-bar hidden">
         <div class="nav-item active" id="nav-home" onclick="switchTab('main')"><span>🏠</span>Inicio</div>
         <div class="nav-item" id="nav-agenda" onclick="switchTab('agenda')"><span>📅</span>Agenda</div>
-        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')"><span>💬</span>Chat</div>
+        <div class="nav-item" id="nav-chat" onclick="switchTab('chats')">
+            <span>💬</span>Chat
+            <div id="nav-chat-dot" class="nav-dot"></div>
+        </div>
         <div id="nav-admin" class="nav-item hidden" onclick="switchTab('admin')"><span>🔐</span>Admin</div>
     </nav>
 </div>
@@ -164,7 +182,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let myData = null, isLogin = true, activeChat = null, unsubChat = null, unsubChatList = null;
+    let myData = null, isLogin = true, activeChat = null, unsubChat = null, unsubChatList = null, lastViewedChat = {};
 
     const popup = {
         show: (title, text, hasInput = false, placeholder = "") => {
@@ -208,6 +226,7 @@
                     loadAgenda();
                     loadChatList();
                     document.getElementById('view-main').classList.remove('hidden');
+                    listenGeneralNotifications();
                 }
             });
         } else {
@@ -229,7 +248,22 @@
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         const navId = tab === 'main' ? 'home' : (tab === 'chats' ? 'chat' : tab);
         document.getElementById('nav-' + navId).classList.add('active');
+        if(tab === 'chats') document.getElementById('nav-chat-dot').style.display = 'none';
     };
+
+    // --- NOTIFICACIONES ---
+    function listenGeneralNotifications() {
+        onSnapshot(collection(db, "chats"), snap => {
+            let hasNew = false;
+            snap.forEach(d => {
+                const chat = d.data();
+                if(chat.participants.includes(myData.id) && chat.lastMsgBy !== myData.id && chat.lastRead !== myData.id) {
+                    hasNew = true;
+                }
+            });
+            document.getElementById('nav-chat-dot').style.display = hasNew ? 'block' : 'none';
+        });
+    }
 
     // --- CHAT LÓGICA ---
     window.loadChatList = () => {
@@ -242,9 +276,18 @@
                 const isStaff = (u.role === 'admin' || u.role === 'maestro');
                 const canSee = (myData.role === 'admin' || myData.role === 'maestro') || isStaff;
                 if(canSee) {
-                    container.innerHTML += `<div class="card" onclick="openChat('${d.id}','${u.name}')" style="padding:15px; margin-bottom:10px; cursor:pointer;">
+                    const chatId = myData.id < d.id ? `${myData.id}_${d.id}` : `${d.id}_${myData.id}`;
+                    container.innerHTML += `<div class="card" id="chat-card-${chatId}" onclick="openChat('${d.id}','${u.name}')" style="padding:15px; margin-bottom:10px; cursor:pointer;">
+                        <div id="dot-${chatId}" class="notification-dot"></div>
                         <b>${u.name}</b><br><small style="color:var(--gold); font-weight:700;">${u.role.toUpperCase()}</small>
                     </div>`;
+                    // Listener para el puntito en la lista
+                    onSnapshot(doc(db, "chats", chatId), s => {
+                        const dot = document.getElementById(`dot-${chatId}`);
+                        if(s.exists() && s.data().lastMsgBy !== myData.id && s.data().lastRead !== myData.id) {
+                            if(dot) dot.style.display = 'block';
+                        } else if(dot) dot.style.display = 'none';
+                    });
                 }
             });
         });
@@ -254,7 +297,7 @@
         activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
         document.getElementById('chat-header-name').innerText = name; 
         document.getElementById('chat-window').style.display = 'flex'; 
-        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name] }, { merge: true }); 
+        await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name], lastRead: myData.id }, { merge: true }); 
         if(unsubChat) unsubChat(); 
         unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
             const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
@@ -269,10 +312,15 @@
     window.sendMsg = async () => { 
         const inp = document.getElementById('chat-in'); if(!inp.value.trim() || !activeChat) return; 
         await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
+        await updateDoc(doc(db, "chats", activeChat), { lastMsgBy: myData.id, lastRead: "" });
         inp.value = ""; 
     };
 
-    window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
+    window.closeChat = async () => { 
+        if(activeChat) await updateDoc(doc(db, "chats", activeChat), { lastRead: myData.id });
+        document.getElementById('chat-window').style.display = 'none'; 
+        if(unsubChat) unsubChat(); 
+    };
 
     // --- FUNCIONES DE NEGOCIO ---
     function loadHome() {
