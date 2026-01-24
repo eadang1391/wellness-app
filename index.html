@@ -101,7 +101,10 @@
     </div>
 
     <div id="view-agenda" class="view hidden">
-        <h3 style="color:white; margin-bottom:20px;">Agenda Semanal</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="color:white; margin:0;">Agenda Semanal</h3>
+            <button id="btn-agenda-add" class="hidden" onclick="uiCrearClase()" style="width:auto; padding:8px 15px; font-size:11px; background:white; color:var(--dark-sage);">+ AGREGAR</button>
+        </div>
         <div id="container-agenda"></div>
     </div>
 
@@ -199,6 +202,7 @@
                     document.getElementById('logout-btn').classList.remove('hidden');
                     document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
                     document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
+                    document.getElementById('btn-agenda-add').classList.toggle('hidden', myData.role === 'alumno');
                     updateStats();
                     loadChatList();
                 }
@@ -226,7 +230,7 @@
         if(tab==='chats') loadChatList();
     };
 
-    // --- CHAT LÓGICA (Corregida) ---
+    // --- CHAT LÓGICA ---
     window.loadChatList = () => {
         const container = document.getElementById('container-chat-list');
         if(unsubChatList) unsubChatList();
@@ -269,7 +273,7 @@
 
     window.closeChat = () => { document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
 
-    // --- FUNCIONES DE NEGOCIO RESTAURADAS (Sin cambios) ---
+    // --- FUNCIONES DE NEGOCIO RESTAURADAS ---
     function loadHome() {
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
             const container = document.getElementById('container-news'); container.innerHTML = "";
@@ -297,7 +301,10 @@
                         ${myData.role==='admin'?'<button class="btn-mini" style="background:var(--red);" onclick="deleteItem(\'clases\',\''+d.id+'\')">×</button>':''}
                     </div>
                     <small style="display:block; margin:5px 0;">📅 ${c.horario}</small>
-                    <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'}</div>
+                        <b style="color:var(--dark-sage);">$${c.price || 0}</b>
+                    </div>
                     <button class="btn-gold" style="margin-top:10px; background:${ya?'#eee':(full?'#ccc':'var(--gold)')}; color:${ya?'#999':'white'}" onclick="inscribirClase('${d.id}')" ${full && !ya?'disabled':''}>${ya?'INSCRITO':(full?'LLENO':'RESERVAR')}</button>
                     ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-outline" style="margin-top:5px; font-size:11px;" onclick="verLista('${d.id}')">LISTA</button>` : ''}
@@ -315,7 +322,7 @@
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
             popup.alert("Éxito", "Reserva confirmada.");
-        } else popup.alert("Error", "No tienes créditos suficientes.");
+        } else popup.alert("Error", "No tienes créditos.");
     };
 
     window.cancelarReserva = async (id) => {
@@ -389,8 +396,9 @@
     window.uiCrearClase = async () => {
         const n = await popup.show("Nueva Clase", "Nombre:", true); if(!n) return;
         const h = await popup.show("Horario", "Día y Hora:", true);
+        const p = await popup.show("Precio", "Costo en $:", true, "0");
         const l = await popup.show("Cupo", "Límite de alumnos:", true, "20");
-        await addDoc(collection(db, "clases"), { nombre: n, horario: h, price: 0, inscritos: [], limit: Number(l), isAportacion: false });
+        await addDoc(collection(db, "clases"), { nombre: n, horario: h, price: Number(p), inscritos: [], limit: Number(l), isAportacion: false });
     };
 
     window.uiCrearAviso = async () => { const t = await popup.show("Aviso", "Mensaje:", true); if(t) await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); };
