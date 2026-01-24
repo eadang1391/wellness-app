@@ -337,7 +337,7 @@
                 container.innerHTML += `<div class="card" style="min-width:200px; text-align:center;">
                     ${myData.role==='admin'?'<button class="btn-mini" style="position:absolute; top:10px; right:10px; background:var(--red);" onclick="deleteItem(\'membresias\',\''+d.id+'\')">×</button>':''}
                     <b>${p.nombre}</b><h3>$${p.precio}</h3>
-                    <button class="btn-main" onclick="window.open('${p.link}')">PAGAR</button>
+                    <button class="btn-main" onclick="window.open('${p.link}')" style="background:var(--mp-blue);">PAGAR</button>
                     <button class="btn-outline" style="margin-top:5px; font-size:11px;" onclick="reqCash('${p.nombre}', ${p.precio}, ${p.creditos})">EFECTIVO</button>
                 </div>`;
             });
@@ -460,7 +460,8 @@
     window.uiCrearPlan = async () => {
         const n = await popup.show("Plan", "Nombre:", true); if(!n) return;
         const p = await popup.show("Precio", "$:", true); const c = await popup.show("Créditos", "Cant:", true);
-        await addDoc(collection(db, "membresias"), { nombre: n, precio: Number(p), link: '#', creditos: Number(c) });
+        const l = await popup.show("Link Mercado Pago", "URL:", true, "https://mpago.la/...");
+        await addDoc(collection(db, "membresias"), { nombre: n, precio: Number(p), link: l, creditos: Number(c) });
     };
 
     window.deleteItem = async (col, id) => { if(await popup.show("¿Borrar?", "Acción definitiva.", false)) { await deleteDoc(doc(db, col, id)); if(col==='pagos') uiAdminFinanzas(); loadHome(); } };
