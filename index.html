@@ -118,7 +118,7 @@
         <div class="card">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <button class="btn-main" onclick="uiAdminUsers()">👥 Usuarios</button>
-                <button class="btn-main" onclick="uiAdminFinanzas()">💰 Finanzas</button>
+                <button class="btn-main" id="btn-trigger-finanzas" onclick="uiAdminFinanzas()">💰 Finanzas</button>
                 <button class="btn-main" style="background:var(--sage);" onclick="uiCrearAviso()">📢 Aviso</button>
                 <button class="btn-main" style="background:var(--sage);" onclick="uiCrearPlan()">💳 Plan</button>
             </div>
@@ -204,7 +204,6 @@
                     document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                     document.getElementById('btn-agenda-add').classList.toggle('hidden', myData.role === 'alumno');
                     updateStats();
-                    // CARGA INMEDIATA DE DATOS
                     loadHome();
                     loadAgenda();
                     loadChatList();
@@ -228,7 +227,8 @@
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
         document.getElementById('view-' + tab).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('nav-' + (tab === 'main' ? 'home' : (tab === 'chats' ? 'chat' : tab))).classList.add('active');
+        const navId = tab === 'main' ? 'home' : (tab === 'chats' ? 'chat' : tab);
+        document.getElementById('nav-' + navId).classList.add('active');
     };
 
     // --- CHAT LÓGICA ---
@@ -320,7 +320,7 @@
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
             popup.alert("Éxito", "Reserva confirmada.");
-        } else popup.alert("Error", "No tienes créditos.");
+        } else popup.alert("Error", "Sin créditos.");
     };
 
     window.cancelarReserva = async (id) => {
