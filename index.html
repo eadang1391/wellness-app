@@ -40,14 +40,8 @@
         .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); cursor: pointer; transition: 0.2s; }
         .agenda-item:active { transform: scale(0.98); }
 
-        .notification-dot { 
-            position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; 
-            background: var(--red); border-radius: 50%; border: 2px solid white; display: none;
-        }
-        .nav-dot {
-            position: absolute; top: 15px; right: 25%; width: 8px; height: 8px;
-            background: var(--red); border-radius: 50%; display: none;
-        }
+        .notification-dot { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; background: var(--red); border-radius: 50%; border: 2px solid white; display: none; }
+        .nav-dot { position: absolute; top: 15px; right: 25%; width: 8px; height: 8px; background: var(--red); border-radius: 50%; display: none; }
 
         .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px; }
         .popup-card { background: white; width: 100%; max-width: 350px; border-radius: 28px; padding: 25px; text-align: center; }
@@ -59,12 +53,7 @@
         .nav-item span { display: block; font-size: 22px; margin-bottom: 2px; }
         
         #chat-window { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--cream); z-index: 9000; display: none; flex-direction: column; }
-        .chat-header { 
-            background: var(--sage); color: white; 
-            padding: calc(env(safe-area-inset-top) + 18px) 18px 18px 18px; 
-            display: flex; gap: 15px; align-items: center; 
-            position: relative; z-index: 9001;
-        }
+        .chat-header { background: var(--sage); color: white; padding: calc(env(safe-area-inset-top) + 18px) 18px 18px 18px; display: flex; gap: 15px; align-items: center; position: relative; z-index: 9001; }
         .btn-back-chat { cursor: pointer; font-weight: bold; padding: 10px 5px; min-width: 60px; }
 
         .hidden { display: none !important; }
@@ -232,10 +221,7 @@
                     document.getElementById('nav-admin').classList.toggle('hidden', myData.role !== 'admin');
                     document.getElementById('btn-new-clase').classList.toggle('hidden', myData.role === 'alumno');
                     document.getElementById('btn-agenda-add').classList.toggle('hidden', myData.role === 'alumno');
-                    updateStats();
-                    loadHome();
-                    loadAgenda();
-                    loadChatList();
+                    updateStats(); loadHome(); loadAgenda(); loadChatList();
                     document.getElementById('view-main').classList.remove('hidden');
                     listenGeneralNotifications();
                 }
@@ -248,10 +234,7 @@
         }
     });
 
-    function updateStats() { 
-        if(!myData) return;
-        document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : (myData.role || "").toUpperCase(); 
-    }
+    function updateStats() { if(!myData) return; document.getElementById('status-display').innerText = myData.role === 'alumno' ? `${myData.credits || 0} CRÉDITOS` : (myData.role || "").toUpperCase(); }
 
     window.switchTab = (tab) => {
         document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
@@ -267,9 +250,7 @@
             let hasNew = false;
             snap.forEach(d => {
                 const chat = d.data();
-                if(chat.participants.includes(myData.id) && chat.lastMsgBy !== myData.id && chat.lastRead !== myData.id) {
-                    hasNew = true;
-                }
+                if(chat.participants.includes(myData.id) && chat.lastMsgBy !== myData.id && chat.lastRead !== myData.id) hasNew = true;
             });
             document.getElementById('nav-chat-dot').style.display = hasNew ? 'block' : 'none';
         });
@@ -292,9 +273,7 @@
                     </div>`;
                     onSnapshot(doc(db, "chats", chatId), s => {
                         const dot = document.getElementById(`dot-${chatId}`);
-                        if(s.exists() && s.data().lastMsgBy !== myData.id && s.data().lastRead !== myData.id) {
-                            if(dot) dot.style.display = 'block';
-                        } else if(dot) dot.style.display = 'none';
+                        if(s.exists() && s.data().lastMsgBy !== myData.id && s.data().lastRead !== myData.id) { if(dot) dot.style.display = 'block'; } else if(dot) dot.style.display = 'none';
                     });
                 }
             });
@@ -303,15 +282,13 @@
 
     window.openChat = async (id, name) => { 
         activeChat = myData.id < id ? `${myData.id}_${id}` : `${id}_${myData.id}`; 
-        document.getElementById('chat-header-name').innerText = name; 
-        document.getElementById('chat-window').style.display = 'flex'; 
+        document.getElementById('chat-header-name').innerText = name; document.getElementById('chat-window').style.display = 'flex'; 
         await setDoc(doc(db, "chats", activeChat), { participants: [myData.id, id], names: [myData.name, name], lastRead: myData.id }, { merge: true }); 
         if(unsubChat) unsubChat(); 
         unsubChat = onSnapshot(query(collection(db, "chats", activeChat, "messages"), orderBy("time", "asc")), snap => { 
             const box = document.getElementById('chat-msgs'); box.innerHTML = ""; 
             snap.forEach(d => { 
-                const m = d.data(); 
-                box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; 
+                const m = d.data(); box.innerHTML += `<div style="align-self:${m.uid===myData.id?'flex-end':'flex-start'}; background:${m.uid===myData.id?'var(--sage)':'white'}; color:${m.uid===myData.id?'white':'black'}; padding:12px; border-radius:15px; max-width:80%; font-size:13px;">${m.text}</div>`; 
             }); 
             box.scrollTop = box.scrollHeight; 
         }); 
@@ -320,15 +297,10 @@
     window.sendMsg = async () => { 
         const inp = document.getElementById('chat-in'); if(!inp.value.trim() || !activeChat) return; 
         await addDoc(collection(db, "chats", activeChat, "messages"), { text: inp.value, uid: myData.id, time: serverTimestamp() }); 
-        await updateDoc(doc(db, "chats", activeChat), { lastMsgBy: myData.id, lastRead: "" });
-        inp.value = ""; 
+        await updateDoc(doc(db, "chats", activeChat), { lastMsgBy: myData.id, lastRead: "" }); inp.value = ""; 
     };
 
-    window.closeChat = async () => { 
-        if(activeChat) await updateDoc(doc(db, "chats", activeChat), { lastRead: myData.id });
-        document.getElementById('chat-window').style.display = 'none'; 
-        if(unsubChat) unsubChat(); 
-    };
+    window.closeChat = async () => { if(activeChat) await updateDoc(doc(db, "chats", activeChat), { lastRead: myData.id }); document.getElementById('chat-window').style.display = 'none'; if(unsubChat) unsubChat(); };
 
     function loadHome() {
         onSnapshot(query(collection(db, "news"), orderBy("fecha", "desc")), snap => {
@@ -365,7 +337,6 @@
                         <button class="btn-outline" style="font-size:10px; background:var(--mp-blue); color:white; border:none;" onclick="pagoMPClase_Log('${d.id}', '${c.nombre}', ${c.price}, '${c.linkMP || '#'}')">MP</button>
                         <button class="btn-outline" style="font-size:10px; background:var(--cash-green); color:white; border:none;" onclick="reqCashClase('${d.id}', '${c.nombre}', ${c.price})">EFECTIVO</button>
                     </div>
-
                     ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-outline" style="margin-top:5px; font-size:11px;" onclick="verLista('${d.id}')">LISTA</button>` : ''}
                 </div>`;
@@ -379,7 +350,9 @@
     };
 
     window.pagoMPClase_Log = async (cid, n, p, l) => {
-        await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase: ${n}`, status: 'Pendiente', metodo: 'Mercado Pago', idClase: cid, fecha: serverTimestamp() });
+        // Reserva inmediata al intentar pagar con MP
+        await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(myData.id) });
+        await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase (MP): ${n}`, status: 'Pendiente', metodo: 'Mercado Pago', idClase: cid, fecha: serverTimestamp() });
         window.open(l);
     };
 
@@ -391,22 +364,27 @@
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', metodo: 'Crédito', fecha: serverTimestamp() });
-            popup.alert("Éxito", "Reserva confirmada por crédito.");
-        } else popup.alert("Error", "Sin créditos.");
+            popup.alert("Éxito", "Lugar guardado por crédito.");
+        } else popup.alert("Error", "Sin créditos suficientes.");
     };
 
     window.reqCashClase = async (cid, n, p) => {
-        if(await popup.show("Pago en Efectivo", `¿Registrar pago para la clase ${n}? ($${p})`, false)) {
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase: ${n}`, status: 'Pendiente', metodo: 'Efectivo', idClase: cid, fecha: serverTimestamp() });
-            popup.alert("Pendiente", "Tu reserva se activará cuando el staff confirme el pago.");
+        if(await popup.show("Apartar Lugar", `¿Guardar tu lugar para la clase ${n}? ($${p} en efectivo)`, false)) {
+            // Reserva inmediata al solicitar pago en efectivo
+            await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(myData.id) });
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase (Efectivo): ${n}`, status: 'Pendiente', metodo: 'Efectivo', idClase: cid, fecha: serverTimestamp() });
+            popup.alert("Lugar Guardado", "Tu lugar está reservado. Realiza tu pago en recepción.");
         }
     };
 
     window.cancelarReserva = async (id) => {
-        if(await popup.show("¿Cancelar?", "Se te devolverá el crédito.", false)) {
+        if(await popup.show("¿Cancelar?", "Se liberará el cupo.", false)) {
             const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
             await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
-            if(myData.role === 'alumno' && !c.isAportacion) { await updateDoc(doc(db, "users", myData.id), { credits: increment(1) }); updateStats(); }
+            // Devolver crédito solo si se pagó con crédito
+            const qP = query(collection(db, "pagos"), where("uid", "==", myData.id), where("idClase", "==", id), where("metodo", "==", "Crédito"));
+            const sP = await getDocs(qP);
+            if(!sP.empty && myData.role === 'alumno' && !c.isAportacion) { await updateDoc(doc(db, "users", myData.id), { credits: increment(1) }); updateStats(); }
             popup.alert("Listo", "Reserva cancelada.");
         }
     };
@@ -449,22 +427,12 @@
         const nN = await popup.show(`Editar a ${n}`, "Nuevo Nombre:", true, n); if(nN === null) return;
         const nC = await popup.show(`Editar a ${n}`, "Créditos:", true, c); if(nC === null) return;
         const nR = await popup.show(`Editar a ${n}`, "Rol (alumno/maestro/admin):", true, r); if(nR === null) return;
-        await updateDoc(doc(db, "users", id), { name: nN, credits: Number(nC), role: nR }); 
-        uiAdminUsers();
+        await updateDoc(doc(db, "users", id), { name: nN, credits: Number(nC), role: nR }); uiAdminUsers();
     };
 
     window.uiAdminFinanzas = async () => {
-        const area = document.getElementById('admin-render-area');
-        const hoy = new Date().toISOString().split('T')[0];
-        area.innerHTML = `
-            <h4>Finanzas</h4>
-            <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:20px;">
-                <label style="font-size:11px; font-weight:700;">REPORTE SEMANAL DESDE:</label>
-                <input type="date" id="fecha-admin" value="${hoy}" style="width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid #ddd;">
-                <button class="btn-gold" style="font-size:10px;" onclick="renderFinanzasFiltradas()">FILTRAR / DESCARGAR</button>
-            </div>
-            <div id="finanzas-lista-area"></div>
-        `;
+        const area = document.getElementById('admin-render-area'); const hoy = new Date().toISOString().split('T')[0];
+        area.innerHTML = `<h4>Finanzas</h4><div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:20px;"><label style="font-size:11px; font-weight:700;">REPORTE SEMANAL DESDE:</label><input type="date" id="fecha-admin" value="${hoy}" style="width:100%; padding:10px; margin:8px 0; border-radius:10px; border:1px solid #ddd;"><button class="btn-gold" style="font-size:10px;" onclick="renderFinanzasFiltradas()">FILTRAR / DESCARGAR</button></div><div id="finanzas-lista-area"></div>`;
         renderFinanzasFiltradas();
     };
 
@@ -472,39 +440,18 @@
         const fechaBase = new Date(document.getElementById('fecha-admin').value);
         const fechaFin = new Date(fechaBase); fechaFin.setDate(fechaFin.getDate() + 7);
         const q = query(collection(db, "pagos"), where("fecha", ">=", fechaBase), where("fecha", "<", fechaFin), orderBy("fecha", "desc"));
-        const snap = await getDocs(q);
-        const lista = document.getElementById('finanzas-lista-area');
-        lista.innerHTML = "";
-        
+        const snap = await getDocs(q); const lista = document.getElementById('finanzas-lista-area'); lista.innerHTML = "";
         let total = 0;
         snap.forEach(d => {
-            const p = d.data();
-            const colorClass = p.metodo === 'Mercado Pago' ? 'method-mp' : (p.metodo === 'Efectivo' ? 'method-cash' : 'method-credit');
+            const p = d.data(); const colorClass = p.metodo === 'Mercado Pago' ? 'method-mp' : (p.metodo === 'Efectivo' ? 'method-cash' : 'method-credit');
             total += (p.status === 'Pagado' ? p.monto : 0);
             lista.innerHTML += `<div style="font-size:11px; padding:12px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background:white; border-radius:10px; margin-bottom:8px;">
-                <div>
-                    <b>${p.alumno}</b><br>${p.concepto} ($${p.monto})<br>
-                    <span class="badge-method ${colorClass}">${p.metodo || 'S/M'}</span>
-                    <small style="display:block; margin-top:4px; opacity:0.6;">${p.fecha?.toDate().toLocaleDateString() || ''}</small>
-                </div>
-                <div style="gap:5px; display:flex; flex-direction:column; align-items:flex-end;">
-                    <span style="font-size:10px; color:${p.status==='Pagado'?'var(--cash-green)':'var(--red)'}; font-weight:700;">${p.status.toUpperCase()}</span>
-                    <div style="display:flex; gap:5px;">
-                        ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0}, '${p.idClase || ''}')" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
-                        <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
-                    </div>
-                </div>
+                <div><b>${p.alumno}</b><br>${p.concepto} ($${p.monto})<br><span class="badge-method ${colorClass}">${p.metodo || 'S/M'}</span><small style="display:block; margin-top:4px; opacity:0.6;">${p.fecha?.toDate().toLocaleDateString() || ''}</small></div>
+                <div style="gap:5px; display:flex; flex-direction:column; align-items:flex-end;"><span style="font-size:10px; color:${p.status==='Pagado'?'var(--cash-green)':'var(--red)'}; font-weight:700;">${p.status.toUpperCase()}</span><div style="display:flex; gap:5px;">${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0}, '${p.idClase || ''}')" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}<button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button></div></div>
             </div>`;
         });
-        
         lista.innerHTML = `<p style="text-align:right; font-weight:700; margin-bottom:10px;">Total Recaudado: $${total}</p>` + lista.innerHTML;
-        
-        // Botón para exportar el CSV actual
-        const btnExport = document.createElement('button');
-        btnExport.className = 'btn-outline'; btnExport.innerText = "DESCARGAR ESTA SEMANA (.CSV)";
-        btnExport.style.fontSize = "10px"; btnExport.style.marginBottom = "10px";
-        btnExport.onclick = () => exportarCSV(snap);
-        lista.prepend(btnExport);
+        const btnExport = document.createElement('button'); btnExport.className = 'btn-outline'; btnExport.innerText = "DESCARGAR ESTA SEMANA (.CSV)"; btnExport.style.fontSize = "10px"; btnExport.style.marginBottom = "10px"; btnExport.onclick = () => exportarCSV(snap); lista.prepend(btnExport);
     };
 
     window.exportarCSV = (snap) => {
@@ -517,7 +464,6 @@
         if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { 
             await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); 
             if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); 
-            if(cid) await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(uid) });
             renderFinanzasFiltradas(); 
         } 
     };
@@ -547,11 +493,7 @@
         const e = document.getElementById('auth-email').value, p = document.getElementById('auth-pass').value;
         try { 
             if(isLogin) await signInWithEmailAndPassword(auth, e, p); 
-            else { 
-                const n = document.getElementById('auth-name').value, r = document.getElementById('auth-role').value;
-                const u = await createUserWithEmailAndPassword(auth, e, p); 
-                await setDoc(doc(db, "users", u.user.uid), { name: n, role: r, credits: 0, email: e }); 
-            } 
+            else { const n = document.getElementById('auth-name').value, r = document.getElementById('auth-role').value; const u = await createUserWithEmailAndPassword(auth, e, p); await setDoc(doc(db, "users", u.user.uid), { name: n, role: r, credits: 0, email: e }); } 
         } catch(err) { popup.alert("Error", "Datos incorrectos."); }
     };
     window.toggleAuth = () => { isLogin = !isLogin; document.querySelectorAll('.reg-only').forEach(i => i.classList.toggle('hidden', isLogin)); };
