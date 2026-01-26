@@ -173,7 +173,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, getDocs, where, serverTimestamp, increment, arrayUnion, arrayRemove, Timestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const fbConfig = {
         apiKey: "AIzaSyB7NWc1AIHs9UN73-3YtUFECcXDse2JdJo",
@@ -348,12 +348,19 @@
                 const c = d.data(); const ya = c.inscritos?.includes(myData.id); const full = c.limit > 0 && c.inscritos?.length >= c.limit;
                 container.innerHTML += `<div class="card">
                     <div style="display:flex; justify-content:space-between;"><b>${c.nombre}</b>${myData.role==='admin'?'<button class="btn-mini" style="background:var(--red);" onclick="deleteItem(\'clases\',\''+d.id+'\')">×</button>':''}</div>
+                    <small style="display:block; margin:5px 0;">👨‍🏫 Maestro: ${c.maestro || 'Sin asignar'}</small>
                     <small style="display:block; margin:5px 0;">📅 ${c.horario}</small>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'}</div>
                         <b style="color:var(--dark-sage);">$${c.price || 0}</b>
                     </div>
-                    <button class="btn-gold" style="margin-top:10px; background:${ya?'#eee':(full?'#ccc':'var(--gold)')}; color:${ya?'#999':'white'}" onclick="inscribirClase('${d.id}')" ${full && !ya?'disabled':''}>${ya?'INSCRITO':(full?'LLENO':'RESERVAR')}</button>
+                    <button class="btn-gold" style="margin-top:10px; background:${ya?'#eee':(full?'#ccc':'var(--gold)')}; color:${ya?'#999':'white'}" onclick="inscribirClase('${d.id}')" ${full && !ya?'disabled':''}>${ya?'INSCRITO':(full?'LLENO':'RESERVAR (CRÉDITO)')}</button>
+                    
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px;">
+                        <button class="btn-outline" style="font-size:10px; background:var(--mp-blue); color:white; border:none;" onclick="window.open('${c.linkMP || '#'}')">MP</button>
+                        <button class="btn-outline" style="font-size:10px; background:var(--cash-green); color:white; border:none;" onclick="reqCashClase('${d.id}', '${c.nombre}', ${c.price})">EFECTIVO</button>
+                    </div>
+
                     ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-outline" style="margin-top:5px; font-size:11px;" onclick="verLista('${d.id}')">LISTA</button>` : ''}
                 </div>`;
@@ -369,8 +376,15 @@
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', fecha: serverTimestamp() });
-            popup.alert("Éxito", "Reserva confirmada.");
+            popup.alert("Éxito", "Reserva confirmada por crédito.");
         } else popup.alert("Error", "Sin créditos.");
+    };
+
+    window.reqCashClase = async (cid, n, p) => {
+        if(await popup.show("Pago en Efectivo", `¿Registrar pago para la clase ${n}? ($${p})`, false)) {
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase: ${n}`, status: 'Pendiente', idClase: cid, fecha: serverTimestamp() });
+            popup.alert("Pendiente", "Tu reserva se activará cuando el staff confirme el pago.");
+        }
     };
 
     window.cancelarReserva = async (id) => {
@@ -400,7 +414,7 @@
                     if(c.horario.includes(dia)) {
                         const ya = c.inscritos?.includes(myData.id);
                         htmlDia += `<div class="agenda-item" onclick="inscribirClase('${docSnap.id}')">
-                            <div><b>${c.nombre}</b><br><small>${c.horario}</small></div>
+                            <div><b>${c.nombre}</b><br><small>${c.horario} - ${c.maestro || ''}</small></div>
                             <span style="font-size:18px;">${ya?'✅':'➕'}</span>
                         </div>`;
                     }
@@ -426,34 +440,46 @@
 
     window.uiAdminFinanzas = async () => {
         const area = document.getElementById('admin-render-area');
-        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" style="font-size:10px; margin-bottom:15px;" onclick="descargarReporte()">DESCARGAR EXCEL</button>`;
+        area.innerHTML = `<h4>Finanzas</h4><button class="btn-gold" style="font-size:10px; margin-bottom:15px;" onclick="descargarReporte()">REPORTE SEMANAL (EXCEL)</button>`;
         const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
         snap.forEach(d => {
             const p = d.data();
             area.innerHTML += `<div style="font-size:11px; padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; background:white; border-radius:10px; margin-bottom:5px;">
                 <div><b>${p.alumno}</b><br>${p.concepto} ($${p.monto})</div>
                 <div style="gap:5px; display:flex;">
-                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar})" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
+                    ${p.status === 'Pendiente' ? `<button onclick="confirmarPago('${d.id}', '${p.uid}', ${p.creditosAOtorgar || 0}, '${p.idClase || ''}')" class="btn-mini" style="background:var(--cash-green); color:white;">PAGÓ</button>` : ''}
                     <button onclick="deleteItem('pagos', '${d.id}')" class="btn-mini" style="background:var(--red); color:white;">×</button>
                 </div>
             </div>`;
         });
     };
 
-    window.confirmarPago = async (pid, uid, cr) => { if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); uiAdminFinanzas(); } };
+    window.confirmarPago = async (pid, uid, cr, cid) => { 
+        if(await popup.show("Confirmar", "¿Recibiste el pago?", false)) { 
+            await updateDoc(doc(db, "pagos", pid), { status: "Pagado" }); 
+            if(cr > 0) await updateDoc(doc(db, "users", uid), { credits: increment(cr) }); 
+            if(cid) await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(uid) });
+            uiAdminFinanzas(); 
+        } 
+    };
+
     window.descargarReporte = async () => {
-        const snap = await getDocs(query(collection(db, "pagos"), orderBy("fecha", "desc")));
+        const sieteDiasAtras = new Date(); sieteDiasAtras.setDate(sieteDiasAtras.getDate() - 7);
+        const q = query(collection(db, "pagos"), where("fecha", ">=", sieteDiasAtras), orderBy("fecha", "desc"));
+        const snap = await getDocs(q);
         let csv = "\uFEFFFecha,Alumno,Concepto,Monto,Estatus\n";
         snap.forEach(d => { const p = d.data(); csv += `"${p.fecha?.toDate().toLocaleDateString() || ''}","${p.alumno}","${p.concepto}","${p.monto}","${p.status}"\n`; });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = "Reporte.csv"; link.click();
+        const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); link.download = "Reporte_Semanal.csv"; link.click();
     };
 
     window.uiCrearClase = async () => {
         const n = await popup.show("Nueva Clase", "Nombre:", true); if(!n) return;
+        const m = await popup.show("Maestro", "Nombre del maestro:", true);
         const h = await popup.show("Horario", "Día y Hora:", true);
         const p = await popup.show("Precio", "Costo $:", true, "0");
         const l = await popup.show("Cupo", "Límite:", true, "20");
-        await addDoc(collection(db, "clases"), { nombre: n, horario: h, price: Number(p), inscritos: [], limit: Number(l), isAportacion: false });
+        const mp = await popup.show("Link Mercado Pago", "URL de pago directo:", true, "https://...");
+        await addDoc(collection(db, "clases"), { nombre: n, maestro: m, horario: h, price: Number(p), inscritos: [], limit: Number(l), linkMP: mp, isAportacion: false });
     };
 
     window.uiCrearAviso = async () => { const t = await popup.show("Aviso", "Mensaje:", true); if(t) await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); };
