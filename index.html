@@ -11,7 +11,9 @@
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
             --mp-blue: #009ee3; --cash-green: #2a9d8f; 
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
-            --btn-shadow: 0 4px 12px rgba(0,0,0,0.12); /* Nuevo sombreado para botones */
+            /* Nuevo efecto de marco superior e izquierdo */
+            --btn-frame: inset 2px 2px 0px rgba(255,255,255,0.25);
+            --btn-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; overflow-x: hidden; }
@@ -23,15 +25,15 @@
         button { 
             width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; 
             font-family: 'Quicksand'; font-size: 14px; transition: transform 0.1s ease, background 0.2s, box-shadow 0.2s; 
-            box-shadow: var(--btn-shadow); /* Aplicación del sombreado */
+            box-shadow: var(--btn-frame), var(--btn-shadow); /* Aplicación del marco y sombra */
         }
-        button:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:active { transform: scale(0.96); box-shadow: inset 1px 1px 0px rgba(255,255,255,0.15), 0 2px 5px rgba(0,0,0,0.1); }
         button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; box-shadow: none; }
         
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-gold { background: var(--gold); color: white; }
-        .btn-outline { background: transparent; border: 2px solid #eee; color: #888; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .btn-outline { background: transparent; border: 2px solid #eee; color: #888; box-shadow: inset 1px 1px 0px rgba(255,255,255,0.5), 0 2px 8px rgba(0,0,0,0.05); }
+        .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; box-shadow: var(--btn-frame), 0 2px 6px rgba(0,0,0,0.1); }
         .btn-cancel { background: var(--red); color: white; margin-top: 8px; font-size: 11px; }
 
         .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
