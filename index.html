@@ -11,7 +11,6 @@
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
             --mp-blue: #009ee3; --cash-green: #2a9d8f; 
             --shadow: 0 10px 30px rgba(0,0,0,0.15);
-            /* Nuevo efecto de marco superior e izquierdo */
             --btn-frame: inset 2px 2px 0px rgba(255,255,255,0.25);
             --btn-shadow: 0 4px 12px rgba(0,0,0,0.12);
         }
@@ -25,7 +24,7 @@
         button { 
             width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; 
             font-family: 'Quicksand'; font-size: 14px; transition: transform 0.1s ease, background 0.2s, box-shadow 0.2s; 
-            box-shadow: var(--btn-frame), var(--btn-shadow); /* Aplicación del marco y sombra */
+            box-shadow: var(--btn-frame), var(--btn-shadow);
         }
         button:active { transform: scale(0.96); box-shadow: inset 1px 1px 0px rgba(255,255,255,0.15), 0 2px 5px rgba(0,0,0,0.1); }
         button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; box-shadow: none; }
@@ -333,15 +332,17 @@
                     <small style="display:block; margin:5px 0;">👨‍🏫 Maestro: ${c.maestro || 'Sin asignar'}</small>
                     <small style="display:block; margin:5px 0;">📅 ${c.horario}</small>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'}</div>
+                        <div class="quota-info">${c.inscritos?.length || 0} / ${c.limit || '∞'} ${c.isAportacion?'(APORTACIÓN)':''}</div>
                         <b style="color:var(--dark-sage);">$${c.price || 0}</b>
                     </div>
-                    <button class="btn-gold" style="margin-top:10px; background:${ya?'#eee':(full?'#ccc':'var(--gold)')}; color:${ya?'#999':'white'}" onclick="inscribirClase('${d.id}')" ${full && !ya?'disabled':''}>${ya?'INSCRITO':(full?'LLENO':'RESERVAR (CRÉDITO)')}</button>
+                    <button class="btn-gold" style="margin-top:10px; background:${ya?'#eee':(full?'#ccc':'var(--gold)')}; color:${ya?'#999':'white'}" onclick="inscribirClase('${d.id}')" ${full && !ya?'disabled':''}>${ya?'INSCRITO':(full?'LLENO':(c.isAportacion?'APARTAR LUGAR':'RESERVAR (CRÉDITO)'))}</button>
                     
+                    ${!c.isAportacion ? `
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:8px;">
                         <button class="btn-outline" style="font-size:10px; background:var(--mp-blue); color:white; border:none;" onclick="pagoMPClase_Log('${d.id}', '${c.nombre}', ${c.price}, '${c.linkMP || '#'}')">MP</button>
                         <button class="btn-outline" style="font-size:10px; background:var(--cash-green); color:white; border:none;" onclick="reqCashClase('${d.id}', '${c.nombre}', ${c.price})">EFECTIVO</button>
-                    </div>
+                    </div>` : ''}
+                    
                     ${ya ? `<button class="btn-cancel" onclick="cancelarReserva('${d.id}')">CANCELAR RESERVA</button>` : ''}
                     ${myData.role !== 'alumno' ? `<button class="btn-outline" style="margin-top:5px; font-size:11px;" onclick="verLista('${d.id}')">LISTA</button>` : ''}
                 </div>`;
@@ -367,8 +368,8 @@
         if(gratis || myData.credits > 0) {
             if(!gratis) { await updateDoc(doc(db, "users", myData.id), { credits: increment(-1) }); updateStats(); }
             await updateDoc(docRef, { inscritos: arrayUnion(myData.id) });
-            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', metodo: 'Crédito', fecha: serverTimestamp() });
-            popup.alert("Éxito", "Lugar guardado por crédito.");
+            await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: c.isAportacion?0:c.price, concepto: `Reserva: ${c.nombre}`, status: 'Pagado', metodo: c.isAportacion?'Aportación':'Crédito', fecha: serverTimestamp() });
+            popup.alert("Éxito", c.isAportacion ? "Lugar reservado correctamente." : "Lugar guardado por crédito.");
         } else popup.alert("Error", "Sin créditos suficientes.");
     };
 
@@ -409,7 +410,7 @@
                     if(c.horario.includes(dia)) {
                         const ya = c.inscritos?.includes(myData.id);
                         htmlDia += `<div class="agenda-item" onclick="inscribirClase('${docSnap.id}')">
-                            <div><b>${c.nombre}</b><br><small>${c.horario} - ${c.maestro || ''}</small></div>
+                            <div><b>${c.nombre}</b> ${c.isAportacion?'(A)':''}<br><small>${c.horario} - ${c.maestro || ''}</small></div>
                             <span style="font-size:18px;">${ya?'✅':'➕'}</span>
                         </div>`;
                     }
@@ -477,7 +478,8 @@
         const p = await popup.show("Precio", "Costo $:", true, "0");
         const l = await popup.show("Cupo", "Límite:", true, "20");
         const mp = await popup.show("Link Mercado Pago", "URL de pago directo:", true, "https://...");
-        await addDoc(collection(db, "clases"), { nombre: n, maestro: m, horario: h, price: Number(p), inscritos: [], limit: Number(l), linkMP: mp, isAportacion: false });
+        const tipo = await popup.show("¿Es aportación?", "Escribe SI para que sea aportación libre", true, "NO");
+        await addDoc(collection(db, "clases"), { nombre: n, maestro: m, horario: h, price: Number(p), inscritos: [], limit: Number(l), linkMP: mp, isAportacion: tipo.toUpperCase()==='SI' });
     };
 
     window.uiCrearAviso = async () => { const t = await popup.show("Aviso", "Mensaje:", true); if(t) await addDoc(collection(db, "news"), { texto: t, fecha: serverTimestamp() }); };
