@@ -9,7 +9,9 @@
         :root { 
             --sage: #6b8e83; --cream: #fbfaf5; --dark-sage: #3a504a; 
             --white: #ffffff; --gold: #d4a373; --red: #ef476f;
-            --mp-blue: #009ee3; --cash-green: #2a9d8f; --shadow: 0 10px 30px rgba(0,0,0,0.15);
+            --mp-blue: #009ee3; --cash-green: #2a9d8f; 
+            --shadow: 0 10px 30px rgba(0,0,0,0.15);
+            --btn-shadow: 0 4px 12px rgba(0,0,0,0.12); /* Nuevo sombreado para botones */
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         html, body { margin: 0; padding: 0; background-color: var(--sage); min-height: 100%; font-family: 'Quicksand', sans-serif; color: #333; overflow-x: hidden; }
@@ -20,15 +22,16 @@
         
         button { 
             width: 100%; padding: 15px; border-radius: 18px; border: none; font-weight: 700; cursor: pointer; 
-            font-family: 'Quicksand'; font-size: 14px; transition: transform 0.1s ease, background 0.2s; 
+            font-family: 'Quicksand'; font-size: 14px; transition: transform 0.1s ease, background 0.2s, box-shadow 0.2s; 
+            box-shadow: var(--btn-shadow); /* Aplicación del sombreado */
         }
-        button:active { transform: scale(0.96); }
-        button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; }
+        button:active { transform: scale(0.96); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(1); transform: none; box-shadow: none; }
         
         .btn-main { background: var(--dark-sage); color: white; }
         .btn-gold { background: var(--gold); color: white; }
-        .btn-outline { background: transparent; border: 2px solid #eee; color: #888; }
-        .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; }
+        .btn-outline { background: transparent; border: 2px solid #eee; color: #888; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .btn-mini { width: auto; padding: 6px 12px; font-size: 11px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .btn-cancel { background: var(--red); color: white; margin-top: 8px; font-size: 11px; }
 
         .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
@@ -37,7 +40,7 @@
         .agenda-day { margin-bottom: 25px; }
         .agenda-day-title { color: white; font-weight: 700; font-size: 18px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .agenda-day-title::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.2); }
-        .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); cursor: pointer; transition: 0.2s; }
+        .agenda-item { background: white; border-radius: 18px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--gold); cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .agenda-item:active { transform: scale(0.98); }
 
         .notification-dot { position: absolute; top: 12px; right: 12px; width: 10px; height: 10px; background: var(--red); border-radius: 50%; border: 2px solid white; display: none; }
@@ -350,7 +353,6 @@
     };
 
     window.pagoMPClase_Log = async (cid, n, p, l) => {
-        // Reserva inmediata al intentar pagar con MP
         await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(myData.id) });
         await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase (MP): ${n}`, status: 'Pendiente', metodo: 'Mercado Pago', idClase: cid, fecha: serverTimestamp() });
         window.open(l);
@@ -370,7 +372,6 @@
 
     window.reqCashClase = async (cid, n, p) => {
         if(await popup.show("Apartar Lugar", `¿Guardar tu lugar para la clase ${n}? ($${p} en efectivo)`, false)) {
-            // Reserva inmediata al solicitar pago en efectivo
             await updateDoc(doc(db, "clases", cid), { inscritos: arrayUnion(myData.id) });
             await addDoc(collection(db, "pagos"), { uid: myData.id, alumno: myData.name, monto: p, concepto: `Clase (Efectivo): ${n}`, status: 'Pendiente', metodo: 'Efectivo', idClase: cid, fecha: serverTimestamp() });
             popup.alert("Lugar Guardado", "Tu lugar está reservado. Realiza tu pago en recepción.");
@@ -381,7 +382,6 @@
         if(await popup.show("¿Cancelar?", "Se liberará el cupo.", false)) {
             const docRef = doc(db, "clases", id); const c = (await getDoc(docRef)).data();
             await updateDoc(docRef, { inscritos: arrayRemove(myData.id) });
-            // Devolver crédito solo si se pagó con crédito
             const qP = query(collection(db, "pagos"), where("uid", "==", myData.id), where("idClase", "==", id), where("metodo", "==", "Crédito"));
             const sP = await getDocs(qP);
             if(!sP.empty && myData.role === 'alumno' && !c.isAportacion) { await updateDoc(doc(db, "users", myData.id), { credits: increment(1) }); updateStats(); }
